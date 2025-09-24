@@ -31,7 +31,7 @@ import {
  * Emergency Dashboard Page - Phase 1 Control Center Implementation
  *
  * Provides immediate access to emergency response functions for managers
- * Aligned with The Aegrid Rules - Rule 3: Protect the Critical Few
+ * Aligned with The Aegrid Rules - Rule 3: Respond to the Real World
  *
  * @component EmergencyDashboardPage
  * @example

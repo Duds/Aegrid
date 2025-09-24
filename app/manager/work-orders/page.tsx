@@ -41,7 +41,7 @@ import {
  * Work Orders Management Page - Phase 1 Daily Operations Implementation
  *
  * Comprehensive work order management interface for managers
- * Aligned with The Aegrid Rules - Rule 2: Match Maintenance to Risk
+ * Aligned with The Aegrid Rules - Rule 2: Risk Sets the Rhythm
  *
  * @component WorkOrdersPage
  * @example

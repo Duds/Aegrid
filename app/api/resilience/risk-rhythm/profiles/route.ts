@@ -6,9 +6,9 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * GET /api/resilience/risk-rhythm/profiles
  * Retrieve risk rhythm profiles for Risk Rhythm interface
- * Implements Aegrid Rule 2: Match Maintenance to Risk
+ * Implements Aegrid Rule 2: Risk Sets the Rhythm
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -23,7 +23,10 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user?.organisationId) {
-      return NextResponse.json({ error: 'User not associated with organisation' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'User not associated with organisation' },
+        { status: 400 }
+      );
     }
 
     // Fetch risk rhythm profiles with asset and service purpose data
@@ -49,10 +52,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: [
-        { riskScore: 'desc' },
-        { lastCalculated: 'desc' },
-      ],
+      orderBy: [{ riskScore: 'desc' }, { lastCalculated: 'desc' }],
     });
 
     // Transform data for frontend
@@ -78,11 +78,19 @@ export async function GET(request: NextRequest) {
 
     // Calculate summary statistics
     const totalProfiles = profilesWithDetails.length;
-    const avgRiskScore = totalProfiles > 0
-      ? Math.round(profilesWithDetails.reduce((sum, p) => sum + p.riskScore, 0) / totalProfiles)
-      : 0;
-    const highRiskAssets = profilesWithDetails.filter(p => p.riskScore >= 25).length;
-    const criticalAssets = profilesWithDetails.filter(p => p.riskScore >= 40).length;
+    const avgRiskScore =
+      totalProfiles > 0
+        ? Math.round(
+            profilesWithDetails.reduce((sum, p) => sum + p.riskScore, 0) /
+              totalProfiles
+          )
+        : 0;
+    const highRiskAssets = profilesWithDetails.filter(
+      p => p.riskScore >= 25
+    ).length;
+    const criticalAssets = profilesWithDetails.filter(
+      p => p.riskScore >= 40
+    ).length;
 
     return NextResponse.json({
       profiles: profilesWithDetails,
@@ -93,13 +101,16 @@ export async function GET(request: NextRequest) {
         criticalAssets,
         riskDistribution: {
           low: profilesWithDetails.filter(p => p.riskScore < 15).length,
-          medium: profilesWithDetails.filter(p => p.riskScore >= 15 && p.riskScore < 25).length,
-          high: profilesWithDetails.filter(p => p.riskScore >= 25 && p.riskScore < 40).length,
+          medium: profilesWithDetails.filter(
+            p => p.riskScore >= 15 && p.riskScore < 25
+          ).length,
+          high: profilesWithDetails.filter(
+            p => p.riskScore >= 25 && p.riskScore < 40
+          ).length,
           critical: profilesWithDetails.filter(p => p.riskScore >= 40).length,
         },
       },
     });
-
   } catch (error) {
     console.error('Error fetching risk rhythm profiles:', error);
     return NextResponse.json(
@@ -123,7 +134,10 @@ export async function POST(request: NextRequest) {
 
     // Check if user has manager or admin role
     if (!['ADMIN', 'MANAGER', 'SUPERVISOR'].includes(session.user.role)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -139,17 +153,28 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!assetId || !consequenceScore || !likelihoodScore) {
-      return NextResponse.json({
-        error: 'Asset ID, consequence score, and likelihood score are required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            'Asset ID, consequence score, and likelihood score are required',
+        },
+        { status: 400 }
+      );
     }
 
     // Validate scores
-    if (consequenceScore < 1 || consequenceScore > 10 ||
-        likelihoodScore < 1 || likelihoodScore > 10) {
-      return NextResponse.json({
-        error: 'Scores must be between 1 and 10'
-      }, { status: 400 });
+    if (
+      consequenceScore < 1 ||
+      consequenceScore > 10 ||
+      likelihoodScore < 1 ||
+      likelihoodScore > 10
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Scores must be between 1 and 10',
+        },
+        { status: 400 }
+      );
     }
 
     // Get user's organisation
@@ -159,7 +184,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user?.organisationId) {
-      return NextResponse.json({ error: 'User not associated with organisation' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'User not associated with organisation' },
+        { status: 400 }
+      );
     }
 
     // Calculate risk score
@@ -219,7 +247,6 @@ export async function POST(request: NextRequest) {
       profile: riskProfile,
       message: 'Risk rhythm profile updated successfully',
     });
-
   } catch (error) {
     console.error('Error updating risk rhythm profile:', error);
     return NextResponse.json(

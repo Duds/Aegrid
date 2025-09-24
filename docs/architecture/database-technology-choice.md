@@ -7,18 +7,21 @@ First, let me clarify a common misconception: **GraphQL is not a database techno
 ### What Each Technology Actually Is:
 
 #### GraphQL
+
 - **Type**: API query language and runtime
 - **Purpose**: Defines how clients can request data from APIs
 - **Database**: Works with any database (PostgreSQL, MongoDB, Neo4j, etc.)
 - **Use Case**: API layer between frontend and backend
 
 #### Neo4j
+
 - **Type**: Native graph database
 - **Purpose**: Stores and queries graph data structures
 - **Strengths**: Graph algorithms, complex relationship queries, ACID transactions
 - **Use Case**: When you need true graph database capabilities
 
 #### Azure Cosmos DB (Gremlin API)
+
 - **Type**: Multi-model database with graph capabilities
 - **Purpose**: Globally distributed database with graph support
 - **Strengths**: Global distribution, multi-model support, managed service
@@ -42,11 +45,13 @@ Our asset management system needs to model assets around their service purpose, 
 ```
 
 **Why Neo4j/Cosmos DB**:
+
 - Native support for function-based relationships
 - Efficient traversal of service purpose hierarchies
 - Easy to avoid "miscellaneous" buckets through proper modeling
 
 **Why NOT Relational Database**:
+
 - Difficult to model function-based hierarchies
 - Tends to create generic category tables
 - Complex queries to understand service purpose
@@ -75,11 +80,13 @@ RETURN asset
 ```
 
 **Why Neo4j/Cosmos DB**:
+
 - Efficient grouping by condition, risk, and performance
 - Easy filtering for RCM-lite strategies
 - Dynamic maintenance strategy assignment
 
 **Why NOT Relational Database**:
+
 - Complex queries for risk-based grouping
 - Difficult to implement RCM-lite filtering
 - Performance issues with dynamic grouping
@@ -99,7 +106,7 @@ The Aegrid Rules require critical asset elevation and visibility (Aegrid Rule 3)
 MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:CriticalityTag {value: "Critical"})
 RETURN asset.name, asset.value, asset.criticalityReason
 
-// Location view  
+// Location view
 MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:CriticalityTag {value: "Critical"})
 MATCH (asset)-[:LOCATED_AT]->(location:Location)
 RETURN asset.name, location.name, asset.criticalityReason
@@ -111,11 +118,13 @@ RETURN asset.name, consequence.description, consequence.impactLevel
 ```
 
 **Why Neo4j/Cosmos DB**:
+
 - Easy to flag and elevate critical assets in any view
 - Efficient queries across multiple view types
 - Built-in algorithms for critical asset identification
 
 **Why NOT Relational Database**:
+
 - Complex queries to surface critical assets across views
 - Difficult to maintain critical asset visibility
 - Performance issues with cross-view queries
@@ -147,12 +156,14 @@ The Aegrid Rules require flexible, adaptable hierarchies (Aegrid Rule 4):
 ```
 
 **Why Neo4j/Cosmos DB**:
+
 - Graph-based hierarchies that can adapt to organisational changes
 - Multiple views without restructuring
 - Time-based validity for organisational changes
 - Assets outlive reporting lines
 
 **Why NOT Relational Database**:
+
 - Difficult to adapt hierarchies to organisational changes
 - Complex restructuring when organisations change
 - Hardcoded structures that become obsolete
@@ -162,6 +173,7 @@ The Aegrid Rules require flexible, adaptable hierarchies (Aegrid Rule 4):
 ### Neo4j (Recommended for Advanced Features)
 
 **Pros**:
+
 - Mature graph database with 15+ years of development
 - Rich query language (Cypher) that's intuitive
 - Extensive graph algorithms library
@@ -171,6 +183,7 @@ The Aegrid Rules require flexible, adaptable hierarchies (Aegrid Rule 4):
 - Built-in visualization tools
 
 **Cons**:
+
 - Additional infrastructure complexity
 - Licensing costs for enterprise features
 - Learning curve for development team
@@ -181,6 +194,7 @@ The Aegrid Rules require flexible, adaptable hierarchies (Aegrid Rule 4):
 ### Azure Cosmos DB Gremlin API (Recommended for Simplicity)
 
 **Pros**:
+
 - Fully managed service (no infrastructure management)
 - Integrated with existing Azure infrastructure
 - Global distribution capabilities
@@ -189,6 +203,7 @@ The Aegrid Rules require flexible, adaptable hierarchies (Aegrid Rule 4):
 - Automatic scaling
 
 **Cons**:
+
 - Less mature than Neo4j
 - Limited graph algorithms compared to Neo4j
 - Gremlin query language is more complex than Cypher
@@ -199,16 +214,19 @@ The Aegrid Rules require flexible, adaptable hierarchies (Aegrid Rule 4):
 ## Our Recommendation: Start with Cosmos DB, Evolve to Neo4j
 
 ### Phase 1: Azure Cosmos DB Gremlin API
+
 - **Rationale**: Simpler implementation, managed service, Azure integration
 - **Timeline**: PI2 Phase 1-2 (Weeks 1-8)
 - **Features**: Basic graph relationships, simple queries, hierarchy support
 
 ### Phase 2: Evaluate Neo4j Migration
+
 - **Rationale**: If advanced features are needed
 - **Timeline**: PI2 Phase 3-4 (Weeks 9-16)
 - **Features**: Advanced algorithms, complex analytics, performance optimization
 
 ### Migration Strategy
+
 ```typescript
 // Abstract graph operations to enable easy migration
 interface GraphService {
@@ -219,20 +237,26 @@ interface GraphService {
 }
 
 // Implementation can switch between Cosmos DB and Neo4j
-class CosmosGraphService implements GraphService { /* ... */ }
-class Neo4jGraphService implements GraphService { /* ... */ }
+class CosmosGraphService implements GraphService {
+  /* ... */
+}
+class Neo4jGraphService implements GraphService {
+  /* ... */
+}
 ```
 
 ## How This Supports the Aegrid Rules
 
 ### Rule 1: Every Asset Has a Purpose
+
 ```cypher
 // Graph model makes it easy to link assets to their service purpose
 (asset:Asset)-[:DELIVERS_SERVICE]->(service:Service)
 (service:Service)-[:SUPPORTS_BUSINESS_GOAL]->(goal:BusinessGoal)
 ```
 
-### Rule 2: Match Maintenance to Risk
+### Rule 2: Risk Sets the Rhythm
+
 ```cypher
 // Graph model enables complex risk-maintenance relationships
 (asset:Asset)-[:HAS_RISK]->(risk:Risk)
@@ -240,14 +264,16 @@ class Neo4jGraphService implements GraphService { /* ... */ }
 (risk:Risk)-[:INFLUENCES]->(maintenance:MaintenanceTask)
 ```
 
-### Rule 3: Protect the Critical Few
+### Rule 3: Respond to the Real World
+
 ```cypher
 // Graph model makes critical asset identification and monitoring efficient
 (asset:Asset {criticality: 'Critical'})-[:AFFECTS]->(consequence:Consequence)
 (consequence:Consequence)-[:IMPACTS]->(stakeholder:Stakeholder)
 ```
 
-### Rule 4: Plan for Tomorrow, Today
+### Rule 4: Operate with Margin
+
 ```cypher
 // Graph model supports long-term planning and scenario modeling
 (asset:Asset)-[:PLANNED_FOR]->(future:FutureScenario)
@@ -265,6 +291,7 @@ We chose Neo4j/Cosmos DB over other database technologies because:
 5. **Real-time updates** - Relationships change frequently and need efficient updates
 
 The choice between Neo4j and Cosmos DB depends on your priorities:
+
 - **Cosmos DB**: Simpler implementation, managed service, Azure integration
 - **Neo4j**: Advanced features, better performance, richer ecosystem
 

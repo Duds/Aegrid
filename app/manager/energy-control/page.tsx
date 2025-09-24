@@ -43,7 +43,7 @@ import {
  * Energy Control Page - Phase 1 Control Center Implementation
  *
  * Integrated energy asset monitoring and control for managers
- * Aligned with The Aegrid Rules - Rule 4: Plan for Tomorrow, Today
+ * Aligned with The Aegrid Rules - Rule 4: Operate with Margin
  *
  * @component EnergyControlPage
  * @example

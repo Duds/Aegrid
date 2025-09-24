@@ -7,17 +7,23 @@ import { MarginManagementDashboard } from '@/components/manager/margin-managemen
 import { RiskDrivenPlanner } from '@/components/manager/risk-driven-planner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-    Activity,
-    AlertTriangle,
-    BarChart3,
-    Clock,
-    Shield,
-    Target,
-    TrendingUp,
-    Zap
+  Activity,
+  AlertTriangle,
+  BarChart3,
+  Clock,
+  Shield,
+  Target,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
 
 /**
@@ -47,7 +53,9 @@ export default function ManagerDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Manager Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Manager Dashboard
+            </h1>
             <p className="text-muted-foreground">
               Strategic asset oversight and operational control
             </p>
@@ -99,7 +107,8 @@ export default function ManagerDashboardPage() {
                   Critical Control Monitoring
                 </CardTitle>
                 <CardDescription>
-                  High-consequence assets requiring immediate attention (Rule 1: Every Asset Has a Purpose)
+                  High-consequence assets requiring immediate attention (Rule 1:
+                  Every Asset Has a Purpose)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -117,7 +126,8 @@ export default function ManagerDashboardPage() {
                   Risk-Driven Planning
                 </CardTitle>
                 <CardDescription>
-                  Dynamic scheduling based on risk assessment (Rule 2: Match Maintenance to Risk)
+                  Dynamic scheduling based on risk assessment (Rule 2: Risk Sets
+                  the Rhythm)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -135,7 +145,8 @@ export default function ManagerDashboardPage() {
                   Margin Operations
                 </CardTitle>
                 <CardDescription>
-                  Operational slack and antifragile system management (Rules 3 & 4: Respond to Real World + Operate with Margin)
+                  Operational slack and antifragile system management (Rules 3 &
+                  4: Respond to Real World + Operate with Margin)
                 </CardDescription>
               </CardHeader>
               <CardContent>

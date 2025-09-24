@@ -38,7 +38,7 @@ The four rules are:
 
 1.  **Every Asset Has a Purpose:** Tie each asset to the service it enables and the critical control it supports
 2.  **Risk Sets the Rhythm:** Let consequence × likelihood determine cadence, scope, and budget allocation
-3.  **Respond to the Real World:** Treat plans as hypotheses and roll with the punches and reallocate resources when risk signals change
+3.  **Respond to the Real World:** Treat plans as hypotheses, roll with the punches and reallocate resources when risk signals change
 4.  **Operate with Margin:** Build practical slack, create room to recover that creates tomorrow's resilience from today's actions
 
 By adopting these rules, organizations move beyond the brittleness of traditional CMMS to build antifragile asset management systems that thrive under pressure. This is not just theoretical—organizations implementing these principles report 30% reductions in reactive maintenance, 50% improvements in regulatory compliance, and 20% increases in service reliability.

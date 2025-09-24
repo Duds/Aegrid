@@ -1,15 +1,15 @@
 /**
  * Critical Asset Elevation and Visibility System
- * 
- * Implements Aegrid Rule 3: Protect the Critical Few
+ *
+ * Implements Aegrid Rule 3: Respond to the Real World
  * This system ensures critical assets are prominently displayed and elevated
  * in all views, with dedicated dashboards and alerting capabilities.
- * 
+ *
  * @fileoverview Critical asset management and visibility features
  */
 
 import { PrismaClient } from '@prisma/client';
-import { AssetGraphOperations, GraphVertex } from './cosmos-db';
+import { AssetGraphOperations, GraphVertex as _GraphVertex } from './cosmos-db';
 
 export interface CriticalAsset {
   id: string;
@@ -69,7 +69,11 @@ export interface CriticalAlert {
   id: string;
   assetId: string;
   assetName: string;
-  alertType: 'Assessment Overdue' | 'Control Failure' | 'Risk Increase' | 'Compliance Issue';
+  alertType:
+    | 'Assessment Overdue'
+    | 'Control Failure'
+    | 'Risk Increase'
+    | 'Compliance Issue';
   severity: 'Low' | 'Medium' | 'High' | 'Critical';
   message: string;
   createdAt: Date;
@@ -102,24 +106,42 @@ export class CriticalAssetElevation {
   /**
    * Get critical assets dashboard data
    */
-  async getCriticalAssetDashboard(organisationId: string): Promise<CriticalAssetDashboard> {
+  async getCriticalAssetDashboard(
+    organisationId: string
+  ): Promise<CriticalAssetDashboard> {
     const criticalAssets = await this.getCriticalAssets(organisationId);
-    
+
     const totalCriticalAssets = criticalAssets.length;
-    const compliantAssets = criticalAssets.filter(asset => asset.status === 'Compliant').length;
-    const nonCompliantAssets = criticalAssets.filter(asset => asset.status === 'Non-Compliant').length;
-    const overdueAssets = criticalAssets.filter(asset => asset.status === 'Overdue').length;
-    
-    const totalValue = criticalAssets.reduce((sum, asset) => sum + asset.currentValue, 0);
-    const totalRiskExposure = criticalAssets.reduce((sum, asset) => sum + asset.riskScore, 0);
-    
-    const criticalControls = await this.getCriticalControlsSummary(organisationId);
+    const compliantAssets = criticalAssets.filter(
+      asset => asset.status === 'Compliant'
+    ).length;
+    const nonCompliantAssets = criticalAssets.filter(
+      asset => asset.status === 'Non-Compliant'
+    ).length;
+    const overdueAssets = criticalAssets.filter(
+      asset => asset.status === 'Overdue'
+    ).length;
+
+    const totalValue = criticalAssets.reduce(
+      (sum, asset) => sum + asset.currentValue,
+      0
+    );
+    const totalRiskExposure = criticalAssets.reduce(
+      (sum, asset) => sum + asset.riskScore,
+      0
+    );
+
+    const criticalControls =
+      await this.getCriticalControlsSummary(organisationId);
     const recentAlerts = await this.getRecentAlerts(organisationId, 10);
     const topRiskAssets = criticalAssets
       .sort((a, b) => b.riskScore - a.riskScore)
       .slice(0, 5);
-    
-    const upcomingAssessments = await this.getUpcomingAssessments(organisationId, 30);
+
+    const upcomingAssessments = await this.getUpcomingAssessments(
+      organisationId,
+      30
+    );
 
     return {
       totalCriticalAssets,
@@ -154,7 +176,9 @@ export class CriticalAssetElevation {
 
     // Apply filters
     if (filter?.criticalityLevel) {
-      whereClause.priority = { in: filter.criticalityLevel.map(level => level.toUpperCase()) };
+      whereClause.priority = {
+        in: filter.criticalityLevel.map(level => level.toUpperCase()),
+      };
     }
 
     if (filter?.assetType) {
@@ -209,7 +233,9 @@ export class CriticalAssetElevation {
         status,
         organisationId: asset.organisationId,
         currentValue: asset.currentValue ? Number(asset.currentValue) : 0,
-        replacementCost: asset.replacementCost ? Number(asset.replacementCost) : 0,
+        replacementCost: asset.replacementCost
+          ? Number(asset.replacementCost)
+          : 0,
         riskScore,
       });
     }
@@ -236,7 +262,9 @@ export class CriticalAssetElevation {
         },
         documents: {
           where: {
-            documentType: { in: ['RISK_ASSESSMENT', 'CRITICAL_CONTROL', 'COMPLIANCE'] },
+            documentType: {
+              in: ['RISK_ASSESSMENT', 'CRITICAL_CONTROL', 'COMPLIANCE'],
+            },
           },
         },
       },
@@ -265,7 +293,9 @@ export class CriticalAssetElevation {
       status,
       organisationId: asset.organisationId,
       currentValue: asset.currentValue ? Number(asset.currentValue) : 0,
-      replacementCost: asset.replacementCost ? Number(asset.replacementCost) : 0,
+      replacementCost: asset.replacementCost
+        ? Number(asset.replacementCost)
+        : 0,
       riskScore,
     };
   }
@@ -280,7 +310,7 @@ export class CriticalAssetElevation {
     overdue: number;
   }> {
     const criticalAssets = await this.getCriticalAssets(organisationId);
-    
+
     let total = 0;
     let compliant = 0;
     let nonCompliant = 0;
@@ -301,7 +331,10 @@ export class CriticalAssetElevation {
   /**
    * Get recent critical alerts
    */
-  async getRecentAlerts(organisationId: string, limit: number = 10): Promise<CriticalAlert[]> {
+  async getRecentAlerts(
+    organisationId: string,
+    limit: number = 10
+  ): Promise<CriticalAlert[]> {
     const criticalAssets = await this.getCriticalAssets(organisationId);
     const alerts: CriticalAlert[] = [];
 
@@ -359,18 +392,26 @@ export class CriticalAssetElevation {
   /**
    * Get upcoming assessments
    */
-  async getUpcomingAssessments(organisationId: string, daysAhead: number = 30): Promise<Array<{
-    assetId: string;
-    assetName: string;
-    assessmentDate: Date;
-    daysUntilDue: number;
-  }>> {
+  async getUpcomingAssessments(
+    organisationId: string,
+    daysAhead: number = 30
+  ): Promise<
+    Array<{
+      assetId: string;
+      assetName: string;
+      assessmentDate: Date;
+      daysUntilDue: number;
+    }>
+  > {
     const criticalAssets = await this.getCriticalAssets(organisationId);
     const upcomingAssessments = [];
 
     for (const asset of criticalAssets) {
-      const daysUntilDue = Math.ceil((asset.nextAssessment.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-      
+      const daysUntilDue = Math.ceil(
+        (asset.nextAssessment.getTime() - new Date().getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
       if (daysUntilDue <= daysAhead && daysUntilDue >= 0) {
         upcomingAssessments.push({
           assetId: asset.id,
@@ -387,7 +428,9 @@ export class CriticalAssetElevation {
   /**
    * Get asset critical controls
    */
-  private async getAssetCriticalControls(assetId: string): Promise<CriticalControl[]> {
+  private async getAssetCriticalControls(
+    assetId: string
+  ): Promise<CriticalControl[]> {
     // This would typically come from a dedicated critical controls table
     // For now, we'll create mock controls based on asset type and priority
     const asset = await this.prisma.asset.findUnique({
@@ -453,30 +496,37 @@ export class CriticalAssetElevation {
   /**
    * Calculate risk score for an asset
    */
-  private async calculateRiskScore(asset: any, controls: CriticalControl[]): Promise<number> {
+  private async calculateRiskScore(
+    asset: any,
+    controls: CriticalControl[]
+  ): Promise<number> {
     let riskScore = 0;
 
     // Base risk from priority
     const priorityRisk = {
-      'CRITICAL': 40,
-      'HIGH': 30,
-      'MEDIUM': 20,
-      'LOW': 10,
+      CRITICAL: 40,
+      HIGH: 30,
+      MEDIUM: 20,
+      LOW: 10,
     };
-    riskScore += priorityRisk[asset.priority as keyof typeof priorityRisk] || 20;
+    riskScore +=
+      priorityRisk[asset.priority as keyof typeof priorityRisk] || 20;
 
     // Risk from condition
     const conditionRisk = {
-      'CRITICAL': 30,
-      'POOR': 20,
-      'FAIR': 10,
-      'GOOD': 5,
-      'EXCELLENT': 0,
+      CRITICAL: 30,
+      POOR: 20,
+      FAIR: 10,
+      GOOD: 5,
+      EXCELLENT: 0,
     };
-    riskScore += conditionRisk[asset.condition as keyof typeof conditionRisk] || 10;
+    riskScore +=
+      conditionRisk[asset.condition as keyof typeof conditionRisk] || 10;
 
     // Risk from overdue controls
-    const overdueControls = controls.filter(control => control.status === 'Overdue').length;
+    const overdueControls = controls.filter(
+      control => control.status === 'Overdue'
+    ).length;
     riskScore += overdueControls * 10;
 
     // Risk from open work orders
@@ -485,7 +535,9 @@ export class CriticalAssetElevation {
 
     // Risk from age (if installation date available)
     if (asset.installationDate) {
-      const ageInYears = (new Date().getTime() - new Date(asset.installationDate).getTime()) / (1000 * 60 * 60 * 24 * 365);
+      const ageInYears =
+        (new Date().getTime() - new Date(asset.installationDate).getTime()) /
+        (1000 * 60 * 60 * 24 * 365);
       if (ageInYears > 20) riskScore += 15;
       else if (ageInYears > 10) riskScore += 10;
       else if (ageInYears > 5) riskScore += 5;
@@ -497,13 +549,20 @@ export class CriticalAssetElevation {
   /**
    * Determine compliance status
    */
-  private determineComplianceStatus(asset: any, controls: CriticalControl[]): 'Compliant' | 'Non-Compliant' | 'Overdue' | 'Unknown' {
+  private determineComplianceStatus(
+    asset: any,
+    controls: CriticalControl[]
+  ): 'Compliant' | 'Non-Compliant' | 'Overdue' | 'Unknown' {
     if (controls.length === 0) {
       return 'Unknown';
     }
 
-    const overdueControls = controls.filter(control => control.status === 'Overdue').length;
-    const nonCompliantControls = controls.filter(control => control.status === 'Non-Compliant').length;
+    const overdueControls = controls.filter(
+      control => control.status === 'Overdue'
+    ).length;
+    const nonCompliantControls = controls.filter(
+      control => control.status === 'Non-Compliant'
+    ).length;
 
     if (overdueControls > 0) {
       return 'Overdue';
@@ -520,7 +579,9 @@ export class CriticalAssetElevation {
   private calculateNextAssessment(asset: any): Date {
     if (asset.lastInspection) {
       const nextAssessment = new Date(asset.lastInspection);
-      nextAssessment.setDate(nextAssessment.getDate() + (asset.inspectionFrequency || 90));
+      nextAssessment.setDate(
+        nextAssessment.getDate() + (asset.inspectionFrequency || 90)
+      );
       return nextAssessment;
     } else {
       return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
@@ -531,70 +592,75 @@ export class CriticalAssetElevation {
    * Helper methods
    */
 
-  private mapPriorityToCriticality(priority: string): 'Critical' | 'High' | 'Medium' | 'Low' {
-    const criticalityMap: Record<string, 'Critical' | 'High' | 'Medium' | 'Low'> = {
-      'CRITICAL': 'Critical',
-      'HIGH': 'High',
-      'MEDIUM': 'Medium',
-      'LOW': 'Low',
+  private mapPriorityToCriticality(
+    priority: string
+  ): 'Critical' | 'High' | 'Medium' | 'Low' {
+    const criticalityMap: Record<
+      string,
+      'Critical' | 'High' | 'Medium' | 'Low'
+    > = {
+      CRITICAL: 'Critical',
+      HIGH: 'High',
+      MEDIUM: 'Medium',
+      LOW: 'Low',
     };
     return criticalityMap[priority] || 'Medium';
   }
 
   private getCriticalityReason(asset: any): string {
     const reasons = [];
-    
+
     if (asset.priority === 'CRITICAL') {
       reasons.push('High priority designation');
     }
-    
+
     if (asset.tags?.includes('critical-asset')) {
       reasons.push('Critical asset tag');
     }
-    
+
     if (asset.tags?.includes('high-consequence')) {
       reasons.push('High consequence failure');
     }
-    
+
     if (asset.currentValue && Number(asset.currentValue) > 1000000) {
       reasons.push('High asset value');
     }
-    
+
     return reasons.join(', ') || 'Standard criticality assessment';
   }
 
   private getServiceImpact(asset: any): string {
     const impactMap: Record<string, string> = {
-      'BUILDING': 'Facility operations and occupant safety',
-      'ROAD': 'Transportation network and public safety',
-      'BRIDGE': 'Transportation connectivity and structural integrity',
-      'WATER_SUPPLY': 'Water service delivery and public health',
-      'SEWER': 'Wastewater management and environmental protection',
-      'ELECTRICAL_INFRASTRUCTURE': 'Power distribution and electrical safety',
+      BUILDING: 'Facility operations and occupant safety',
+      ROAD: 'Transportation network and public safety',
+      BRIDGE: 'Transportation connectivity and structural integrity',
+      WATER_SUPPLY: 'Water service delivery and public health',
+      SEWER: 'Wastewater management and environmental protection',
+      ELECTRICAL_INFRASTRUCTURE: 'Power distribution and electrical safety',
     };
-    
+
     return impactMap[asset.assetType] || 'General service impact';
   }
 
   private getFailureConsequences(asset: any): string[] {
     const consequences = [];
-    
+
     if (asset.priority === 'CRITICAL') {
       consequences.push('Service disruption');
       consequences.push('Safety risk');
       consequences.push('Financial impact');
     }
-    
+
     if (asset.assetType === 'ROAD' || asset.assetType === 'BRIDGE') {
       consequences.push('Traffic disruption');
       consequences.push('Emergency response delays');
     }
-    
+
     if (asset.assetType === 'WATER_SUPPLY' || asset.assetType === 'SEWER') {
       consequences.push('Public health risk');
       consequences.push('Environmental impact');
     }
-    
+
     return consequences.length > 0 ? consequences : ['Service disruption'];
   }
 }

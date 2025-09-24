@@ -312,7 +312,7 @@ Every feature must demonstrate how it supports one or more Aegrid Rules:
 
 #### Epic Alignment
 
-- **Strategic Overview Epic**: Primarily serves Rule 4 (Plan for Tomorrow, Today)
+- **Strategic Overview Epic**: Primarily serves Rule 4 (Operate with Margin)
 - **Asset Planning Epic**: Serves Rules 1, 2, and 4 (Purpose, Risk, Future)
 - **Operations Management Epic**: Serves Rules 2 and 3 (Risk, Critical)
 - **Community Engagement Epic**: Serves Rule 1 (Purpose through service delivery)

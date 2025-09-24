@@ -39,7 +39,7 @@ import {
  * Performance Monitoring Page - Phase 1 Daily Operations Implementation
  *
  * Dedicated performance monitoring dashboard for managers
- * Aligned with The Aegrid Rules - Rule 4: Plan for Tomorrow, Today
+ * Aligned with The Aegrid Rules - Rule 3: Respond to the Real World
  *
  * @component PerformanceMonitoringPage
  * @example

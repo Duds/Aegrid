@@ -25,7 +25,7 @@ import {
 /**
  * Maintenance Scheduling Page
  *
- * Dynamic maintenance scheduling interface showcasing Rule 2: Match Maintenance to Risk
+ * Dynamic maintenance scheduling interface showcasing Rule 2: Risk Sets the Rhythm
  * Provides risk-based scheduling and priority management
  *
  * @component MaintenanceSchedulingPage
@@ -60,7 +60,7 @@ export default function MaintenanceSchedulingPage() {
           <div className="flex gap-2">
             <Badge variant="outline" className="flex items-center gap-1">
               <Shield className="h-3 w-3" />
-              Rule 2: Match Maintenance to Risk
+              Rule 2: Risk Sets the Rhythm
             </Badge>
             <Button variant="outline" size="sm">
               <Zap className="h-4 w-4 mr-2" />

@@ -58,7 +58,7 @@ else (no)
 endif
 
 :Opens Maintenance Scheduling;
-note right: **Rule 2: Match Maintenance to Risk**\nRisk-driven maintenance planning\nDynamic scheduling\nConsequence-based prioritization\nResource optimization
+note right: **Rule 2: Risk Sets the Rhythm**\nRisk-driven maintenance planning\nDynamic scheduling\nConsequence-based prioritization\nResource optimization
 
 :Reviews Risk-Based Schedule;
 note right: **Risk Assessment & Planning**\nAsset risk profiling\nFailure mode analysis\nConsequence assessment\nLikelihood evaluation
