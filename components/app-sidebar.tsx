@@ -93,6 +93,8 @@ export function AppSidebar({
   const [collapsedGroups, setCollapsedGroups] = useState<
     Record<string, boolean>
   >({
+    controlCenter: false,
+    dailyOperations: false,
     strategic: false,
     assetPlanning: false,
     operations: false,
@@ -160,6 +162,64 @@ export function AppSidebar({
     return role === 'ADMIN' || role === 'MANAGER' || role === 'SUPERVISOR';
   };
 
+  // Control Center Group - Always visible, top priority for critical functions
+  const controlCenterItems: SidebarItem[] = [
+    {
+      href: '/manager/emergency',
+      icon: AlertTriangle,
+      label: transformNavigationLabel(
+        'Emergency Dashboard',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'control_center'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+      badge: '3', // Dynamic alert count
+    },
+    {
+      href: '/manager/energy-control',
+      icon: Zap,
+      label: transformNavigationLabel(
+        'Energy Control',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'control_center'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+    },
+    {
+      href: '/reports/critical-controls',
+      icon: Shield,
+      label: transformNavigationLabel(
+        'Critical Controls',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'control_center'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+      badge: '2', // Dynamic overdue count
+    },
+    {
+      href: '/dashboard',
+      icon: BarChart3,
+      label: transformNavigationLabel(
+        'Executive Overview',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'control_center'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'EXEC'],
+    },
+  ];
+
   // Strategic Overview Group - Executive personas only (not MANAGER)
   const strategicOverviewItems: SidebarItem[] = [
     {
@@ -224,6 +284,63 @@ export function AppSidebar({
         createTransformationContext('AppSidebar', 'navigation', 'strategic')
       ).transformed,
       roles: ['ADMIN', 'EXEC'],
+    },
+  ];
+
+  // Daily Operations Group - Manager workflow focused
+  const dailyOperationsItems: SidebarItem[] = [
+    {
+      href: '/manager/work-orders',
+      icon: ClipboardList,
+      label: transformNavigationLabel(
+        'Work Orders',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'daily_operations'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+      badge: '15', // Dynamic work order count
+    },
+    {
+      href: '/planning/resource-operations',
+      icon: Users,
+      label: transformNavigationLabel(
+        'Resource Operations',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'daily_operations'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+    },
+    {
+      href: '/planning/maintenance-scheduling',
+      icon: Clock,
+      label: transformNavigationLabel(
+        'Maintenance Scheduling',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'daily_operations'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+    },
+    {
+      href: '/manager/performance',
+      icon: TrendingUp,
+      label: transformNavigationLabel(
+        'Performance Monitoring',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'daily_operations'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
     },
   ];
 
@@ -567,6 +684,139 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        {/* Control Center Group - Always visible for critical functions */}
+        {canAccessSupervisor(userRole) && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel
+                className="flex items-center gap-2 cursor-pointer hover:bg-sidebar-accent rounded-md px-2 py-1"
+                onClick={() => toggleGroup('controlCenter')}
+              >
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                {
+                  transformNavigationLabel(
+                    'Control Center',
+                    createTransformationContext(
+                      'AppSidebar',
+                      'navigation',
+                      'group'
+                    )
+                  ).transformed
+                }
+                <Badge variant="destructive" className="ml-auto text-xs">
+                  5
+                </Badge>
+                {collapsedGroups.controlCenter ? (
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 ml-1" />
+                )}
+              </SidebarGroupLabel>
+              {!collapsedGroups.controlCenter && (
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {filterItemsByRole(controlCenterItems, userRole).map(
+                      item => (
+                        <SidebarMenuItem key={item.href}>
+                          <SidebarMenuButton asChild>
+                            <Link
+                              href={item.href as Route}
+                              className="flex items-center justify-between w-full min-w-0"
+                            >
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <item.icon className="h-4 w-4 shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate font-medium">
+                                    {item.label}
+                                  </div>
+                                </div>
+                              </div>
+                              {item.badge && (
+                                <Badge
+                                  variant="destructive"
+                                  className="ml-2 text-xs shrink-0"
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      )
+                    )}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              )}
+            </SidebarGroup>
+            <SidebarSeparator />
+          </>
+        )}
+
+        {/* Daily Operations Group - Manager workflow focused */}
+        {canAccessSupervisor(userRole) && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel
+                className="flex items-center gap-2 cursor-pointer hover:bg-sidebar-accent rounded-md px-2 py-1"
+                onClick={() => toggleGroup('dailyOperations')}
+              >
+                <ClipboardList className="h-4 w-4" />
+                {
+                  transformNavigationLabel(
+                    'Daily Operations',
+                    createTransformationContext(
+                      'AppSidebar',
+                      'navigation',
+                      'group'
+                    )
+                  ).transformed
+                }
+                {collapsedGroups.dailyOperations ? (
+                  <ChevronRight className="h-4 w-4 ml-auto" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                )}
+              </SidebarGroupLabel>
+              {!collapsedGroups.dailyOperations && (
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {filterItemsByRole(dailyOperationsItems, userRole).map(
+                      item => (
+                        <SidebarMenuItem key={item.href}>
+                          <SidebarMenuButton asChild>
+                            <Link
+                              href={item.href as Route}
+                              className="flex items-center justify-between w-full min-w-0"
+                            >
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <item.icon className="h-4 w-4 shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate font-medium">
+                                    {item.label}
+                                  </div>
+                                </div>
+                              </div>
+                              {item.badge && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 text-xs shrink-0"
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      )
+                    )}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              )}
+            </SidebarGroup>
+            <SidebarSeparator />
+          </>
+        )}
+
         {/* Strategic Overview Group */}
         {canAccessExecutive(userRole) && (
           <>
