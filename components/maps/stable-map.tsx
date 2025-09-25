@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,8 +11,32 @@ import {
 } from '@/components/ui/card';
 import { Filter, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { BasemapSelector, useBasemapSelection } from './basemap-selector';
-import { IsolatedWorkingMap } from './isolated-working-map';
+import {
+  BasemapSelector,
+  useBasemapSelection,
+  BASEMAP_OPTIONS,
+} from './basemap-selector';
+import dynamic from 'next/dynamic';
+
+// Dynamically import Leaflet components
+const MapContainer = dynamic(
+  () => import('react-leaflet').then(mod => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then(mod => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), {
+  ssr: false,
+});
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), {
+  ssr: false,
+});
+const MarkerClusterGroup = dynamic(
+  () => import('react-leaflet').then(mod => mod.MarkerClusterGroup),
+  { ssr: false }
+);
 
 interface Asset {
   id: string;
@@ -31,7 +56,7 @@ interface Asset {
   isPublic?: boolean;
 }
 
-interface WorkingAssetMapProps {
+interface StableMapProps {
   assets?: Asset[];
   onAssetSelect?: (asset: Asset) => void;
   selectedAsset?: Asset | null;
@@ -39,19 +64,73 @@ interface WorkingAssetMapProps {
   showBasemapSelector?: boolean;
 }
 
-// Helper functions moved to StableMap component
+// Helper functions
+const getAssetIcon = (asset: Asset) => {
+  const iconMap: Record<
+    string,
+    { component: React.ComponentType<{ className?: string }>; color: string }
+  > = {
+    building: { component: () => <div>🏢</div>, color: '#3B82F6' },
+    road: { component: () => <div>🛣️</div>, color: '#6B7280' },
+    tree: { component: () => <div>🌳</div>, color: '#10B981' },
+    book: { component: () => <div>📚</div>, color: '#8B5CF6' },
+    activity: { component: () => <div>🏃</div>, color: '#F59E0B' },
+    traffic: { component: () => <div>🚧</div>, color: '#EF4444' },
+    water: { component: () => <div>💧</div>, color: '#06B6D4' },
+    electrical: { component: () => <div>⚡</div>, color: '#F59E0B' },
+  };
+
+  const icon = iconMap[asset.assetType.toLowerCase()] || {
+    component: () => <div>📍</div>,
+    color: '#6B7280',
+  };
+  return {
+    IconComponent: icon.component,
+    color: icon.color,
+  };
+};
+
+const getStatusBadgeVariant = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return 'default';
+    case 'inactive':
+      return 'secondary';
+    case 'maintenance':
+      return 'destructive';
+    default:
+      return 'outline';
+  }
+};
+
+const getConditionBadgeVariant = (condition: string) => {
+  switch (condition.toLowerCase()) {
+    case 'excellent':
+      return 'default';
+    case 'good':
+      return 'default';
+    case 'fair':
+      return 'secondary';
+    case 'poor':
+      return 'destructive';
+    case 'critical':
+      return 'destructive';
+    default:
+      return 'outline';
+  }
+};
 
 /**
- * Working Asset Map Component
- * Simple implementation that should work reliably
+ * Stable Map Component
+ * Uses a single map instance and only changes tile layers
  */
-export function WorkingAssetMap({
+export function StableMap({
   assets = [],
   onAssetSelect,
   selectedAsset: _selectedAsset,
   height = '500px',
   showBasemapSelector = true,
-}: WorkingAssetMapProps) {
+}: StableMapProps) {
   const [filters, setFilters] = useState({
     assetType: '',
     status: '',
@@ -60,6 +139,7 @@ export function WorkingAssetMap({
     hasLocation: true,
   });
   const [isClient, setIsClient] = useState(false);
+  const [_mapInstance, setMapInstance] = useState<unknown>(null);
 
   // Use basemap selection hook
   const { selectedBasemap, setBasemap } = useBasemapSelection();
@@ -97,7 +177,13 @@ export function WorkingAssetMap({
   const conditions = [...new Set(assetsWithLocation.map(a => a.condition))];
   const priorities = [...new Set(assetsWithLocation.map(a => a.priority))];
 
-  // Map configuration handled by IsolatedWorkingMap
+  // Default map center (Sydney, Australia)
+  const mapCenter: [number, number] = [-33.8688, 151.2093];
+  const defaultZoom = 10;
+
+  // Get selected basemap configuration
+  const basemapConfig =
+    BASEMAP_OPTIONS.find(b => b.id === selectedBasemap) || BASEMAP_OPTIONS[0];
 
   // Don't render map until client-side
   if (!isClient) {
@@ -275,12 +361,93 @@ export function WorkingAssetMap({
       {/* Map Container */}
       <Card>
         <CardContent className="p-0">
-          <IsolatedWorkingMap
-            assets={filteredAssets}
-            selectedBasemap={selectedBasemap}
-            onAssetSelect={onAssetSelect}
-            height={height}
-          />
+          <div className="relative" style={{ height }}>
+            <MapContainer
+              center={mapCenter}
+              zoom={defaultZoom}
+              className="h-full w-full rounded-lg"
+              whenCreated={setMapInstance}
+            >
+              <TileLayer
+                url={basemapConfig.url}
+                attribution={basemapConfig.attribution}
+                maxZoom={18}
+                minZoom={1}
+              />
+
+              <MarkerClusterGroup>
+                {filteredAssets.map(asset => {
+                  if (!asset.latitude || !asset.longitude) return null;
+
+                  const { IconComponent } = getAssetIcon(asset);
+                  return (
+                    <Marker
+                      key={asset.id}
+                      position={[asset.latitude, asset.longitude]}
+                      eventHandlers={{
+                        click: () => onAssetSelect?.(asset),
+                      }}
+                    >
+                      <Popup>
+                        <div className="p-2 min-w-[200px]">
+                          <div className="flex items-center gap-2 mb-2">
+                            <IconComponent />
+                            <div>
+                              <h4 className="font-semibold text-sm">
+                                {asset.name}
+                              </h4>
+                              <p className="text-xs text-gray-600">
+                                {asset.assetNumber}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1 mb-3">
+                            <Badge
+                              variant={getStatusBadgeVariant(asset.status)}
+                              className="text-xs"
+                            >
+                              {asset.status.replace('_', ' ')}
+                            </Badge>
+                            <Badge
+                              variant={getConditionBadgeVariant(
+                                asset.condition
+                              )}
+                              className="text-xs ml-1"
+                            >
+                              {asset.condition}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs ml-1">
+                              {asset.priority}
+                            </Badge>
+                          </div>
+
+                          {asset.address && (
+                            <p className="text-xs text-gray-600 mb-2">
+                              📍 {asset.address}
+                              {asset.suburb && `, ${asset.suburb}`}
+                              {asset.postcode && ` ${asset.postcode}`}
+                            </p>
+                          )}
+
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs h-6 px-2"
+                              onClick={() => onAssetSelect?.(asset)}
+                            >
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MarkerClusterGroup>
+            </MapContainer>
+          </div>
         </CardContent>
       </Card>
 
