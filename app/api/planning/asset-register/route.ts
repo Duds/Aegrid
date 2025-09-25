@@ -1,4 +1,4 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -67,7 +67,9 @@ export async function GET(request: NextRequest) {
     // Calculate lifecycle metrics for each asset
     const assetsWithLifecycle = assets.map(asset => {
       const now = new Date();
-      const installationDate = asset.installationDate ? new Date(asset.installationDate) : null;
+      const installationDate = asset.installationDate
+        ? new Date(asset.installationDate)
+        : null;
 
       let currentAge = 0;
       let lifecycleStage = 'UNKNOWN';
@@ -76,16 +78,23 @@ export async function GET(request: NextRequest) {
       let lifecycleProgress = 0;
 
       if (installationDate && asset.expectedLifespan) {
-        currentAge = (now.getTime() - installationDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+        currentAge =
+          (now.getTime() - installationDate.getTime()) /
+          (1000 * 60 * 60 * 24 * 365.25);
         yearsToReplacement = asset.expectedLifespan - currentAge;
 
         if (installationDate) {
           replacementDate = new Date(installationDate);
-          replacementDate.setFullYear(installationDate.getFullYear() + asset.expectedLifespan);
+          replacementDate.setFullYear(
+            installationDate.getFullYear() + asset.expectedLifespan
+          );
         }
 
         // Calculate lifecycle progress percentage
-        lifecycleProgress = Math.min((currentAge / asset.expectedLifespan) * 100, 100);
+        lifecycleProgress = Math.min(
+          (currentAge / asset.expectedLifespan) * 100,
+          100
+        );
 
         // Determine lifecycle stage
         if (currentAge < asset.expectedLifespan * 0.2) {
@@ -107,11 +116,17 @@ export async function GET(request: NextRequest) {
         currentAge: Math.round(currentAge * 10) / 10,
         lifecycleStage,
         replacementDate,
-        yearsToReplacement: yearsToReplacement ? Math.round(yearsToReplacement * 10) / 10 : null,
+        yearsToReplacement: yearsToReplacement
+          ? Math.round(yearsToReplacement * 10) / 10
+          : null,
         lifecycleProgress: Math.round(lifecycleProgress * 10) / 10,
         // Financial calculations
-        totalLifecycleCost: asset.purchasePrice ? Number(asset.purchasePrice) : 0,
-        annualMaintenanceCost: asset.maintenanceCost ? Number(asset.maintenanceCost) : 0,
+        totalLifecycleCost: asset.purchasePrice
+          ? Number(asset.purchasePrice)
+          : 0,
+        annualMaintenanceCost: asset.maintenanceCost
+          ? Number(asset.maintenanceCost)
+          : 0,
         residualValue: asset.currentValue ? Number(asset.currentValue) : 0,
       };
     });
@@ -120,7 +135,6 @@ export async function GET(request: NextRequest) {
       assets: assetsWithLifecycle,
       total: assetsWithLifecycle.length,
     });
-
   } catch (error) {
     console.error('Error fetching asset register data:', error);
     return NextResponse.json(
