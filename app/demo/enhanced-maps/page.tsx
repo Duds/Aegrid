@@ -1,6 +1,6 @@
 'use client';
 
-import { EnhancedAssetMap } from '@/components/maps/enhanced-asset-map';
+import { SimpleAssetMap } from '@/components/maps/simple-asset-map';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -229,7 +229,7 @@ export default function EnhancedMapsDemoPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EnhancedAssetMap
+          <SimpleAssetMap
             assets={sampleAssets}
             onAssetSelect={handleAssetSelect}
             height="600px"
