@@ -11,9 +11,8 @@ import {
     Building2,
     Droplets,
     Filter,
-    Loader2,
     MapPin,
-    Road,
+    Route,
     TrafficCone,
     TreePine,
     Zap
@@ -179,7 +178,7 @@ const LeafletMap = dynamic(() => Promise.resolve(LeafletMapComponent), {
 const getAssetIcon = (asset: Asset) => {
   const iconMap: Record<string, { component: any; color: string }> = {
     'building': { component: Building2, color: '#3B82F6' },
-    'road': { component: Road, color: '#6B7280' },
+    'road': { component: Route, color: '#6B7280' },
     'tree': { component: TreePine, color: '#10B981' },
     'book': { component: BookOpen, color: '#8B5CF6' },
     'activity': { component: Activity, color: '#F59E0B' },
@@ -292,7 +291,7 @@ export function AssetMap({
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <LoadingSpinner size="lg" mx-auto mb-2 />
-          
+
         </div>
       </div>
     );

@@ -1,6 +1,6 @@
 ---
 name: Pull Request
-about: Submit a pull request to CouncilWorks
+about: Submit a pull request to Aegrid
 title: ''
 labels: ['needs-review']
 assignees: ''

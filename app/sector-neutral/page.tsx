@@ -22,11 +22,11 @@ import {
     CheckCircle,
     Download,
     Edit,
+    FileText,
     Globe,
     Languages,
     Plus,
     Settings,
-    Template,
     Trash2
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -343,7 +343,7 @@ export default function SectorNeutralDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Template className="h-5 w-5 mr-2" />
+                  <FileText className="h-5 w-5 mr-2" />
                   Sector Templates
                 </div>
                 <Button size="sm">

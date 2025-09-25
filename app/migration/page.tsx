@@ -24,8 +24,8 @@ import {
     Database,
     Pause,
     Play,
+    RefreshCw,
     Shield,
-    Sync,
     XCircle
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -397,7 +397,7 @@ export default function MigrationDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Sync className="h-4 w-4 mr-2" />
+                  <RefreshCw className="h-4 w-4 mr-2" />
                   Sync Status
                 </CardTitle>
               </CardHeader>

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Critical Controls API Endpoint
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const criticalControls = await prisma.criticalControl.findMany({
       where: { organisationId: user.organisationId },
       include: {
-        assetCriticalControls: {
+        assetMappings: {
           include: {
             asset: {
               select: {
@@ -48,20 +48,25 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: {
-        riskScore: 'desc',
-      },
     });
 
-    // Generate control metrics
-    const metrics = generateControlMetrics(criticalControls);
+    // Transform database data to match frontend interface
+    const controls = transformCriticalControls(criticalControls);
 
-    return NextResponse.json({ 
-      controls: criticalControls,
-      metrics 
+    // Generate control metrics
+    const metrics = generateControlMetrics(controls);
+
+    return NextResponse.json({
+      controls,
+      metrics
     });
   } catch (error) {
     console.error("Critical controls API error:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error,
+    });
     return NextResponse.json(
       { error: "Failed to load critical controls" },
       { status: 500 }
@@ -70,155 +75,158 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Generate critical controls data that demonstrates Rule 1: Every Asset Has a Purpose
+ * Transform database critical controls to frontend format
+ * Demonstrates Rule 1: Every Asset Has a Purpose
  */
-function generateCriticalControlsData() {
-  return [
+function transformCriticalControls(criticalControls: any[]) {
+  if (criticalControls.length === 0) {
+    // Return sample data if no database records exist
+    return generateSampleCriticalControls();
+  }
+
+  return criticalControls.flatMap(control => {
+    // Handle case where assetMappings might be undefined or empty
+    if (!control.assetMappings || control.assetMappings.length === 0) {
+      // Return a single control entry even without asset mappings
+      return [{
+        id: control.id,
+        name: control.name,
+        assetId: control.id,
+        assetName: control.name,
+        controlType: control.type,
+        status: 'COMPLIANT' as const,
+        lastInspection: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        nextDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        priority: 'MEDIUM' as const,
+        responsible: "Maintenance Team",
+        escalationLevel: 1,
+      }];
+    }
+
+    return control.assetMappings.map((assetControl: any) => ({
+      id: assetControl.id,
+      name: control.name,
+      assetId: assetControl.asset?.id || control.id,
+      assetName: assetControl.asset?.name || control.name,
+      controlType: control.type,
+      status: determineControlStatus(assetControl),
+      lastInspection: assetControl.lastExecutedAt || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      nextDue: assetControl.nextDueAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      priority: mapPriority(assetControl.asset?.priority),
+      responsible: "Maintenance Team", // Default value
+      escalationLevel: 1,
+    }));
+  });
+}
+
+/**
+ * Generate sample critical controls data when database is empty
+ */
+function generateSampleCriticalControls() {
+  const sampleData = [
     {
       id: "cc-001",
       name: "Main Water Treatment Plant",
       assetType: "Water Infrastructure",
-      status: "critical",
       lastInspection: "2025-01-15",
       nextInspection: "2025-01-22",
-      riskScore: 95,
-      impactLevel: "critical",
-      purpose: "Community water supply - 50,000 residents",
-      consequence: "Complete water service disruption"
+      priority: "CRITICAL",
+      status: "OVERDUE",
     },
     {
-      id: "cc-002", 
+      id: "cc-002",
       name: "Emergency Services Communication Tower",
       assetType: "Communication Infrastructure",
-      status: "warning",
       lastInspection: "2025-01-10",
       nextInspection: "2025-01-25",
-      riskScore: 78,
-      impactLevel: "high",
-      purpose: "Emergency services coordination",
-      consequence: "Emergency response delays"
+      priority: "HIGH",
+      status: "DUE_SOON",
     },
     {
       id: "cc-003",
       name: "Main Electrical Substation",
-      assetType: "Electrical Infrastructure", 
-      status: "healthy",
+      assetType: "Electrical Infrastructure",
       lastInspection: "2025-01-12",
       nextInspection: "2025-02-12",
-      riskScore: 45,
-      impactLevel: "high",
-      purpose: "Power distribution to 15,000 properties",
-      consequence: "Widespread power outages"
+      priority: "HIGH",
+      status: "COMPLIANT",
     },
     {
       id: "cc-004",
       name: "Wastewater Treatment Facility",
       assetType: "Wastewater Infrastructure",
-      status: "warning",
       lastInspection: "2025-01-08",
       nextInspection: "2025-01-28",
-      riskScore: 82,
-      impactLevel: "high",
-      purpose: "Community wastewater processing",
-      consequence: "Environmental contamination risk"
+      priority: "HIGH",
+      status: "DUE_SOON",
     },
     {
       id: "cc-005",
       name: "Main Road Bridge - Highway 1",
       assetType: "Transportation Infrastructure",
-      status: "healthy",
       lastInspection: "2025-01-05",
       nextInspection: "2025-02-05",
-      riskScore: 35,
-      impactLevel: "medium",
-      purpose: "Primary transport corridor",
-      consequence: "Major traffic disruption"
+      priority: "MEDIUM",
+      status: "COMPLIANT",
     },
     {
       id: "cc-006",
       name: "Fire Station Equipment",
       assetType: "Emergency Services",
-      status: "critical",
       lastInspection: "2025-01-18",
       nextInspection: "2025-01-25",
-      riskScore: 88,
-      impactLevel: "critical",
-      purpose: "Community fire protection",
-      consequence: "Inability to respond to fires"
+      priority: "CRITICAL",
+      status: "NON_COMPLIANT",
     },
-    {
-      id: "cc-007",
-      name: "Community Health Centre Generator",
-      assetType: "Health Infrastructure",
-      status: "warning",
-      lastInspection: "2025-01-14",
-      nextInspection: "2025-01-30",
-      riskScore: 72,
-      impactLevel: "high",
-      purpose: "Emergency power for health services",
-      consequence: "Health service disruption"
-    },
-    {
-      id: "cc-008",
-      name: "Main Library HVAC System",
-      assetType: "Community Infrastructure",
-      status: "healthy",
-      lastInspection: "2025-01-11",
-      nextInspection: "2025-02-11",
-      riskScore: 28,
-      impactLevel: "low",
-      purpose: "Community learning environment",
-      consequence: "Service interruption"
-    },
-    {
-      id: "cc-009",
-      name: "Sewer Pump Station Alpha",
-      assetType: "Wastewater Infrastructure",
-      status: "critical",
-      lastInspection: "2025-01-16",
-      nextInspection: "2025-01-23",
-      riskScore: 91,
-      impactLevel: "high",
-      purpose: "Wastewater flow management",
-      consequence: "Sewage overflow risk"
-    },
-    {
-      id: "cc-010",
-      name: "Traffic Control System",
-      assetType: "Transportation Infrastructure",
-      status: "healthy",
-      lastInspection: "2025-01-13",
-      nextInspection: "2025-02-13",
-      riskScore: 42,
-      impactLevel: "medium",
-      purpose: "Traffic flow management",
-      consequence: "Traffic congestion"
-    },
-    {
-      id: "cc-011",
-      name: "Community Pool Filtration System",
-      assetType: "Recreation Infrastructure",
-      status: "warning",
-      lastInspection: "2025-01-09",
-      nextInspection: "2025-01-26",
-      riskScore: 65,
-      impactLevel: "medium",
-      purpose: "Community recreation services",
-      consequence: "Pool closure"
-    },
-    {
-      id: "cc-012",
-      name: "Maintenance Workshop Equipment",
-      assetType: "Support Infrastructure",
-      status: "healthy",
-      lastInspection: "2025-01-07",
-      nextInspection: "2025-02-07",
-      riskScore: 38,
-      impactLevel: "low",
-      purpose: "Asset maintenance support",
-      consequence: "Maintenance delays"
-    }
   ];
+
+  return sampleData.map(item => ({
+    id: item.id,
+    name: item.name,
+    assetId: item.id,
+    assetName: item.name,
+    controlType: item.assetType,
+    status: item.status,
+    lastInspection: new Date(item.lastInspection),
+    nextDue: new Date(item.nextInspection),
+    priority: item.priority,
+    responsible: "Maintenance Team",
+    escalationLevel: 1,
+  }));
+}
+
+/**
+ * Determine control status based on dates and compliance
+ */
+function determineControlStatus(assetControl: any): 'COMPLIANT' | 'OVERDUE' | 'DUE_SOON' | 'NON_COMPLIANT' {
+  if (!assetControl.nextDueAt) {
+    return 'NON_COMPLIANT';
+  }
+
+  const now = new Date();
+  const nextDue = new Date(assetControl.nextDueAt);
+  const daysUntilDue = Math.ceil((nextDue.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysUntilDue < 0) {
+    return 'OVERDUE';
+  } else if (daysUntilDue <= 7) {
+    return 'DUE_SOON';
+  } else {
+    return 'COMPLIANT';
+  }
+}
+
+/**
+ * Map asset priority to control priority
+ */
+function mapPriority(assetPriority: string): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
+  switch (assetPriority?.toUpperCase()) {
+    case 'CRITICAL': return 'CRITICAL';
+    case 'HIGH': return 'HIGH';
+    case 'MEDIUM': return 'MEDIUM';
+    case 'LOW': return 'LOW';
+    default: return 'MEDIUM';
+  }
 }
 
 /**
@@ -226,26 +234,16 @@ function generateCriticalControlsData() {
  */
 function generateControlMetrics(controls: any[]) {
   const totalControls = controls.length;
-  const criticalAlerts = controls.filter(c => c.status === 'critical').length;
-  const warningStatus = controls.filter(c => c.status === 'warning').length;
-  const healthyStatus = controls.filter(c => c.status === 'healthy').length;
-  const averageRiskScore = Math.round(controls.reduce((sum, c) => sum + c.riskScore, 0) / totalControls);
-  
-  // Calculate next inspection due (within 7 days)
-  const nextInspectionDue = controls.filter(c => {
-    const nextDate = new Date(c.nextInspection);
-    const today = new Date();
-    const diffTime = nextDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 7 && diffDays >= 0;
-  }).length;
+  const overdueControls = controls.filter(c => c.status === 'OVERDUE').length;
+  const dueSoonControls = controls.filter(c => c.status === 'DUE_SOON').length;
+  const compliantControls = controls.filter(c => c.status === 'COMPLIANT').length;
+  const nonCompliantControls = controls.filter(c => c.status === 'NON_COMPLIANT').length;
 
   return {
     totalControls,
-    criticalAlerts,
-    warningStatus,
-    healthyStatus,
-    averageRiskScore,
-    nextInspectionDue
+    overdueControls,
+    dueSoonControls,
+    compliantControls,
+    nonCompliantControls,
   };
 }

@@ -10,6 +10,7 @@
 
 "use client";
 
+import AppLayout from '@/components/layout/app-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -83,75 +84,49 @@ export default function AssetIntelligenceDashboard() {
     try {
       setLoading(true);
 
-      // In a real implementation, these would be actual API calls
-      // For now, we'll use mock data
-      const mockFunctionAnalytics: FunctionAnalytics = {
-        totalFunctions: 12,
-        totalAssets: 1247,
-        totalValue: 45600000,
-        criticalAssets: 89,
-        categoryBreakdown: [
-          { category: 'Infrastructure', functions: 5, assets: 567, value: 28000000, criticalAssets: 45 },
-          { category: 'Community Services', functions: 4, assets: 234, value: 8900000, criticalAssets: 23 },
-          { category: 'Transportation', functions: 2, assets: 312, value: 6700000, criticalAssets: 18 },
-          { category: 'Utilities', functions: 1, assets: 134, value: 2000000, criticalAssets: 3 },
-        ],
-      };
+      // Load function analytics from API
+      const functionResponse = await fetch('/api/dashboard/function-analytics');
+      if (!functionResponse.ok) throw new Error('Failed to fetch function analytics');
+      const functionData = await functionResponse.json();
+      setFunctionAnalytics(functionData.functionAnalytics);
 
-      const mockCriticalDashboard: CriticalDashboard = {
-        totalCriticalAssets: 89,
-        compliantAssets: 67,
-        nonCompliantAssets: 15,
-        overdueAssets: 7,
-        totalValue: 28000000,
-        totalRiskExposure: 2340,
-        criticalControls: {
-          total: 267,
-          compliant: 198,
-          nonCompliant: 45,
-          overdue: 24,
-        },
-        topRiskAssets: [
-          { id: '1', name: 'Main Water Treatment Plant', riskScore: 95, criticalityLevel: 'Critical' },
-          { id: '2', name: 'Central Bridge', riskScore: 88, criticalityLevel: 'Critical' },
-          { id: '3', name: 'Emergency Services Building', riskScore: 82, criticalityLevel: 'High' },
-          { id: '4', name: 'Power Distribution Station', riskScore: 79, criticalityLevel: 'High' },
-          { id: '5', name: 'Wastewater Treatment Facility', riskScore: 76, criticalityLevel: 'High' },
-        ],
-      };
+      // Load critical dashboard from API
+      const criticalResponse = await fetch('/api/dashboard/critical-dashboard');
+      if (!criticalResponse.ok) throw new Error('Failed to fetch critical dashboard');
+      const criticalData = await criticalResponse.json();
+      setCriticalDashboard(criticalData.criticalDashboard);
 
-      const mockHierarchyViews: HierarchyView[] = [
+      // Load hierarchy views from API (using function analytics data for now)
+      const hierarchyViews: HierarchyView[] = [
         {
           id: 'func',
           name: 'Function-Based Hierarchy',
           type: 'Function',
-          totalAssets: 1247,
-          totalValue: 45600000,
-          rootNodes: [
-            { name: 'Infrastructure', assetCount: 567, totalValue: 28000000, criticalAssetCount: 45 },
-            { name: 'Community Services', assetCount: 234, totalValue: 8900000, criticalAssetCount: 23 },
-            { name: 'Transportation', assetCount: 312, totalValue: 6700000, criticalAssetCount: 18 },
-            { name: 'Utilities', assetCount: 134, totalValue: 2000000, criticalAssetCount: 3 },
-          ],
+          totalAssets: functionData.functionAnalytics.totalAssets,
+          totalValue: functionData.functionAnalytics.totalValue,
+          rootNodes: functionData.functionAnalytics.categoryBreakdown.map((cat: any) => ({
+            name: cat.category,
+            assetCount: cat.assets,
+            totalValue: cat.value,
+            criticalAssetCount: cat.criticalAssets,
+          })),
         },
         {
           id: 'geo',
           name: 'Geographic Hierarchy',
           type: 'Geographic',
-          totalAssets: 1247,
-          totalValue: 45600000,
+          totalAssets: functionData.functionAnalytics.totalAssets,
+          totalValue: functionData.functionAnalytics.totalValue,
           rootNodes: [
-            { name: 'North Region', assetCount: 312, totalValue: 12000000, criticalAssetCount: 23 },
-            { name: 'South Region', assetCount: 298, totalValue: 11000000, criticalAssetCount: 21 },
-            { name: 'East Region', assetCount: 289, totalValue: 10500000, criticalAssetCount: 19 },
-            { name: 'West Region', assetCount: 348, totalValue: 12100000, criticalAssetCount: 26 },
+            { name: 'North Region', assetCount: Math.floor(functionData.functionAnalytics.totalAssets * 0.25), totalValue: Math.floor(functionData.functionAnalytics.totalValue * 0.25), criticalAssetCount: Math.floor(functionData.functionAnalytics.criticalAssets * 0.25) },
+            { name: 'South Region', assetCount: Math.floor(functionData.functionAnalytics.totalAssets * 0.25), totalValue: Math.floor(functionData.functionAnalytics.totalValue * 0.25), criticalAssetCount: Math.floor(functionData.functionAnalytics.criticalAssets * 0.25) },
+            { name: 'East Region', assetCount: Math.floor(functionData.functionAnalytics.totalAssets * 0.25), totalValue: Math.floor(functionData.functionAnalytics.totalValue * 0.25), criticalAssetCount: Math.floor(functionData.functionAnalytics.criticalAssets * 0.25) },
+            { name: 'West Region', assetCount: Math.floor(functionData.functionAnalytics.totalAssets * 0.25), totalValue: Math.floor(functionData.functionAnalytics.totalValue * 0.25), criticalAssetCount: Math.floor(functionData.functionAnalytics.criticalAssets * 0.25) },
           ],
         },
       ];
 
-      setFunctionAnalytics(mockFunctionAnalytics);
-      setCriticalDashboard(mockCriticalDashboard);
-      setHierarchyViews(mockHierarchyViews);
+      setHierarchyViews(hierarchyViews);
     } catch (err) {
       setError('Failed to load dashboard data');
       console.error('Dashboard load error:', err);
@@ -186,11 +161,16 @@ export default function AssetIntelligenceDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <AppLayout
+      requiredRoles={['ADMIN', 'MANAGER', 'SUPERVISOR']}
+      title="Dashboard"
+      description=""
+    >
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Asset Intelligence Dashboard</h1>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
 
         </div>
         <Button onClick={loadDashboardData}>
@@ -452,5 +432,6 @@ export default function AssetIntelligenceDashboard() {
         </TabsContent>
       </Tabs>
     </div>
+    </AppLayout>
   );
 }

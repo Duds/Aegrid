@@ -4,7 +4,7 @@ globs: ["**/*.md", "**/*.mdc", "**/*.mdx", "**/*.astro", "**/*.tsx"]
 alwaysApply: false
 ---
 
-# Documentation Standards (CouncilWorks)
+# Documentation Standards (Aegrid)
 
 @context {
 "type": "guidelines",

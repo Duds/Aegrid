@@ -1,14 +1,15 @@
-import { getServerSession } from "next-auth";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getRoleDisplayName } from "@/lib/audit";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Users, 
-  Shield, 
-  Activity, 
-  CheckCircle
+import {
+    Activity,
+    CheckCircle,
+    Settings,
+    Shield,
+    Users
 } from "lucide-react";
-import { getRoleDisplayName } from "@/lib/audit";
+import { getServerSession } from "next-auth";
 
 /**
  * Admin dashboard overview page
@@ -24,7 +25,7 @@ import { getRoleDisplayName } from "@/lib/audit";
  */
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return null;
   }
@@ -42,13 +43,13 @@ export default async function AdminDashboard() {
       where: { organisationId: session.user.organisationId },
     }),
     prisma.user.count({
-      where: { 
+      where: {
         organisationId: session.user.organisationId,
         isActive: true,
       },
     }),
     prisma.user.count({
-      where: { 
+      where: {
         organisationId: session.user.organisationId,
         isActive: false,
       },
@@ -110,10 +111,7 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome back, {session.user.name || session.user.email}
-        </p>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
       </div>
 
       {/* Statistics Cards */}
@@ -219,6 +217,18 @@ export default async function AdminDashboard() {
               <div className="font-medium">Security Settings</div>
               <div className="text-sm text-muted-foreground">
                 Configure security policies
+              </div>
+            </div>
+          </a>
+          <a
+            href="/admin/organization"
+            className="flex items-center p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+          >
+            <Settings className="h-5 w-5 text-primary mr-3" />
+            <div>
+              <div className="font-medium">Organization Settings</div>
+              <div className="text-sm text-muted-foreground">
+                Configure locations and external APIs
               </div>
             </div>
           </a>

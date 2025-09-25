@@ -415,7 +415,9 @@ export function AssetDataTable({ data, loading = false, searchTerm = "", showCol
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <div className="mt-4">
+        <DataTablePagination table={table} />
+      </div>
     </div>
   );
 }

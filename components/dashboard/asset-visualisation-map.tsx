@@ -15,28 +15,28 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
-  createTransformationContext,
-  transformNavigationLabel,
+    createTransformationContext,
+    transformNavigationLabel,
 } from '@/lib/language-dictionary/language-transformer';
 import {
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Filter,
-  Info,
-  Layers,
-  MapPin,
-  Search,
-  ZoomIn,
-  ZoomOut,
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Filter,
+    Info,
+    Layers,
+    MapPin,
+    Search,
+    ZoomIn,
+    ZoomOut,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -128,89 +128,29 @@ export function AssetVisualisationMap() {
     createTransformationContext('AssetVisualisationMap', 'filter', 'priority')
   ).transformed;
 
-  // Mock asset data - in production, this would come from APIs
+  // Load real asset data from API
   useEffect(() => {
-    const mockAssets: AssetLocation[] = [
-      {
-        id: '1',
-        name: 'Central Library',
-        type: 'BUILDING',
-        condition: 'GOOD',
-        status: 'ACTIVE',
-        priority: 'HIGH',
-        latitude: -33.8688,
-        longitude: 151.2093,
-        address: '123 George Street, Sydney',
-        lastInspection: '2024-01-15',
-        nextInspection: '2024-04-15',
-        value: 25000000,
-        criticality: 'Critical',
-      },
-      {
-        id: '2',
-        name: 'Water Treatment Plant #3',
-        type: 'WATER_SUPPLY',
-        condition: 'CRITICAL',
-        status: 'UNDER_MAINTENANCE',
-        priority: 'CRITICAL',
-        latitude: -33.875,
-        longitude: 151.22,
-        address: '456 Harbour Drive, Sydney',
-        lastInspection: '2024-01-10',
-        nextInspection: '2024-01-25',
-        value: 45000000,
-        criticality: 'Critical',
-      },
-      {
-        id: '3',
-        name: 'Community Centre',
-        type: 'COMMUNITY_CENTRE',
-        condition: 'EXCELLENT',
-        status: 'ACTIVE',
-        priority: 'MEDIUM',
-        latitude: -33.86,
-        longitude: 151.2,
-        address: '789 Oxford Street, Sydney',
-        lastInspection: '2024-01-20',
-        nextInspection: '2024-04-20',
-        value: 8000000,
-        criticality: 'Medium',
-      },
-      {
-        id: '4',
-        name: 'Sports Complex',
-        type: 'SPORTS_FACILITY',
-        condition: 'FAIR',
-        status: 'ACTIVE',
-        priority: 'MEDIUM',
-        latitude: -33.88,
-        longitude: 151.19,
-        address: '321 Park Road, Sydney',
-        lastInspection: '2024-01-05',
-        nextInspection: '2024-02-05',
-        value: 15000000,
-        criticality: 'Medium',
-      },
-      {
-        id: '5',
-        name: 'Traffic Light System',
-        type: 'TRAFFIC_LIGHT',
-        condition: 'POOR',
-        status: 'UNDER_MAINTENANCE',
-        priority: 'HIGH',
-        latitude: -33.87,
-        longitude: 151.21,
-        address: 'Corner of George & Pitt Streets',
-        lastInspection: '2024-01-12',
-        nextInspection: '2024-01-28',
-        value: 500000,
-        criticality: 'High',
-      },
-    ];
+    const loadAssetData = async () => {
+      try {
+        setIsLoading(true);
 
-    setAssets(mockAssets);
-    setFilteredAssets(mockAssets);
-    setIsLoading(false);
+        const response = await fetch('/api/dashboard/asset-locations');
+        if (!response.ok) throw new Error('Failed to fetch asset locations');
+
+        const data = await response.json();
+        setAssets(data.assetLocations);
+        setFilteredAssets(data.assetLocations);
+      } catch (error) {
+        console.error('Error loading asset data:', error);
+        // Fallback to empty array if API fails
+        setAssets([]);
+        setFilteredAssets([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAssetData();
   }, []);
 
   // Filter assets based on current filters and search term

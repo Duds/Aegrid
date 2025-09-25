@@ -216,7 +216,7 @@ Transform Aegrid from a feature-centric platform to a journey-centric asset inte
 
 #### **Phase 1 (Immediate) - Core Standards**
 - **ISO 14224**: Reliability data collection and exchange for equipment
-- **ISO 55000**: Asset management systems and requirements  
+- **ISO 55000**: Asset management systems and requirements
 - **ISO 27001**: Information security management systems
 - **ISO 27002**: Information security controls implementation
 - **ISO 31000**: Risk management principles and guidelines
@@ -246,8 +246,8 @@ Transform Aegrid from a feature-centric platform to a journey-centric asset inte
 
 ### GitHub Issues Analysis & PI Categorization
 
-**Repository**: `Duds/CouncilWorks`  
-**Total Issues**: 119 (103 open, 16 closed)  
+**Repository**: `Duds/Aegrid`
+**Total Issues**: 119 (103 open, 16 closed)
 **Analysis Date**: 2025-01-27
 
 #### PI1 Issues (Foundation & Authentication) - Epic 1
@@ -327,17 +327,17 @@ Transform Aegrid from a feature-centric platform to a journey-centric asset inte
 **Goal**: Transform navigation from feature-centric to journey-centric workflows
 **Value**: Improved user experience aligned with natural work patterns
 **Priority**: HIGH
-**Aegrid Rules Alignment**: 
+**Aegrid Rules Alignment**:
 - **Rule 1**: Purpose-driven navigation groups ✅
 - **Rule 2**: Risk-based workflow prioritisation ✅
 - **Rule 3**: Critical asset focus in operations group ✅
 - **Rule 4**: Strategic planning group for future-oriented decisions ✅
 
-**Implementation Status**: 
+**Implementation Status**:
 - ✅ E7.1: Navigation Architecture Redesign - JourneySidebar component with workflow-based groups
 - ✅ E7.2: Missing Features Implementation - Team Management, SLA Management, Critical Controls, Sustainability Module
 - ✅ Strategic Overview Group (Executive, Manager personas)
-- ✅ Asset Planning Group (Manager, Asset Planner personas)  
+- ✅ Asset Planning Group (Manager, Asset Planner personas)
 - ✅ Operations Management Group (Supervisor, Crew personas)
 - ✅ Community Engagement Group (Citizen, Supervisor personas)
 - ✅ System Administration Group (Admin persona)

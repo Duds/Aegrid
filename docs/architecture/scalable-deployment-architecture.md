@@ -1,8 +1,8 @@
-# Scalable Deployment Architecture (CouncilWorks)
+# Scalable Deployment Architecture (Aegrid)
 
 ## 🎯 **Executive Summary**
 
-This document outlines the scalable architecture design for CouncilWorks that supports multiple deployment tiers:
+This document outlines the scalable architecture design for Aegrid that supports multiple deployment tiers:
 - **Tier 1**: Multi-tenant SaaS (Current)
 - **Tier 2**: Single-tenant Cloud (Isolated)
 - **Tier 3**: Hybrid Cloud (Hybrid)
@@ -96,7 +96,7 @@ class ConfigFactory {
     const baseConfig = this.getBaseConfig(tier);
     return { ...baseConfig, ...overrides };
   }
-  
+
   private static getBaseConfig(tier: DeploymentTier): DeploymentConfig {
     switch (tier) {
       case 'saas':
@@ -221,12 +221,12 @@ const authOptions: NextAuthOptions = {
 ```typescript
 class AzureBlobStorageService implements StorageService {
   private container: ContainerClient;
-  
+
   constructor(connectionString: string) {
     const blobServiceClient = new BlobServiceClient(connectionString);
     this.container = blobServiceClient.getContainerClient('councilworks');
   }
-  
+
   async upload(file: File, path: string): Promise<string> {
     // Path includes organisation ID for isolation
     const blobPath = `${this.getOrganisationId()}/${path}`;
@@ -234,7 +234,7 @@ class AzureBlobStorageService implements StorageService {
     await blockBlobClient.upload(file, file.size);
     return blobPath;
   }
-  
+
   private getOrganisationId(): string {
     // Get from RLS context or session
     return getCurrentOrganisationId();
@@ -246,12 +246,12 @@ class AzureBlobStorageService implements StorageService {
 ```typescript
 class IsolatedBlobStorageService implements StorageService {
   private container: ContainerClient;
-  
+
   constructor(customerId: string, connectionString: string) {
     const blobServiceClient = new BlobServiceClient(connectionString);
     this.container = blobServiceClient.getContainerClient(`council-${customerId}`);
   }
-  
+
   async upload(file: File, path: string): Promise<string> {
     // No organisation prefix needed (single tenant)
     const blockBlobClient = this.container.getBlockBlobClient(path);
@@ -265,11 +265,11 @@ class IsolatedBlobStorageService implements StorageService {
 ```typescript
 class LocalFileStorageService implements StorageService {
   private basePath: string;
-  
+
   constructor(basePath: string) {
     this.basePath = basePath;
   }
-  
+
   async upload(file: File, path: string): Promise<string> {
     const fullPath = join(this.basePath, path);
     await mkdir(dirname(fullPath), { recursive: true });
@@ -287,19 +287,19 @@ class MigrationService {
   async migrateToSingleTenant(organisationId: string): Promise<MigrationResult> {
     // 1. Export all data for the organisation
     const data = await this.exportOrganisationData(organisationId);
-    
+
     // 2. Create isolated database
     const newDatabase = await this.createIsolatedDatabase(organisationId);
-    
+
     // 3. Import data to new database
     await this.importData(newDatabase, data);
-    
+
     // 4. Update DNS and configuration
     await this.updateDNS(organisationId);
-    
+
     // 5. Verify migration
     await this.verifyMigration(organisationId);
-    
+
     return { success: true, newUrl: this.getNewUrl(organisationId) };
   }
 }
@@ -311,19 +311,19 @@ class OnPremiseMigrationService {
   async migrateToOnPremise(customerId: string, targetConfig: OnPremiseConfig): Promise<MigrationResult> {
     // 1. Export all data
     const data = await this.exportCustomerData(customerId);
-    
+
     // 2. Prepare on-premise environment
     await this.prepareOnPremiseEnvironment(targetConfig);
-    
+
     // 3. Import data to on-premise
     await this.importToOnPremise(targetConfig, data);
-    
+
     // 4. Configure local integrations
     await this.configureLocalIntegrations(targetConfig);
-    
+
     // 5. Handover to customer
     await this.handoverToCustomer(customerId, targetConfig);
-    
+
     return { success: true, handoverComplete: true };
   }
 }
@@ -344,7 +344,7 @@ services:
       - STORAGE_TYPE=azure-blob
     depends_on:
       - db
-  
+
   db:
     image: postgres:15-postgis
     environment:
@@ -364,7 +364,7 @@ services:
       - STORAGE_TYPE=azure-blob-isolated
     depends_on:
       - db
-  
+
   db:
     image: postgres:15-postgis
     environment:
@@ -385,14 +385,14 @@ services:
     depends_on:
       - db
       - ldap
-  
+
   db:
     image: postgres:15-postgis
     environment:
       - POSTGRES_DB=councilworks
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+
   ldap:
     image: osixia/openldap
     environment:
@@ -481,12 +481,12 @@ interface FeatureFlags {
   multiTenancy: boolean;
   sharedAnalytics: boolean;
   cloudStorage: boolean;
-  
+
   // Single-tenant features
   samlAuth: boolean;
   isolatedAnalytics: boolean;
   customBranding: boolean;
-  
+
   // On-premise features
   ldapAuth: boolean;
   localStorage: boolean;
@@ -609,4 +609,4 @@ class FeatureFlagService {
 4. **Build deployment automation** for different environments
 5. **Test deployment scenarios** in development environment
 
-This architecture provides a clear path for scaling CouncilWorks from SaaS to on-premise deployments while maintaining code reusability and operational efficiency.
+This architecture provides a clear path for scaling Aegrid from SaaS to on-premise deployments while maintaining code reusability and operational efficiency.

@@ -1,6 +1,6 @@
 /**
  * Deployment Configuration Management
- * 
+ *
  * This module provides configuration management for different deployment tiers:
  * - SaaS Multi-Tenant
  * - Single-Tenant Cloud
@@ -114,22 +114,22 @@ export class ConfigFactory {
   static fromEnvironment(): DeploymentConfig {
     const tier = (process.env.DEPLOYMENT_TIER as DeploymentTier) || 'saas';
     const customerId = process.env.CUSTOMER_ID;
-    
+
     const config = this.create(tier, { customerId });
-    
+
     // Override with environment variables
     if (process.env.DATABASE_URL) {
       config.database.url = process.env.DATABASE_URL;
     }
-    
+
     if (process.env.STORAGE_CONNECTION_STRING) {
       config.storage.connectionString = process.env.STORAGE_CONNECTION_STRING;
     }
-    
+
     if (process.env.ANALYTICS_ENDPOINT) {
       config.analytics.endpoint = process.env.ANALYTICS_ENDPOINT;
     }
-    
+
     return config;
   }
 
@@ -213,7 +213,7 @@ export class ConfigFactory {
         apiVersioning: true,
       },
       branding: {
-        title: 'CouncilWorks',
+        title: 'Aegrid',
         primaryColor: '#2563eb',
         secondaryColor: '#1e40af',
       },
@@ -293,7 +293,7 @@ export class ConfigFactory {
         apiVersioning: true,
       },
       branding: {
-        title: 'CouncilWorks',
+        title: 'Aegrid',
         primaryColor: '#2563eb',
         secondaryColor: '#1e40af',
       },
@@ -378,7 +378,7 @@ export class ConfigFactory {
         apiVersioning: true,
       },
       branding: {
-        title: 'CouncilWorks',
+        title: 'Aegrid',
         primaryColor: '#2563eb',
         secondaryColor: '#1e40af',
       },
@@ -459,7 +459,7 @@ export class ConfigFactory {
         apiVersioning: true,
       },
       branding: {
-        title: 'CouncilWorks',
+        title: 'Aegrid',
         primaryColor: '#2563eb',
         secondaryColor: '#1e40af',
       },

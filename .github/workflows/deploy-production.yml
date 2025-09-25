@@ -142,20 +142,20 @@ jobs:
           release_name: Release ${{ needs.pre-deployment-checks.outputs.version }}
           body: |
             ## What's Changed
-            
-            - Production deployment of CouncilWorks ${{ needs.pre-deployment-checks.outputs.version }}
+
+            - Production deployment of Aegrid ${{ needs.pre-deployment-checks.outputs.version }}
             - Deployed from commit: ${{ github.sha }}
             - Build time: ${{ github.run_number }}
-            
+
             ## Deployment Details
-            
+
             - **Environment**: Production
             - **Deployment Time**: $(date -u)
             - **Commit**: ${{ github.sha }}
             - **Branch**: ${{ github.ref_name }}
-            
+
             ## Verification
-            
+
             - [x] All tests passed
             - [x] Security scan completed
             - [x] Health check passed
@@ -172,18 +172,18 @@ jobs:
               repo: context.repo.repo,
               state: 'open'
             });
-            
+
             if (projects.length > 0) {
               const project = projects[0];
               const { data: columns } = await github.rest.projects.listColumns({
                 project_id: project.id
               });
-              
-              const productionColumn = columns.find(col => 
-                col.name.toLowerCase().includes('production') || 
+
+              const productionColumn = columns.find(col =>
+                col.name.toLowerCase().includes('production') ||
                 col.name.toLowerCase().includes('released')
               );
-              
+
               if (productionColumn) {
                 await github.rest.projects.createCard({
                   column_id: productionColumn.id,
@@ -199,7 +199,7 @@ jobs:
         with:
           status: success
           channel: '#deployments'
-          text: '🎉 CouncilWorks v${{ needs.pre-deployment-checks.outputs.version }} deployed to production successfully!'
+          text: '🎉 Aegrid v${{ needs.pre-deployment-checks.outputs.version }} deployed to production successfully!'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -209,7 +209,7 @@ jobs:
         with:
           status: failure
           channel: '#deployments'
-          text: '🚨 CouncilWorks production deployment failed! Immediate attention required!'
+          text: '🚨 Aegrid production deployment failed! Immediate attention required!'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 

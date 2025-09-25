@@ -1,9 +1,9 @@
 ---
-description: Database and Prisma Standards (CouncilWorks)
+description: Database and Prisma Standards (Aegrid)
 alwaysApply: false
 ---
 
-# Database Operations & Prisma Standards (CouncilWorks)
+# Database Operations & Prisma Standards (Aegrid)
 
 ## 🗄️ Database Architecture
 
@@ -12,7 +12,7 @@ alwaysApply: false
 "purpose": "database_operations_prisma_standards",
 "format_version": "1.0.0",
 "enforced_for": "all contributors",
-"project": "CouncilWorks - Council Asset Lifecycle Intelligence Platform"
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
 }
 
 ### **Database Technology Stack**

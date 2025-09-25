@@ -4,52 +4,52 @@ import ReleaseBadge from '@/components/release-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarSeparator,
 } from '@/components/ui/sidebar';
 import {
-  getAvatarImage,
-  getUserInitials,
-  handleAvatarError,
+    getAvatarImage,
+    getUserInitials,
+    handleAvatarError,
 } from '@/lib/avatar-utils';
 import {
-  createTransformationContext,
-  transformNavigationLabel,
+    createTransformationContext,
+    transformNavigationLabel,
 } from '@/lib/language-dictionary/language-transformer';
 import {
-  Activity,
-  AlertCircle,
-  AlertTriangle,
-  BarChart3,
-  Bell,
-  Building2,
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  ClipboardList,
-  Clock,
-  Cog,
-  Eye,
-  Globe,
-  LogOut,
-  MapPin,
-  Play,
-  Settings,
-  Shield,
-  Target,
-  TrendingUp,
-  Users,
-  Wrench,
-  Zap,
+    Activity,
+    AlertCircle,
+    AlertTriangle,
+    BarChart3,
+    Bell,
+    Building2,
+    CheckCircle,
+    ChevronDown,
+    ChevronRight,
+    ClipboardList,
+    Clock,
+    Cog,
+    Eye,
+    Globe,
+    LogOut,
+    MapPin,
+    Play,
+    Settings,
+    Shield,
+    Target,
+    TrendingUp,
+    Users,
+    Wrench,
+    Zap,
 } from 'lucide-react';
 import type { Route } from 'next';
 import { signOut, useSession } from 'next-auth/react';
@@ -95,6 +95,7 @@ export function AppSidebar({
   >({
     controlCenter: false,
     dailyOperations: false,
+    'asset-intelligence': false,
     strategic: false,
     assetPlanning: false,
     operations: false,
@@ -103,25 +104,31 @@ export function AppSidebar({
     system: false,
   });
 
-  // State for asset count
-  const [assetCount, setAssetCount] = useState<number | null>(null);
+  // State for dynamic counts
+  const [sidebarCounts, setSidebarCounts] = useState<{
+    emergencyAlerts: number;
+    criticalControlsOverdue: number;
+    workOrdersCount: number;
+    totalAssetsCount: number;
+    controlCenterAlerts: number;
+  } | null>(null);
 
-  // Fetch asset count on component mount
+  // Fetch all sidebar counts on component mount
   useEffect(() => {
-    const fetchAssetCount = async () => {
+    const fetchSidebarCounts = async () => {
       try {
-        const response = await fetch('/api/assets/count');
+        const response = await fetch('/api/dashboard/sidebar-counts');
         if (response.ok) {
           const data = await response.json();
-          setAssetCount(data.count);
+          setSidebarCounts(data.sidebarCounts);
         }
       } catch (error) {
-        console.error('Failed to fetch asset count:', error);
+        console.error('Failed to fetch sidebar counts:', error);
       }
     };
 
     if (session?.user?.id) {
-      fetchAssetCount();
+      fetchSidebarCounts();
     }
   }, [session?.user?.id]);
 
@@ -176,7 +183,7 @@ export function AppSidebar({
         )
       ).transformed,
       roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
-      badge: '3', // Dynamic alert count
+      badge: sidebarCounts?.emergencyAlerts?.toString() || '0', // Dynamic alert count
     },
     {
       href: '/manager/energy-control',
@@ -203,7 +210,7 @@ export function AppSidebar({
         )
       ).transformed,
       roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
-      badge: '2', // Dynamic overdue count
+      badge: sidebarCounts?.criticalControlsOverdue?.toString() || '0', // Dynamic overdue count
     },
     {
       href: '/dashboard',
@@ -301,7 +308,7 @@ export function AppSidebar({
         )
       ).transformed,
       roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
-      badge: '15', // Dynamic work order count
+      badge: sidebarCounts?.workOrdersCount?.toString() || '0', // Dynamic work order count
     },
     {
       href: '/planning/resource-operations',
@@ -338,6 +345,63 @@ export function AppSidebar({
           'AppSidebar',
           'navigation',
           'daily_operations'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+    },
+  ];
+
+  // Asset Intelligence Group - Asset-centric functions
+  const assetIntelligenceItems: SidebarItem[] = [
+    {
+      href: '/assets',
+      icon: Building2,
+      label: transformNavigationLabel(
+        'Asset Register',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'asset_intelligence'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'CREW'],
+      badge: sidebarCounts?.totalAssetsCount?.toString() || '0', // Dynamic asset count
+    },
+    {
+      href: '/assets/map',
+      icon: MapPin,
+      label: transformNavigationLabel(
+        'Asset Map',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'asset_intelligence'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+    },
+    {
+      href: '/asset-intelligence',
+      icon: BarChart3,
+      label: transformNavigationLabel(
+        'Asset Analytics',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'asset_intelligence'
+        )
+      ).transformed,
+      roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+    },
+    {
+      href: '/planning/asset-register',
+      icon: Activity,
+      label: transformNavigationLabel(
+        'Lifecycle Management',
+        createTransformationContext(
+          'AppSidebar',
+          'navigation',
+          'asset_intelligence'
         )
       ).transformed,
       roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
@@ -383,7 +447,7 @@ export function AppSidebar({
           'asset_planning'
         )
       ).transformed,
-      badge: assetCount !== null ? assetCount.toLocaleString() : undefined,
+      badge: sidebarCounts?.totalAssetsCount?.toLocaleString() || '0',
       roles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
     },
   ];
@@ -704,7 +768,7 @@ export function AppSidebar({
                   ).transformed
                 }
                 <Badge variant="destructive" className="ml-auto text-xs">
-                  5
+                  {sidebarCounts?.controlCenterAlerts || 0}
                 </Badge>
                 {collapsedGroups.controlCenter ? (
                   <ChevronRight className="h-4 w-4 ml-1" />
@@ -781,6 +845,71 @@ export function AppSidebar({
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {filterItemsByRole(dailyOperationsItems, userRole).map(
+                      item => (
+                        <SidebarMenuItem key={item.href}>
+                          <SidebarMenuButton asChild>
+                            <Link
+                              href={item.href as Route}
+                              className="flex items-center justify-between w-full min-w-0"
+                            >
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <item.icon className="h-4 w-4 shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate font-medium">
+                                    {item.label}
+                                  </div>
+                                </div>
+                              </div>
+                              {item.badge && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 text-xs shrink-0"
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      )
+                    )}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              )}
+            </SidebarGroup>
+            <SidebarSeparator />
+          </>
+        )}
+
+        {/* Asset Intelligence Group - Asset-centric functions */}
+        {canAccessManager(userRole) && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel
+                className="flex items-center gap-2 cursor-pointer hover:bg-sidebar-accent rounded-md px-2 py-1"
+                onClick={() => toggleGroup('asset-intelligence')}
+              >
+                <Building2 className="h-4 w-4" />
+                {
+                  transformNavigationLabel(
+                    'Asset Intelligence',
+                    createTransformationContext(
+                      'AppSidebar',
+                      'navigation',
+                      'group'
+                    )
+                  ).transformed
+                }
+                {collapsedGroups['asset-intelligence'] ? (
+                  <ChevronRight className="h-4 w-4 ml-auto" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                )}
+              </SidebarGroupLabel>
+              {!collapsedGroups['asset-intelligence'] && (
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {filterItemsByRole(assetIntelligenceItems, userRole).map(
                       item => (
                         <SidebarMenuItem key={item.href}>
                           <SidebarMenuButton asChild>

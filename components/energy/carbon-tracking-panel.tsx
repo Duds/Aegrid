@@ -13,7 +13,7 @@ import {
     Globe,
     Leaf,
     Target,
-    Tree,
+    TreePine,
     TrendingDown,
     TrendingUp,
     Zap
@@ -213,7 +213,7 @@ export function CarbonTrackingPanel({ data, period }: CarbonTrackingPanelProps) 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Renewable Energy</CardTitle>
-            <Tree className="h-4 w-4 text-muted-foreground" />
+            <TreePine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{renewablePercentage.toFixed(1)}%</div>
@@ -311,7 +311,7 @@ export function CarbonTrackingPanel({ data, period }: CarbonTrackingPanelProps) 
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="text-center p-4 border rounded-lg">
-              <Tree className="h-12 w-12 text-green-500 mx-auto mb-2" />
+              <TreePine className="h-12 w-12 text-green-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-green-600">
                 {equivalentTrees}
               </div>
@@ -371,7 +371,7 @@ export function CarbonTrackingPanel({ data, period }: CarbonTrackingPanelProps) 
               {renewablePercentage > 0 && (
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center space-x-2 mb-2">
-                    <Tree className="h-5 w-5 text-green-500" />
+                    <TreePine className="h-5 w-5 text-green-500" />
                     <h3 className="font-semibold">Renewable Energy</h3>
                   </div>
                   <div className="text-xl font-bold text-green-600">
@@ -481,7 +481,7 @@ export function CarbonTrackingPanel({ data, period }: CarbonTrackingPanelProps) 
 
             {renewablePercentage < 20 && (
               <div className="flex items-start space-x-3 p-3 border rounded-lg">
-                <Tree className="h-5 w-5 text-green-500 mt-0.5" />
+                <TreePine className="h-5 w-5 text-green-500 mt-0.5" />
                 <div>
                   <h4 className="font-medium">Increase Renewable Energy</h4>
                   <p className="text-sm text-muted-foreground">

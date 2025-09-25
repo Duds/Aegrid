@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve CouncilWorks
+about: Create a report to help us improve Aegrid
 title: '[BUG] '
 labels: ['bug', 'needs-triage']
 assignees: ''
@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
 ## 🖥️ Environment
 - **OS**: [e.g. Windows 10, macOS 12.0, Ubuntu 20.04]
 - **Browser**: [e.g. Chrome 91, Firefox 89, Safari 14]
-- **CouncilWorks Version**: [e.g. v1.2.3]
+- **Aegrid Version**: [e.g. v1.2.3]
 - **Node.js Version**: [e.g. 18.17.0]
 
 ## 📋 Additional Context

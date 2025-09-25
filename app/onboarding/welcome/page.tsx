@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2, Users, Database, Upload, CheckCircle, ArrowRight } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle, Database, Upload, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 interface OnboardingData {
@@ -31,9 +31,15 @@ export default function OnboardingWelcomePage() {
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session) {
       router.push("/auth/sign-in");
+      return;
+    }
+
+    // If user already has an organization, redirect to dashboard
+    if (session.user?.organisationId) {
+      router.push("/dashboard");
       return;
     }
 
@@ -86,7 +92,7 @@ export default function OnboardingWelcomePage() {
       });
 
       console.log("Trial setup response status:", response.status);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.log("Trial setup error response:", errorData);
@@ -117,7 +123,7 @@ export default function OnboardingWelcomePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          
+
         </div>
       </div>
     );
@@ -154,7 +160,7 @@ export default function OnboardingWelcomePage() {
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome to Aegrid, {session.user?.name}!
           </h1>
-          
+
         </div>
 
         {error && (
@@ -187,7 +193,7 @@ export default function OnboardingWelcomePage() {
                     required
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="domain">Domain</Label>
                   <Input
@@ -197,7 +203,7 @@ export default function OnboardingWelcomePage() {
                     placeholder="e.g., melbourne.vic.gov.au"
                     required
                   />
-                  
+
                 </div>
 
                 <Button type="submit" disabled={loading} className="w-full">
@@ -225,7 +231,7 @@ export default function OnboardingWelcomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Blank Account */}
-              <Card 
+              <Card
                 className={`cursor-pointer transition-all ${data.trialType === 'blank' ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
                 onClick={() => setData(prev => ({ ...prev, trialType: 'blank' }))}
               >
@@ -248,7 +254,7 @@ export default function OnboardingWelcomePage() {
               </Card>
 
               {/* Sample Data */}
-              <Card 
+              <Card
                 className={`cursor-pointer transition-all ${data.trialType === 'sample' ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
                 onClick={() => setData(prev => ({ ...prev, trialType: 'sample' }))}
               >
@@ -271,7 +277,7 @@ export default function OnboardingWelcomePage() {
               </Card>
 
               {/* Import Data */}
-              <Card 
+              <Card
                 className={`cursor-pointer transition-all ${data.trialType === 'import' ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
                 onClick={() => setData(prev => ({ ...prev, trialType: 'import' }))}
               >
@@ -309,8 +315,8 @@ export default function OnboardingWelcomePage() {
                   <li>• Import thousands of assets in minutes</li>
                 </ul>
                 <div className="mt-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => window.open('/imports', '_blank')}
                     className="text-blue-700 border-blue-300 hover:bg-blue-100"
@@ -322,7 +328,7 @@ export default function OnboardingWelcomePage() {
               </div>
             )}
 
-            <Button 
+            <Button
               onClick={() => {
                 console.log("Complete Setup button clicked, trialType:", data.trialType);
                 handleTrialSelection(data.trialType);

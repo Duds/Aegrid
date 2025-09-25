@@ -1,7 +1,7 @@
 'use client';
 
 import { AppSidebar } from '@/components/app-sidebar';
-import { ProtectedRoute } from '@/components/auth/protected-route';
+import ProtectedRoute from '@/components/auth/protected-route';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
@@ -47,11 +47,11 @@ export default function AppLayout({
       >
         <AppSidebar variant="sidebar" collapsible="icon" />
         <SidebarInset className="flex-1 min-w-0 bg-sidebar flex flex-col min-h-screen">
-          <div className="bg-white rounded-lg shadow-md mx-2 my-2 border-0 flex flex-col min-h-full group-data-[collapsible=icon]/sidebar-wrapper:mx-1">
+          <div className="bg-white rounded-lg shadow-sm mx-1 my-1 border-0 flex flex-col min-h-full group-data-[collapsible=icon]/sidebar-wrapper:mx-1">
             <SiteHeader title={title} />
             <div className="flex-1 flex flex-col">
-              <div className="@container/main flex flex-1 flex-col gap-2">
-                <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6 flex-1">
+              <div className="@container/main flex flex-1 flex-col">
+                <div className="flex flex-col gap-4 py-3 px-4 lg:px-6 flex-1">
                   {children}
                 </div>
               </div>

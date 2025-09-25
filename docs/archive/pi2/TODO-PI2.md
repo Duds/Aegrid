@@ -276,8 +276,8 @@ Transform Aegrid from a feature-centric platform to a journey-centric asset inte
 
 ### GitHub Issues Analysis & PI Categorization
 
-**Repository**: `Duds/CouncilWorks`  
-**Total Issues**: 119 (103 open, 16 closed)  
+**Repository**: `Duds/Aegrid`
+**Total Issues**: 119 (103 open, 16 closed)
 **Analysis Date**: 2025-01-27
 
 #### PI1 Issues (Foundation & Authentication) - Epic 1

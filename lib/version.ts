@@ -1,4 +1,4 @@
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from '../package.json';
 
 export const appVersion: string = (pkg as any).version as string;
 export const releaseChannel: string =

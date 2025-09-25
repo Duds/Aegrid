@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { AuditAction, Role } from "@prisma/client";
 
+// Re-export AuditAction for convenience
+export { AuditAction };
+
 /**
  * Audit logging utility for tracking sensitive operations
  * @param action - The action being performed

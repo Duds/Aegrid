@@ -82,18 +82,18 @@ jobs:
               repo: context.repo.repo,
               state: 'open'
             });
-            
+
             if (projects.length > 0) {
               const project = projects[0];
               const { data: columns } = await github.rest.projects.listColumns({
                 project_id: project.id
               });
-              
-              const stagingColumn = columns.find(col => 
-                col.name.toLowerCase().includes('staging') || 
+
+              const stagingColumn = columns.find(col =>
+                col.name.toLowerCase().includes('staging') ||
                 col.name.toLowerCase().includes('deployed')
               );
-              
+
               if (stagingColumn) {
                 await github.rest.projects.createCard({
                   column_id: stagingColumn.id,
@@ -109,7 +109,7 @@ jobs:
         with:
           status: success
           channel: '#deployments'
-          text: '🚀 CouncilWorks deployed to staging successfully!'
+          text: '🚀 Aegrid deployed to staging successfully!'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -119,6 +119,6 @@ jobs:
         with:
           status: failure
           channel: '#deployments'
-          text: '❌ CouncilWorks staging deployment failed!'
+          text: '❌ Aegrid staging deployment failed!'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

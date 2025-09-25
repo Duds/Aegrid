@@ -136,7 +136,7 @@ Transform Aegrid from traditional asset management to a resilient, antifragile p
 
 ### GitHub Issues Analysis & PI3 Categorization
 
-**Repository**: `Duds/CouncilWorks`
+**Repository**: `Duds/Aegrid`
 **Total Issues**: 119 (103 open, 16 closed)
 **Analysis Date**: 2025-01-16
 

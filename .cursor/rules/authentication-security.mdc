@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-# Authentication & Security Standards (CouncilWorks)
+# Authentication & Security Standards (Aegrid)
 
 ## 🔐 Core Security Principles
 
@@ -11,7 +11,7 @@ alwaysApply: true
 "purpose": "authentication_security_standards",
 "format_version": "1.0.0",
 "enforced_for": "all contributors",
-"project": "CouncilWorks - Council Asset Lifecycle Intelligence Platform"
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
 }
 
 ### **Password Security**
@@ -30,7 +30,7 @@ alwaysApply: true
 
 ### **Role-Based Access Control (RBAC)**
 
-- **User Roles (CouncilWorks)**: ADMIN, MANAGER, SUPERVISOR, CREW, EXEC, CITIZEN (read-only intake)
+- **User Roles (Aegrid)**: ADMIN, MANAGER, SUPERVISOR, CREW, EXEC, CITIZEN (read-only intake)
 - **Permission Checks**: Verify user permissions before sensitive operations
 - **Route Protection**: Wrap protected pages with ProtectedRoute component
 - **API Security**: Validate user permissions in all API endpoints

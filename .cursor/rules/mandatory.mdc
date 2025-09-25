@@ -1,16 +1,16 @@
 ---
-Description: Mandatory Project Rules (CouncilWorks)
+Description: Mandatory Project Rules (Aegrid)
 alwaysApply: true
 ---
 
-# Mandatory Project Rules (CouncilWorks)
+# Mandatory Project Rules (Aegrid)
 
 @context {
 "type": "documentation",
 "purpose": "project_rules",
 "format_version": "1.0.0",
 "enforced_for": "all contributors",
-"project": "CouncilWorks - Council Asset Lifecycle Intelligence Platform"
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
 }
 
 ## Documentation and Commit Enforcement
@@ -51,7 +51,7 @@ alwaysApply: true
 
 ## Project Summary
 
-- **Aegrid** — Asset Lifecycle Intelligence Platform (formerly CouncilWorks)
+- **Aegrid** — Asset Lifecycle Intelligence Platform (formerly Aegrid)
 - **Technology Stack**: Next.js 15, React 18, TypeScript, Prisma ORM, PostgreSQL + PostGIS, Azure Cosmos DB Gremlin API
 - **Features**: Hybrid database architecture, graph-based asset intelligence, journey-centric UX, ISO compliance, sector-neutral platform
 - **Security**: NextAuth.js, bcrypt password hashing, role-based access control, ISO 27001/27002 compliance
@@ -204,6 +204,119 @@ alwaysApply: true
 - **When adding features**: Apply aegrid_rules_compliance, journey_centric_design, and iso_compliance_verification
 - **When implementing compliance**: Apply iso_compliance_verification and sector_neutral_implementation
 
+## Core Development Rules
+
+### Rule 1: Real Data Only
+**NEVER use mock data, always use real data from the database in the Greenfield Shire Council (Test) organisation.**
+
+- All components, pages, and API routes must use real data from the database
+- Always check the Prisma schema for the correct field names and relationships
+- If required data does not exist in the schema, suggest creating the entities and adding them to the seed data and updating the Schema
+- Use proper error handling and loading states when data is missing
+- Test with real data to ensure functionality works with actual database records
+
+### Rule 2: Database Schema Compliance
+**Always check the Prisma schema for correct field names and relationships before making database queries.**
+
+- Use correct field names as defined in `prisma/schema.prisma`
+- For Asset model: use `createdByUser` and `updatedByUser` (not `User_Asset_createdByToUser`)
+- For PostGIS fields: use `address`, `suburb`, `postcode`, `state` instead of selecting `location` directly
+- Always validate field names against the schema before making Prisma queries
+- Use proper TypeScript types that match the Prisma schema
+
+### Rule 3: Organization-Specific Data
+**All data operations must be scoped to the user's organization (Greenfield Shire Council for testing).**
+
+- Always filter data by `organisationId` in database queries
+- Ensure users can only access data from their assigned organization
+- Use session-based organization context for all data operations
+- Implement proper RBAC checks for organization-scoped data access
+
+### Rule 4: Error Handling and Loading States
+**Implement proper error handling and loading states for all data operations.**
+
+- Show loading indicators while fetching data
+- Display user-friendly error messages when data operations fail
+- Provide retry mechanisms for failed operations
+- Handle edge cases gracefully (null/undefined data, empty results)
+- Log errors for debugging while showing appropriate user messages
+
+### Rule 5: Real API Integration
+**Use real API endpoints that connect to actual database data.**
+
+- Create API routes that fetch real data from the database
+- Implement proper authentication and authorization checks
+- Use consistent API response formats
+- Handle database connection errors gracefully
+- Provide meaningful error responses with appropriate HTTP status codes
+
+## Implementation Guidelines
+
+### Database Queries
+```typescript
+// ✅ CORRECT - Use real data with proper field names
+const assets = await prisma.asset.findMany({
+  where: { organisationId: session.user.organisationId },
+  include: {
+    createdByUser: { select: { id: true, name: true, email: true } },
+    updatedByUser: { select: { id: true, name: true, email: true } },
+  },
+});
+
+// ❌ WRONG - Using incorrect field names
+const assets = await prisma.asset.findMany({
+  include: {
+    User_Asset_createdByToUser: { select: { id: true, name: true } },
+  },
+});
+```
+
+### Component Implementation
+```typescript
+// ✅ CORRECT - Real data with proper error handling
+const [assets, setAssets] = useState<Asset[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
+
+const fetchAssets = async () => {
+  try {
+    setLoading(true);
+    const response = await fetch('/api/assets');
+    if (!response.ok) throw new Error('Failed to fetch assets');
+    const data = await response.json();
+    setAssets(data.assets);
+    setError(null);
+  } catch (err) {
+    setError('Failed to load assets');
+  } finally {
+    setLoading(false);
+  }
+};
+
+// ❌ WRONG - Using mock data
+const mockAssets = [
+  { id: '1', name: 'Mock Asset', condition: 'GOOD' }
+];
+```
+
+### API Route Implementation
+```typescript
+// ✅ CORRECT - Real data with proper authentication
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.organisationId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const assets = await prisma.asset.findMany({
+    where: { organisationId: session.user.organisationId },
+    // ... proper field selections
+  });
+
+  return NextResponse.json({ assets });
+}
+```
+
 ## Additional Guidance
 
 - Always offer suggestions as a lettered list (a), b), c.), etc.
@@ -211,3 +324,22 @@ alwaysApply: true
 - Follow Australian English spelling and conventions
 - Maintain security best practices for all authentication and data operations
 - Ensure all changes are properly tested before committing
+
+## Enforcement
+
+These rules are **MANDATORY** and must be followed for:
+- All new feature development
+- All bug fixes
+- All refactoring work
+- All API route implementations
+- All component development
+- All database operations
+
+**Violation of these rules will result in code rejection and required fixes before merge.**
+
+## Related Documentation
+
+- `prisma/schema.prisma` - Database schema definition
+- `docs/core/aegrid-rules.md` - Core Aegrid Rules
+- `docs/development/developer-brief.md` - Development guidelines
+- `docs/architecture/SAD.md` - System Architecture Document

@@ -4,10 +4,18 @@ hide circle
 skinparam linetype ortho
 
 ' Core Organisation & User Management
+' Organisation resourceSettings includes:
+' - weatherLocations: Array of monitoring locations with coordinates
+' - externalApis: Configuration for Weather, IoT, Energy, Emergency APIs
+' - regionalSettings: Timezone, currency, language, units
+' Organisation resilienceConfig includes:
+' - Circuit breaker settings, retry logic, adaptive response config
 entity Organisation {
   * id : UUID
   --
   name : string
+  resilienceConfig : JSON
+  resourceSettings : JSON
   created_at : timestamp
   updated_at : timestamp
 }
@@ -409,6 +417,18 @@ Organisation ||--o{ AuditLog : logs
 Organisation ||--o{ ComplianceRecord : tracks
 Organisation ||--o{ EscalationEvent : handles
 
+' Control Center Relationships - Organisation
+Organisation ||--o{ EmergencyAlert : manages
+Organisation ||--o{ EmergencyResource : maintains
+Organisation ||--o{ EnergySystem : operates
+Organisation ||--o{ EnergyAlert : monitors
+Organisation ||--o{ PerformanceKPI : tracks
+Organisation ||--o{ PerformanceAlert : alerts
+Organisation ||--o{ WorkOrderType : defines
+Organisation ||--o{ WorkOrderSkill : catalogues
+Organisation ||--o{ WorkOrderPart : inventories
+Organisation ||--o{ WorkOrderSafetyRequirement : enforces
+
 ' Relationships - User & Vendor Management
 User }o--|| Vendor : belongs_to
 User ||--o{ WorkOrder : assigned
@@ -426,6 +446,10 @@ Asset ||--o{ RiskSignal : signalled
 Asset ||--o{ EmergencyResponse : emergency
 Asset ||--o{ ComplianceRecord : compliant
 
+' Control Center Relationships - Assets
+Asset ||--o{ EmergencyAlert : alerts
+Asset ||--o{ EnergySystem : powers
+
 ' Relationships - Vendor & Contract Management
 Vendor ||--o{ Contract : party
 Vendor ||--o{ WorkOrder : executes
@@ -440,6 +464,12 @@ WorkOrder ||--o{ Inspection : includes
 WorkOrder ||--o{ CitizenReport : sourced_from
 WorkOrder ||--o{ EmergencyResponse : emergency
 WorkOrder ||--o{ EscalationEvent : escalated
+
+' Control Center Relationships - Work Orders
+WorkOrder ||--o{ WorkOrderTypeMapping : typed
+WorkOrder ||--o{ WorkOrderSkillMapping : skilled
+WorkOrder ||--o{ WorkOrderPartMapping : parts
+WorkOrder ||--o{ WorkOrderSafetyMapping : safety
 
 ' Relationships - RCM & Maintenance
 RCMTemplate ||--o{ MaintenancePlan : template_for
@@ -459,6 +489,243 @@ CitizenReport ||--o{ CitizenFeedback : feedback_for
 
 ' Relationships - Margin & Emergency
 MarginCapacity ||--o{ EmergencyResponse : supports
+
+' Control Center Relationships - Emergency Management
+EmergencyAlert }o--|| Asset : alerts_for
+EmergencyResource }o--|| Organisation : managed_by
+
+' Control Center Relationships - Energy Management
+EnergySystem }o--|| Asset : powers_asset
+EnergySystem ||--o{ EnergyAlert : generates
+EnergyAlert }o--|| EnergySystem : alerts_for
+
+' Control Center Relationships - Performance Monitoring
+PerformanceKPI }o--|| Organisation : tracked_by
+PerformanceKPI ||--o{ PerformanceAlert : triggers
+PerformanceAlert }o--|| PerformanceKPI : alerts_for
+
+' Control Center Relationships - Enhanced Work Orders
+WorkOrderType }o--|| Organisation : defined_by
+WorkOrderSkill }o--|| Organisation : catalogued_by
+WorkOrderPart }o--|| Organisation : inventoried_by
+WorkOrderSafetyRequirement }o--|| Organisation : enforced_by
+
+WorkOrderTypeMapping }o--|| WorkOrder : maps_work_order
+WorkOrderTypeMapping }o--|| WorkOrderType : maps_type
+
+WorkOrderSkillMapping }o--|| WorkOrder : maps_work_order
+WorkOrderSkillMapping }o--|| WorkOrderSkill : maps_skill
+
+WorkOrderPartMapping }o--|| WorkOrder : maps_work_order
+WorkOrderPartMapping }o--|| WorkOrderPart : maps_part
+
+WorkOrderSafetyMapping }o--|| WorkOrder : maps_work_order
+WorkOrderSafetyMapping }o--|| WorkOrderSafetyRequirement : maps_safety
+
+' Control Center Models - Emergency Management
+entity EmergencyAlert {
+  * id : UUID
+  --
+  organisation_id : UUID
+  asset_id : UUID
+  alert_type : string
+  severity : string
+  title : string
+  description : text
+  location : string
+  status : string
+  response_time : int
+  resolution_time : int
+  detected_at : timestamp
+  acknowledged_at : timestamp
+  resolved_at : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity EmergencyResource {
+  * id : UUID
+  --
+  organisation_id : UUID
+  resource_type : string
+  name : string
+  description : text
+  total_capacity : int
+  available_count : int
+  utilised_count : int
+  status : string
+  location : string
+  contact_person : string
+  contact_phone : string
+  contact_email : string
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' Control Center Models - Energy Management
+entity EnergySystem {
+  * id : UUID
+  --
+  organisation_id : UUID
+  asset_id : UUID
+  name : string
+  system_type : string
+  status : string
+  capacity : decimal
+  current_output : decimal
+  efficiency : decimal
+  location : string
+  grid_connection : boolean
+  battery_level : decimal
+  last_maintenance : timestamp
+  next_maintenance : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity EnergyAlert {
+  * id : UUID
+  --
+  organisation_id : UUID
+  energy_system_id : UUID
+  alert_type : string
+  severity : string
+  message : string
+  description : text
+  status : string
+  detected_at : timestamp
+  resolved_at : timestamp
+  created_at : timestamp
+}
+
+' Control Center Models - Performance Monitoring
+entity PerformanceKPI {
+  * id : UUID
+  --
+  organisation_id : UUID
+  name : string
+  description : text
+  category : string
+  current_value : decimal
+  target_value : decimal
+  unit : string
+  trend : string
+  change_percent : decimal
+  status : string
+  period : string
+  measured_at : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity PerformanceAlert {
+  * id : UUID
+  --
+  organisation_id : UUID
+  kpi_id : UUID
+  alert_type : string
+  severity : string
+  title : string
+  description : text
+  threshold_value : decimal
+  actual_value : decimal
+  status : string
+  detected_at : timestamp
+  resolved_at : timestamp
+  created_at : timestamp
+}
+
+' Control Center Models - Enhanced Work Orders
+entity WorkOrderType {
+  * id : UUID
+  --
+  organisation_id : UUID
+  name : string
+  description : text
+  category : string
+  default_priority : AssetPriority
+  estimated_duration : int
+  requires_approval : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity WorkOrderSkill {
+  * id : UUID
+  --
+  organisation_id : UUID
+  name : string
+  description : text
+  category : string
+  skill_level : string
+  certification_required : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity WorkOrderPart {
+  * id : UUID
+  --
+  organisation_id : UUID
+  part_number : string
+  name : string
+  description : text
+  category : string
+  current_stock : int
+  minimum_stock : int
+  unit_cost : decimal
+  supplier : string
+  supplier_part_number : string
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity WorkOrderSafetyRequirement {
+  * id : UUID
+  --
+  organisation_id : UUID
+  name : string
+  description : text
+  category : string
+  is_mandatory : boolean
+  requires_permit : boolean
+  requires_training : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' Control Center Junction Tables
+entity WorkOrderTypeMapping {
+  * id : UUID
+  --
+  work_order_id : UUID
+  work_order_type_id : UUID
+}
+
+entity WorkOrderSkillMapping {
+  * id : UUID
+  --
+  work_order_id : UUID
+  work_order_skill_id : UUID
+}
+
+entity WorkOrderPartMapping {
+  * id : UUID
+  --
+  work_order_id : UUID
+  work_order_part_id : UUID
+  quantity_required : int
+  quantity_used : int
+}
+
+entity WorkOrderSafetyMapping {
+  * id : UUID
+  --
+  work_order_id : UUID
+  work_order_safety_requirement_id : UUID
+  is_compliant : boolean
+  compliance_notes : text
+}
 
 ' Resilience Command Models for Aegrid Rules Implementation
 entity ServicePurpose {

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     // Get user with organisation
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { Organisation: true },
+        include: { organisation: true },
     });
 
     if (!user?.organisationId) {

@@ -1,10 +1,9 @@
-import Link from 'next/link';
-import type { Route } from 'next';
-import type { Metadata } from 'next';
+import { ContactForm } from '@/components/contact/contact-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ContactForm } from '@/components/contact/contact-form';
-import { Mail, Phone, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { CheckCircle, Clock, Mail, MapPin, Phone } from 'lucide-react';
+import type { Metadata, Route } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Contact Aegrid - Start Your Pilot Partnership Journey',
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
     siteName: 'Aegrid',
     images: [
       {
-        url: '/images/CouncilWorks_HERO.png',
+        url: '/images/Aegrid_HERO.png',
         width: 1200,
         height: 630,
         alt: 'Contact Aegrid for pilot partnerships',
@@ -49,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Contact Aegrid - Start Your Pilot Partnership Journey',
     description: 'Get in touch with Dale Rogers and the Aegrid team to explore pilot partnerships and transform your asset management approach.',
-    images: ['/images/CouncilWorks_HERO.png'],
+    images: ['/images/Aegrid_HERO.png'],
     creator: '@aegrid_au',
   },
   alternates: {
@@ -101,8 +100,8 @@ export default function ContactPage() {
                 Let's Start Your Pilot Partnership Journey
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
-                Ready to transform your asset management approach? Get in touch with Dale Rogers 
-                and the Aegrid team to explore how we can help you implement the Aegrid Rules 
+                Ready to transform your asset management approach? Get in touch with Dale Rogers
+                and the Aegrid team to explore how we can help you implement the Aegrid Rules
                 and build a more intelligent, proactive asset management system.
               </p>
             </div>
@@ -145,8 +144,8 @@ export default function ContactPage() {
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Email</p>
-                      <a 
-                        href="mailto:dale@aegrid.au" 
+                      <a
+                        href="mailto:dale@aegrid.au"
                         className="text-primary hover:underline"
                       >
                         dale@aegrid.au
@@ -157,8 +156,8 @@ export default function ContactPage() {
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Phone</p>
-                      <a 
-                        href="tel:+61400000000" 
+                      <a
+                        href="tel:+61400000000"
                         className="text-primary hover:underline"
                       >
                         +61 400 000 000
@@ -262,8 +261,8 @@ export default function ContactPage() {
                 How quickly can we start a pilot partnership?
               </summary>
               <p className="mt-2 text-sm text-muted-foreground">
-                Most pilot partnerships can begin within 2-4 weeks of initial contact. We'll work 
-                with your team to understand your specific needs, configure a tailored prototype, 
+                Most pilot partnerships can begin within 2-4 weeks of initial contact. We'll work
+                with your team to understand your specific needs, configure a tailored prototype,
                 and ensure a smooth start to your pilot journey.
               </p>
             </details>
@@ -272,8 +271,8 @@ export default function ContactPage() {
                 What information should I include in my inquiry?
               </summary>
               <p className="mt-2 text-sm text-muted-foreground">
-                Help us understand your challenges by sharing your current asset management approach, 
-                key pain points, strategic goals, and what success looks like for your organisation. 
+                Help us understand your challenges by sharing your current asset management approach,
+                key pain points, strategic goals, and what success looks like for your organisation.
                 The more context you provide, the better we can tailor our response.
               </p>
             </details>
@@ -282,8 +281,8 @@ export default function ContactPage() {
                 Do you work with councils outside of Australia?
               </summary>
               <p className="mt-2 text-sm text-muted-foreground">
-                While we specialise in Australian councils and their unique requirements, we're 
-                open to discussing partnerships with international organisations that share our 
+                While we specialise in Australian councils and their unique requirements, we're
+                open to discussing partnerships with international organisations that share our
                 vision for intelligent asset management.
               </p>
             </details>
@@ -292,8 +291,8 @@ export default function ContactPage() {
                 What's the difference between a pilot and a full implementation?
               </summary>
               <p className="mt-2 text-sm text-muted-foreground">
-                A pilot partnership is a low-risk way to explore the Aegrid Rules in a controlled 
-                environment with a subset of your assets. Full implementation comes after a 
+                A pilot partnership is a low-risk way to explore the Aegrid Rules in a controlled
+                environment with a subset of your assets. Full implementation comes after a
                 successful pilot, scaling the approach across your entire organisation.
               </p>
             </details>

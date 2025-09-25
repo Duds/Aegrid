@@ -1,9 +1,9 @@
 ---
-description: Github Workflow Rules and Github Issue Rules (CouncilWorks)
+description: Github Workflow Rules and Github Issue Rules (Aegrid)
 globs:
 alwaysApply: false
 ---
-# GitHub Workflow Rules (CouncilWorks)
+# GitHub Workflow Rules (Aegrid)
 
 ## Issue Management
 

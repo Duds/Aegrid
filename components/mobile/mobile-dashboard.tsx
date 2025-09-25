@@ -1,34 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Smartphone,
-  MapPin,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  WifiOff,
-  Wifi,
-  RefreshCw,
-  Plus,
-  Camera,
-  Calendar,
-  Loader2,
-  Settings,
-  Sync,
-  Wrench,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { OfflineInspection, offlineStorage } from "@/lib/offline-storage";
+import {
+    AlertTriangle,
+    Camera,
+    CheckCircle,
+    Clock,
+    Loader2,
+    MapPin,
+    RefreshCw,
+    Settings,
+    WifiOff,
+    Wrench
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { offlineStorage, OfflineInspection } from "@/lib/offline-storage";
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 interface DashboardStats {
@@ -57,22 +52,22 @@ export function MobileDashboard() {
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
-    
+
     const handleOnline = () => {
       setIsOnline(true);
       toast.success("Back online - syncing data");
     };
-    
+
     const handleOffline = () => {
       setIsOnline(false);
       toast.warning("You're offline - data will sync when online");
     };
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     loadDashboardData();
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -90,7 +85,7 @@ export function MobileDashboard() {
       // Calculate stats
       const pendingInspections = inspections.filter(i => i.syncStatus === 'pending').length;
       const completedInspections = inspections.filter(i => i.syncStatus === 'synced').length;
-      
+
       setStats({
         totalAssets: assets.length,
         pendingInspections,
@@ -119,7 +114,7 @@ export function MobileDashboard() {
         const registration = await navigator.serviceWorker.ready;
         await registration.sync.register('inspection-sync');
         await registration.sync.register('asset-sync');
-        
+
         toast.success("Sync initiated - data will sync in background");
       } else {
         toast.error("Background sync not supported");
@@ -158,7 +153,7 @@ export function MobileDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Mobile Dashboard</h1>
-          
+
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -170,7 +165,7 @@ export function MobileDashboard() {
             {syncing ? (
               <LoadingSpinner size="sm" />
             ) : (
-              <Sync className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" />
             )}
           </Button>
           <Button variant="outline" size="sm">
@@ -204,43 +199,43 @@ export function MobileDashboard() {
               <MapPin className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-2xl font-bold">{stats.totalAssets}</p>
-                
+
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
               <Camera className="h-8 w-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-2xl font-bold">{stats.completedInspections}</p>
-                
+
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
               <Clock className="h-8 w-8 text-orange-600" />
               <div className="ml-4">
                 <p className="text-2xl font-bold">{stats.pendingInspections}</p>
-                
+
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
               <AlertTriangle className="h-8 w-8 text-red-600" />
               <div className="ml-4">
                 <p className="text-2xl font-bold">{stats.overdueMaintenance}</p>
-                
+
               </div>
             </div>
           </CardContent>
@@ -260,26 +255,26 @@ export function MobileDashboard() {
                 <span className="text-sm">New Inspection</span>
               </a>
             </Button>
-            
+
             <Button variant="outline" className="h-16 flex-col gap-2" asChild>
               <a href="/mobile/work-orders">
                 <Wrench className="h-6 w-6" />
                 <span className="text-sm">Work Orders</span>
               </a>
             </Button>
-            
+
             <Button variant="outline" className="h-16 flex-col gap-2" asChild>
               <a href="/assets/map">
                 <MapPin className="h-6 w-6" />
                 <span className="text-sm">View Assets</span>
               </a>
             </Button>
-            
+
             <Button variant="outline" className="h-16 flex-col gap-2" onClick={handleSync} disabled={syncing}>
               {syncing ? (
                 <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
-                <Sync className="h-6 w-6" />
+                <RefreshCw className="h-6 w-6" />
               )}
               <span className="text-sm">Sync Data</span>
             </Button>
@@ -344,19 +339,19 @@ export function MobileDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              
+
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-lg font-bold text-blue-600">{stats.offlineData}</div>
-                  
+
                 </div>
                 <div>
                   <div className="text-lg font-bold text-orange-600">{stats.pendingInspections}</div>
-                  
+
                 </div>
                 <div>
                   <div className="text-lg font-bold text-green-600">{stats.completedInspections}</div>
-                  
+
                 </div>
               </div>
             </div>

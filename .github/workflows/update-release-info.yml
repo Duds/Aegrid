@@ -70,12 +70,12 @@ jobs:
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ steps.release-info.outputs.version }}
+          name: Release ${{ steps.release-info.outputs.version }}
           body: |
             ## 🚀 Release ${{ steps.release-info.outputs.version }}
 
@@ -83,11 +83,11 @@ jobs:
             **Release Channel**: ${{ steps.release-info.outputs.release_channel }}
 
             ### What's New
-            - Comprehensive security hardening implementation
-            - Automated security scanning and monitoring
-            - Enhanced documentation and architecture
-            - UI/UX improvements and theming
-            - Code quality and testing enhancements
+            - Comprehensive platform improvements and ISO 55000 policy framework
+            - Phase 3 advanced features implementation
+            - Aegrid Rules documentation and corrections
+            - Performance improvements and bug fixes
+            - Enhanced user experience and platform stability
 
             ### Release Information
             - **Version**: ${{ steps.release-info.outputs.version }}

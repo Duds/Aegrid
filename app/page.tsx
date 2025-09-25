@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     siteName: 'Aegrid',
     images: [
       {
-        url: '/images/CouncilWorks_HERO.png',
+        url: '/images/Aegrid_HERO.png',
         width: 1200,
         height: 630,
         alt: 'Aegrid dashboard interface showing ISO 55000 compliance and energy management capabilities',
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
       'Aegrid: Asset Management Reimagined | Four Rules That Change Everything',
     description:
       'Built on revolutionary simplicity: Every Asset Has a Purpose, Risk Sets the Rhythm, Respond to the Real World, Operate with Margin. Transform your asset management with intelligent systems that work.',
-    images: ['/images/CouncilWorks_HERO.png'],
+    images: ['/images/Aegrid_HERO.png'],
     creator: '@aegrid_au',
   },
   alternates: {

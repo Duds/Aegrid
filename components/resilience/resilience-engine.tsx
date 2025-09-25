@@ -20,8 +20,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     MarginType,
-    ResilienceMode,
-    ResilienceStatus
+    ResilienceMode
 } from '@/types/resilience';
 import {
     Activity,
@@ -59,7 +58,7 @@ export function ResilienceEngine({
   userRole,
   refreshInterval = 30000
 }: ResilienceEngineProps) {
-  const [status, setStatus] = useState<ResilienceStatus | null>(null);
+  const [status, setStatus] = useState<ResilienceMode | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);

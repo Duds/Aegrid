@@ -377,4 +377,4 @@ export function WorkflowGroup({ group }: { group: WorkflowGroup }) {
 - Accessibility testing
 - Bug fixes and refinements
 
-This implementation plan provides a comprehensive roadmap for transforming the CouncilWorks sidebar into a journey-centric navigation system that aligns with user workflows and improves overall user experience.
+This implementation plan provides a comprehensive roadmap for transforming the Aegrid sidebar into a journey-centric navigation system that aligns with user workflows and improves overall user experience.

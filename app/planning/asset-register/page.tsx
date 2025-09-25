@@ -4,98 +4,112 @@ import AppLayout from '@/components/layout/app-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Activity,
-  AlertTriangle,
-  Building2,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Search,
-  Shield,
-  Target,
+    Activity,
+    AlertTriangle,
+    Building2,
+    Calendar,
+    CheckCircle,
+    Clock,
+    DollarSign,
+    MapPin,
+    RefreshCw,
+    Search,
+    Shield,
+    Target,
+    TrendingUp,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+interface Asset {
+  id: string;
+  name: string;
+  assetNumber: string;
+  assetType: string;
+  purpose: string | null;
+  condition: string;
+  criticalityLevel: string | null;
+  address: string | null;
+  suburb: string | null;
+  postcode: string | null;
+  state: string | null;
+  lastInspection: Date | null;
+  nextInspection: Date | null;
+  // Lifecycle Management Data
+  installationDate: Date | null;
+  expectedLifespan: number | null;
+  currentValue: number | null;
+  replacementCost: number | null;
+  depreciationRate: number | null;
+  purchasePrice: number | null;
+  warrantyExpiry: Date | null;
+  maintenanceCost: number | null;
+  manufacturer: string | null;
+  model: string | null;
+  serialNumber: string | null;
+  status: string;
+  priority: string;
+  // Calculated fields
+  currentAge: number;
+  lifecycleStage: string;
+  replacementDate: Date | null;
+  yearsToReplacement: number | null;
+  lifecycleProgress: number;
+  totalLifecycleCost: number;
+  annualMaintenanceCost: number;
+  residualValue: number;
+}
 
 /**
  * Asset Register Page
  *
  * Purpose-driven asset search and discovery interface showcasing Rule 1: Every Asset Has a Purpose
  * Provides asset lookup by service purpose, not just asset type
+ * Enhanced with lifecycle management capabilities
  */
 export default function AssetRegisterPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock asset data demonstrating purpose-driven organization
-  const mockAssets = [
-    {
-      id: 'A001',
-      name: 'Main Water Treatment Plant',
-      assetType: 'Water Infrastructure',
-      purpose: 'Safe Drinking Water Control',
-      condition: 'GOOD',
-      criticality: 'CRITICAL',
-      location: 'Industrial Zone',
-      lastInspection: '2024-12-01',
-      nextInspection: '2024-12-08',
-      riskScore: 25,
-    },
-    {
-      id: 'A002',
-      name: 'City Centre Traffic Lights',
-      assetType: 'Traffic Control',
-      purpose: 'Road Safety Control',
-      condition: 'FAIR',
-      criticality: 'HIGH',
-      location: 'City Centre',
-      lastInspection: '2024-11-28',
-      nextInspection: '2024-12-05',
-      riskScore: 45,
-    },
-    {
-      id: 'A003',
-      name: 'Community Swimming Pool',
-      assetType: 'Recreation Facility',
-      purpose: 'Community Recreation Control',
-      condition: 'EXCELLENT',
-      criticality: 'MEDIUM',
-      location: 'Recreation Centre',
-      lastInspection: '2024-11-15',
-      nextInspection: '2024-12-15',
-      riskScore: 15,
-    },
-  ];
-
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case 'EXCELLENT':
-        return 'text-green-600';
-      case 'GOOD':
-        return 'text-blue-600';
-      case 'FAIR':
-        return 'text-yellow-600';
-      case 'POOR':
-        return 'text-orange-600';
-      case 'CRITICAL':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
+  // Fetch real asset data from API
+  const fetchAssets = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/planning/asset-register?search=${encodeURIComponent(searchTerm)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch assets');
+      }
+      const data = await response.json();
+      setAssets(data.assets);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching assets:', err);
+      setError('Failed to load assets');
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAssets();
+  }, [searchTerm]);
 
   const getConditionIcon = (condition: string) => {
     switch (condition) {
       case 'EXCELLENT':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'GOOD':
-        return <CheckCircle className="h-4 w-4 text-blue-600" />;
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'FAIR':
         return <Clock className="h-4 w-4 text-yellow-600" />;
       case 'POOR':
@@ -109,26 +123,73 @@ export default function AssetRegisterPage() {
 
   const getCriticalityBadge = (criticality: string) => {
     switch (criticality) {
-      case 'CRITICAL':
+      case 'Critical':
         return 'destructive';
-      case 'HIGH':
+      case 'High':
         return 'outline';
-      case 'MEDIUM':
+      case 'Medium':
         return 'secondary';
-      case 'LOW':
+      case 'Low':
         return 'default';
       default:
         return 'default';
     }
   };
 
-  const filteredAssets = mockAssets.filter(asset => {
+  const getLifecycleStageBadge = (stage: string) => {
+    switch (stage) {
+      case 'NEW':
+        return 'default';
+      case 'OPERATIONAL':
+        return 'secondary';
+      case 'MATURE':
+        return 'outline';
+      case 'AGING':
+        return 'destructive';
+      case 'REPLACEMENT_DUE':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  };
+
+  if (loading) {
     return (
-      asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.assetType.toLowerCase().includes(searchTerm.toLowerCase())
+      <AppLayout
+        requiredRoles={['ADMIN', 'MANAGER', 'SUPERVISOR']}
+        title="Asset Register"
+        description="Purpose-driven asset search and management"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading assets...</p>
+          </div>
+        </div>
+      </AppLayout>
     );
-  });
+  }
+
+  if (error) {
+    return (
+      <AppLayout
+        requiredRoles={['ADMIN', 'MANAGER', 'SUPERVISOR']}
+        title="Asset Register"
+        description="Purpose-driven asset search and management"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+            <p className="text-red-500 mb-4">{error}</p>
+            <Button onClick={fetchAssets} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout
@@ -144,7 +205,7 @@ export default function AssetRegisterPage() {
               Asset Register
             </h1>
             <p className="text-muted-foreground">
-              Comprehensive asset register with purpose-driven organization
+              Comprehensive asset register with purpose-driven organization and lifecycle management
             </p>
           </div>
           <div className="flex gap-2">
@@ -159,101 +220,169 @@ export default function AssetRegisterPage() {
           </div>
         </div>
 
-        {/* Search */}
+        {/* Search and Filter */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5" />
-              Purpose-Driven Asset Search
+              Asset Search & Discovery
             </CardTitle>
             <CardDescription>
-              Search for assets by their service purpose, contribution, or
-              function
+              Search assets by purpose, type, or name to find what you need
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by purpose, asset name, or type..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="Search by asset name, purpose, or type..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <Button onClick={fetchAssets} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Asset Results */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAssets.map(asset => (
-            <Card key={asset.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{asset.name}</CardTitle>
+        {/* Asset Management Tabs */}
+        <Tabs defaultValue="register" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="register" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              Asset Register
+            </TabsTrigger>
+            <TabsTrigger value="lifecycle" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Lifecycle Management
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Asset Register Tab */}
+          <TabsContent value="register" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {assets.map((asset) => (
+                <Card key={asset.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        {getConditionIcon(asset.condition)}
+                        <CardTitle className="text-lg">{asset.name}</CardTitle>
+                      </div>
+                      <Badge variant={getCriticalityBadge(asset.criticalityLevel || '')}>
+                        {asset.criticalityLevel || 'Unknown'}
+                      </Badge>
+                    </div>
                     <CardDescription className="mt-1">
-                      {asset.assetType}
+                      {asset.purpose || 'No purpose defined'}
                     </CardDescription>
-                  </div>
-                  <Badge variant={getCriticalityBadge(asset.criticality)}>
-                    {asset.criticality}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">
-                      Service Purpose
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Target className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Asset Number:</span>
+                        <span>{asset.assetNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Type:</span>
+                        <span>{asset.assetType}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Location:</span>
+                        <span>{asset.suburb || 'Unknown'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Last Inspection:</span>
+                        <span>
+                          {asset.lastInspection
+                            ? new Date(asset.lastInspection).toLocaleDateString()
+                            : 'Never'
+                          }
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Next Inspection:</span>
+                        <span>
+                          {asset.nextInspection
+                            ? new Date(asset.nextInspection).toLocaleDateString()
+                            : 'Not scheduled'
+                          }
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm">{asset.purpose}</p>
-                  </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getConditionIcon(asset.condition)}
-                      <span
-                        className={`text-sm font-medium ${getConditionColor(asset.condition)}`}
-                      >
-                        {asset.condition}
-                      </span>
+          {/* Lifecycle Management Tab */}
+          <TabsContent value="lifecycle" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {assets.map((asset) => (
+                <Card key={asset.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-blue-600" />
+                        <CardTitle className="text-lg">{asset.name}</CardTitle>
+                      </div>
+                      <Badge variant={getLifecycleStageBadge(asset.lifecycleStage)}>
+                        {asset.lifecycleStage}
+                      </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Risk: {asset.riskScore}
+                    <CardDescription className="mt-1">
+                      {asset.purpose || 'No purpose defined'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Age:</span>
+                        <span>{asset.currentAge} years</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Expected Lifespan:</span>
+                        <span>{asset.expectedLifespan || 'Unknown'} years</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Target className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Years to Replacement:</span>
+                        <span>{asset.yearsToReplacement || 'Unknown'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Current Value:</span>
+                        <span>${asset.currentValue?.toLocaleString() || 'Unknown'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Replacement Cost:</span>
+                        <span>${asset.replacementCost?.toLocaleString() || 'Unknown'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Lifecycle Progress:</span>
+                        <span>{asset.lifecycleProgress}%</span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      <span>{asset.location}</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Next:{' '}
-                      {new Date(asset.nextInspection).toLocaleDateString(
-                        'en-AU'
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t">
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Target className="h-3 w-3 mr-1" />
-                        View Details
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Activity className="h-3 w-3 mr-1" />
-                        Schedule
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );

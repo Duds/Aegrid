@@ -1,708 +1,560 @@
 'use client';
 
 import AppLayout from '@/components/layout/app-layout';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Battery,
-  Zap,
-  Sun,
-  Wind,
-  Fuel,
-  TrendingUp,
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Power,
-  Settings,
-  BarChart3,
-  Clock,
-  MapPin,
-  ThermometerSun,
-  Gauge,
+    Activity,
+    AlertCircle,
+    Battery,
+    CheckCircle,
+    Clock,
+    Fuel,
+    MapPin,
+    Settings,
+    Sun,
+    TrendingDown,
+    TrendingUp,
+    Wind,
+    Zap
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+interface EnergySystem {
+  id: string;
+  name: string;
+  systemType: string;
+  status: string;
+  capacity: number;
+  currentOutput: number;
+  efficiency: number;
+  location?: string;
+  gridConnection: boolean;
+  batteryLevel?: number;
+  lastMaintenance?: string;
+  nextMaintenance?: string;
+  alerts: any[];
+}
+
+interface EnergyAlert {
+  id: string;
+  alertType: string;
+  severity: string;
+  message: string;
+  description?: string;
+  status: string;
+  detectedAt: string;
+  resolvedAt?: string;
+}
 
 /**
- * Energy Control Page - Phase 1 Control Center Implementation
+ * Energy Control Dashboard Page - Phase 1 Control Center Implementation
  *
- * Integrated energy asset monitoring and control for managers
- * Aligned with The Aegrid Rules - Rule 4: Operate with Margin
+ * Provides real-time energy system monitoring and control for managers
+ * Aligned with The Aegrid Rules - Rule 2: Risk Sets the Rhythm
  *
- * @component EnergyControlPage
+ * @component EnergyControlDashboardPage
  * @example
  * ```tsx
- * <EnergyControlPage />
+ * <EnergyControlDashboardPage />
  * ```
  * @accessibility
- * - ARIA roles: main, button, tablist, tabpanel
- * - Keyboard navigation: Tab through energy controls and metrics
- * - Screen reader: Announces energy status and critical alerts
+ * - ARIA roles: main, alert, button, tablist, tabpanel
+ * - Keyboard navigation: Tab through energy systems and controls
+ * - Screen reader: Announces energy alerts and system status
  */
-export default function EnergyControlPage() {
-  // Mock energy data - will be replaced with real API calls
-  const energySystems = [
-    {
-      id: 'solar-array-01',
-      name: 'Solar Array - North Facility',
-      type: 'SOLAR',
-      status: 'OPERATIONAL',
-      capacity: 2500, // kW
-      currentOutput: 1875, // kW
-      efficiency: 94.2,
-      location: 'North District',
-      batteryLevel: 85,
-      gridConnection: true,
-      lastMaintenance: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15), // 15 days ago
-      nextMaintenance: new Date(Date.now() + 1000 * 60 * 60 * 24 * 75), // 75 days from now
-      alerts: [],
-    },
-    {
-      id: 'wind-turbine-01',
-      name: 'Wind Turbine Array',
-      type: 'WIND',
-      status: 'OPERATIONAL',
-      capacity: 1800, // kW
-      currentOutput: 1260, // kW
-      efficiency: 89.7,
-      location: 'West Ridge',
-      batteryLevel: 72,
-      gridConnection: true,
-      lastMaintenance: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8), // 8 days ago
-      nextMaintenance: new Date(Date.now() + 1000 * 60 * 60 * 24 * 82), // 82 days from now
-      alerts: [
-        {
-          id: 'wind-alert-01',
-          type: 'EFFICIENCY_DROP',
-          severity: 'MEDIUM',
-          message: 'Wind speed below optimal range',
-          timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-        },
-      ],
-    },
-    {
-      id: 'backup-generator-01',
-      name: 'Emergency Backup Generator',
-      type: 'DIESEL',
-      status: 'STANDBY',
-      capacity: 3000, // kW
-      currentOutput: 0, // kW
-      efficiency: 0,
-      location: 'Central Facility',
-      batteryLevel: 0, // N/A for generator
-      gridConnection: false,
-      lastMaintenance: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30), // 30 days ago
-      nextMaintenance: new Date(Date.now() + 1000 * 60 * 60 * 24 * 60), // 60 days from now
-      alerts: [],
-    },
-    {
-      id: 'battery-storage-01',
-      name: 'Grid Storage Battery Bank',
-      type: 'BATTERY',
-      status: 'CHARGING',
-      capacity: 5000, // kWh
-      currentOutput: -800, // kW (negative = charging)
-      efficiency: 96.8,
-      location: 'Central Storage',
-      batteryLevel: 78,
-      gridConnection: true,
-      lastMaintenance: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
-      nextMaintenance: new Date(Date.now() + 1000 * 60 * 60 * 24 * 85), // 85 days from now
-      alerts: [],
-    },
-  ];
+export default function EnergyControlDashboardPage() {
+  const [systems, setSystems] = useState<EnergySystem[]>([]);
+  const [alerts, setAlerts] = useState<EnergyAlert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  const gridMetrics = {
-    totalCapacity: 12300, // kW
-    currentDemand: 8450, // kW
-    currentSupply: 8920, // kW
-    gridStability: 98.5, // %
-    powerFactor: 0.95,
-    frequency: 50.02, // Hz
-    voltage: 240.8, // V
-    carbonOffset: 2450, // kg CO2 saved today
-    energyTraded: 470, // kWh sold to grid today
-    costSavings: 1250, // $ saved today
+  useEffect(() => {
+    fetchEnergyData();
+    // Set up real-time updates every 30 seconds
+    const interval = setInterval(fetchEnergyData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchEnergyData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch from database, external APIs, and simulation APIs
+      const [dbResponse, externalResponse, simResponse] = await Promise.all([
+        fetch('/api/control-center/energy'),
+        fetch('/api/external/energy?external=true').catch(() => null), // Graceful fallback
+        fetch('/api/simulation/energy?format=json')
+      ]);
+
+      if (!dbResponse.ok && !simResponse.ok) {
+        throw new Error('Failed to fetch energy data');
+      }
+
+      let dbData = { systems: [] };
+      let externalData = { data: [] };
+      let simData = { data: [] };
+
+      if (dbResponse.ok) {
+        dbData = await dbResponse.json();
+      }
+
+      if (externalResponse && externalResponse.ok) {
+        externalData = await externalResponse.json();
+      }
+
+      if (simResponse.ok) {
+        simData = await simResponse.json();
+      }
+
+      // Merge database, external, and simulation data
+      let mergedSystems = [...(dbData.systems || [])];
+
+      // Add external API systems if available
+      if (externalData.data && externalData.data.length > 0) {
+        const externalSystems = externalData.data.map((point: any) => ({
+          id: point.metadata?.systemId || `ext-${Date.now()}`,
+          name: point.metadata?.name || 'External System',
+          systemType: point.metadata?.systemType || 'UNKNOWN',
+          status: point.metadata?.status || 'OPERATIONAL',
+          capacity: point.metadata?.capacity || 1000,
+          currentOutput: point.value || 0,
+          efficiency: point.metadata?.efficiency || 90,
+          location: point.metadata?.location || 'Unknown',
+          gridConnection: point.metadata?.gridConnection || false,
+          batteryLevel: point.metadata?.batteryLevel,
+          lastMaintenance: point.metadata?.lastMaintenance,
+          nextMaintenance: point.metadata?.nextMaintenance,
+          alerts: [],
+        }));
+
+        // Merge external systems with database systems
+        externalSystems.forEach(extSystem => {
+          const existingIndex = mergedSystems.findIndex(sys => sys.id === extSystem.id);
+          if (existingIndex >= 0) {
+            mergedSystems[existingIndex] = { ...mergedSystems[existingIndex], ...extSystem };
+          } else {
+            mergedSystems.push(extSystem);
+          }
+        });
+      }
+
+      // Add simulation systems if available
+      if (simData.data && simData.data.length > 0) {
+        const simulationSystems = simData.data.map((point: any) => ({
+          id: point.metadata?.systemId || `sim-${Date.now()}`,
+          name: point.metadata?.systemId || 'Simulated System',
+          systemType: point.metadata?.systemType || 'UNKNOWN',
+          status: point.metadata?.status || 'OPERATIONAL',
+          capacity: point.metadata?.capacity || 1000,
+          currentOutput: point.value || 0,
+          efficiency: point.metadata?.efficiency || 90,
+          location: point.metadata?.location || 'Unknown',
+          gridConnection: point.metadata?.gridConnection || false,
+          batteryLevel: point.metadata?.batteryLevel,
+          lastMaintenance: point.metadata?.lastMaintenance,
+          nextMaintenance: point.metadata?.nextMaintenance,
+          alerts: [],
+        }));
+
+        // Merge simulation systems with database systems
+        simulationSystems.forEach(simSystem => {
+          const existingIndex = mergedSystems.findIndex(sys => sys.id === simSystem.id);
+          if (existingIndex >= 0) {
+            mergedSystems[existingIndex] = { ...mergedSystems[existingIndex], ...simSystem };
+          } else {
+            mergedSystems.push(simSystem);
+          }
+        });
+      }
+
+      setSystems(mergedSystems);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Failed to fetch energy data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch energy data');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getSystemTypeIcon = (type: string) => {
-    switch (type) {
-      case 'SOLAR':
-        return <Sun className="h-5 w-5 text-yellow-500" />;
-      case 'WIND':
-        return <Wind className="h-5 w-5 text-blue-500" />;
-      case 'DIESEL':
-        return <Fuel className="h-5 w-5 text-gray-600" />;
-      case 'BATTERY':
-        return <Battery className="h-5 w-5 text-green-500" />;
-      default:
-        return <Power className="h-5 w-5" />;
+  const getSystemTypeIcon = (systemType: string) => {
+    switch (systemType) {
+      case 'SOLAR': return <Sun className="h-4 w-4" />;
+      case 'WIND': return <Wind className="h-4 w-4" />;
+      case 'BATTERY': return <Battery className="h-4 w-4" />;
+      case 'DIESEL': return <Fuel className="h-4 w-4" />;
+      case 'GRID': return <Zap className="h-4 w-4" />;
+      default: return <Zap className="h-4 w-4" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'OPERATIONAL':
-        return 'text-green-600';
-      case 'CHARGING':
-        return 'text-blue-600';
-      case 'STANDBY':
-        return 'text-yellow-600';
-      case 'MAINTENANCE':
-        return 'text-orange-600';
-      case 'OFFLINE':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
+      case 'OPERATIONAL': return 'outline';
+      case 'MAINTENANCE': return 'secondary';
+      case 'OFFLINE': return 'destructive';
+      case 'FAULT': return 'destructive';
+      default: return 'default';
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'OPERATIONAL':
-        return 'default';
-      case 'CHARGING':
-        return 'secondary';
-      case 'STANDBY':
-        return 'outline';
-      case 'MAINTENANCE':
-        return 'warning';
-      case 'OFFLINE':
-        return 'destructive';
-      default:
-        return 'secondary';
+  const getEfficiencyColor = (efficiency: number) => {
+    if (efficiency >= 90) return 'text-green-600';
+    if (efficiency >= 75) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getEfficiencyTrend = (efficiency: number) => {
+    if (efficiency >= 90) return <TrendingUp className="h-3 w-3 text-green-600" />;
+    if (efficiency >= 75) return <TrendingUp className="h-3 w-3 text-yellow-600" />;
+    return <TrendingDown className="h-3 w-3 text-red-600" />;
+  };
+
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diffMs = now.getTime() - time.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
+  };
+
+  const handleSystemControl = async (systemId: string, action: string, value?: number) => {
+    try {
+      const response = await fetch('/api/simulation/energy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, systemId, value }),
+      });
+
+      if (response.ok) {
+        await fetchEnergyData(); // Refresh data
+      }
+    } catch (err) {
+      console.error('Failed to control energy system:', err);
     }
   };
 
-  const formatPower = (power: number) => {
-    if (Math.abs(power) >= 1000) {
-      return `${(power / 1000).toFixed(1)} MW`;
-    }
-    return `${power.toFixed(0)} kW`;
-  };
+  const totalCapacity = systems.reduce((sum, system) => sum + system.capacity, 0);
+  const totalOutput = systems.reduce((sum, system) => sum + system.currentOutput, 0);
+  const averageEfficiency = systems.length > 0
+    ? systems.reduce((sum, system) => sum + system.efficiency, 0) / systems.length
+    : 0;
 
-  const formatTimeAgo = (timestamp: Date) => {
-    const days = Math.floor(
-      (Date.now() - timestamp.getTime()) / (1000 * 60 * 60 * 24)
+  if (loading && systems.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Activity className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading energy data...</p>
+        </div>
+      </div>
     );
-    if (days === 0) {
-      const hours = Math.floor(
-        (Date.now() - timestamp.getTime()) / (1000 * 60 * 60)
-      );
-      return `${hours}h ago`;
-    }
-    return `${days}d ago`;
-  };
-
-  const formatTimeUntil = (timestamp: Date) => {
-    const days = Math.floor(
-      (timestamp.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-    );
-    return `${days} days`;
-  };
-
-  const calculateUtilization = (current: number, capacity: number) => {
-    if (capacity === 0) return 0;
-    return Math.abs(current / capacity) * 100;
-  };
+  }
 
   return (
     <AppLayout
       requiredRoles={['ADMIN', 'MANAGER', 'SUPERVISOR']}
       title="Energy Control"
-      description="Integrated energy asset monitoring and grid management"
+      description="Real-time energy system monitoring and control"
     >
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Energy Control Center
-            </h1>
+            <h1 className="text-3xl font-bold">Energy Control</h1>
             <p className="text-muted-foreground">
-              Real-time energy generation, storage, and grid management
+              Real-time energy system monitoring and control
             </p>
           </div>
-          <div className="flex gap-2">
-            <Select defaultValue="realtime">
-              <SelectTrigger className="w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="realtime">Real-time</SelectItem>
-                <SelectItem value="5min">5 minutes</SelectItem>
-                <SelectItem value="1hour">1 hour</SelectItem>
-                <SelectItem value="1day">1 day</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Grid Settings
-            </Button>
-            <Button variant="outline" size="sm">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Reports
+          <div className="text-right text-sm text-muted-foreground">
+            <p>Last updated: {lastUpdated.toLocaleTimeString()}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchEnergyData}
+              disabled={loading}
+            >
+              Refresh
             </Button>
           </div>
         </div>
 
-        {/* Grid Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Zap className="h-4 w-4" />
-                Total Supply
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {formatPower(gridMetrics.currentSupply)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Capacity: {formatPower(gridMetrics.totalCapacity)}
-              </p>
-              <Progress
-                value={
-                  (gridMetrics.currentSupply / gridMetrics.totalCapacity) * 100
-                }
-                className="mt-2 h-2"
-              />
-            </CardContent>
-          </Card>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Current Demand
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {formatPower(gridMetrics.currentDemand)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Balance:{' '}
-                {formatPower(
-                  gridMetrics.currentSupply - gridMetrics.currentDemand
-                )}
-              </p>
-              <Progress
-                value={
-                  (gridMetrics.currentDemand / gridMetrics.totalCapacity) * 100
-                }
-                className="mt-2 h-2"
-              />
-            </CardContent>
-          </Card>
+      {/* Energy Overview Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Capacity</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalCapacity.toFixed(0)} kW</div>
+            <p className="text-xs text-muted-foreground">
+              {systems.length} systems
+            </p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Gauge className="h-4 w-4" />
-                Grid Stability
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {gridMetrics.gridStability}%
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Frequency: {gridMetrics.frequency} Hz
-              </p>
-              <Progress
-                value={gridMetrics.gridStability}
-                className="mt-2 h-2"
-              />
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Current Output</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalOutput.toFixed(0)} kW</div>
+            <p className="text-xs text-muted-foreground">
+              {((totalOutput / totalCapacity) * 100).toFixed(1)}% utilization
+            </p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <ThermometerSun className="h-4 w-4" />
-                Carbon Savings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {gridMetrics.carbonOffset}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                kg CO2 saved today
-              </p>
-              <div className="text-sm font-medium text-green-600 mt-1">
-                ${gridMetrics.costSavings} saved
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Efficiency</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${getEfficiencyColor(averageEfficiency)}`}>
+              {averageEfficiency.toFixed(1)}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              System performance
+            </p>
+          </CardContent>
+        </Card>
 
-        {/* Energy Systems Tabs */}
-        <Tabs defaultValue="systems" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="systems" className="flex items-center gap-2">
-              <Power className="h-4 w-4" />
-              Energy Systems
-            </TabsTrigger>
-            <TabsTrigger value="storage" className="flex items-center gap-2">
-              <Battery className="h-4 w-4" />
-              Energy Storage
-            </TabsTrigger>
-            <TabsTrigger value="grid" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              Grid Management
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
-          </TabsList>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Grid Connection</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {systems.filter(system => system.gridConnection).length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Connected systems
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-          {/* Energy Systems Tab */}
-          <TabsContent value="systems" className="space-y-4">
-            <div className="grid gap-4">
-              {energySystems.map(system => (
-                <Card
-                  key={system.id}
-                  className="hover:shadow-md transition-shadow"
-                >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {getSystemTypeIcon(system.type)}
-                        <div>
-                          <CardTitle className="text-lg">
-                            {system.name}
-                          </CardTitle>
-                          <CardDescription className="flex items-center gap-4">
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {system.location}
-                            </span>
-                            <span>Type: {system.type}</span>
-                          </CardDescription>
-                        </div>
+      <Tabs defaultValue="systems" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="systems">Energy Systems</TabsTrigger>
+          <TabsTrigger value="alerts">Energy Alerts</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="systems" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {systems.map((system) => (
+              <Card key={system.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      {getSystemTypeIcon(system.systemType)}
+                      <div>
+                        <CardTitle className="text-lg">{system.name}</CardTitle>
+                        <CardDescription>{system.systemType}</CardDescription>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={
-                            getStatusBadge(system.status) as
-                              | 'default'
-                              | 'secondary'
-                              | 'destructive'
-                              | 'outline'
-                          }
-                          className={getStatusColor(system.status)}
-                        >
-                          {system.status}
-                        </Badge>
-                        {system.alerts.length > 0 && (
-                          <Badge variant="destructive">
-                            {system.alerts.length} alerts
+                    </div>
+                    <Badge variant={getStatusColor(system.status)}>
+                      {system.status}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Output</span>
+                      <span>{system.currentOutput.toFixed(0)}/{system.capacity} kW</span>
+                    </div>
+                    <Progress
+                      value={(system.currentOutput / system.capacity) * 100}
+                      className="h-2"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Efficiency</span>
+                    <div className="flex items-center gap-1">
+                      {getEfficiencyTrend(system.efficiency)}
+                      <span className={getEfficiencyColor(system.efficiency)}>
+                        {system.efficiency.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {system.batteryLevel !== undefined && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Battery Level</span>
+                        <span>{system.batteryLevel.toFixed(1)}%</span>
+                      </div>
+                      <Progress value={system.batteryLevel} className="h-2" />
+                    </div>
+                  )}
+
+                  {system.location && (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3 w-3" />
+                      <span>{system.location}</span>
+                    </div>
+                  )}
+
+                  {system.nextMaintenance && (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>Next maintenance: {formatTimeAgo(system.nextMaintenance)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSystemControl(system.id, 'trigger_maintenance')}
+                    >
+                      <Settings className="h-3 w-3 mr-1" />
+                      Maintenance
+                    </Button>
+                    {system.systemType === 'BATTERY' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSystemControl(system.id, 'set_output', system.capacity * 0.8)}
+                      >
+                        <Battery className="h-3 w-3 mr-1" />
+                        Charge
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="alerts" className="space-y-4">
+          <div className="grid gap-4">
+            {alerts.length === 0 ? (
+              <Card>
+                <CardContent className="flex items-center justify-center h-32">
+                  <div className="text-center">
+                    <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                    <p className="text-muted-foreground">No active energy alerts</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              alerts.map((alert) => (
+                <Card key={alert.id} className="border-l-4 border-l-yellow-500">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4 text-yellow-500" />
+                          <CardTitle className="text-lg">{alert.message}</CardTitle>
+                          <Badge variant={alert.severity === 'HIGH' ? 'destructive' : 'default'}>
+                            {alert.severity}
                           </Badge>
+                        </div>
+                        {alert.description && (
+                          <CardDescription className="text-base">
+                            {alert.description}
+                          </CardDescription>
                         )}
+                      </div>
+                      <div className="text-right text-sm text-muted-foreground">
+                        <p>{formatTimeAgo(alert.detectedAt)}</p>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div>
-                        <h4 className="font-semibold text-sm mb-2">
-                          Power Output
-                        </h4>
-                        <div className="space-y-1">
-                          <div className="text-xl font-bold">
-                            {formatPower(system.currentOutput)}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            Capacity: {formatPower(system.capacity)}
-                          </div>
-                          <Progress
-                            value={calculateUtilization(
-                              system.currentOutput,
-                              system.capacity
-                            )}
-                            className="h-2"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-sm mb-2">
-                          Efficiency
-                        </h4>
-                        <div className="space-y-1">
-                          <div className="text-xl font-bold text-green-600">
-                            {system.efficiency}%
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {system.efficiency >= 90
-                              ? 'Excellent'
-                              : system.efficiency >= 80
-                                ? 'Good'
-                                : system.efficiency >= 70
-                                  ? 'Fair'
-                                  : 'Poor'}
-                          </div>
-                          <Progress value={system.efficiency} className="h-2" />
-                        </div>
-                      </div>
-
-                      {system.type !== 'DIESEL' && (
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2">
-                            Battery Level
-                          </h4>
-                          <div className="space-y-1">
-                            <div className="text-xl font-bold text-blue-600">
-                              {system.batteryLevel}%
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {system.batteryLevel >= 80
-                                ? 'Full'
-                                : system.batteryLevel >= 50
-                                  ? 'Good'
-                                  : system.batteryLevel >= 20
-                                    ? 'Low'
-                                    : 'Critical'}
-                            </div>
-                            <Progress
-                              value={system.batteryLevel}
-                              className="h-2"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <h4 className="font-semibold text-sm mb-2">
-                          Maintenance
-                        </h4>
-                        <div className="space-y-1 text-sm">
-                          <div>
-                            Last: {formatTimeAgo(system.lastMaintenance)}
-                          </div>
-                          <div>
-                            Next: {formatTimeUntil(system.nextMaintenance)}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <CheckCircle className="h-3 w-3 text-green-500" />
-                            <span className="text-green-600">Up to date</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* System Alerts */}
-                    {system.alerts.length > 0 && (
-                      <div className="mt-4 space-y-2">
-                        <h4 className="font-semibold text-sm">Active Alerts</h4>
-                        {system.alerts.map(alert => (
-                          <Alert
-                            key={alert.id}
-                            className="border-l-4 border-l-yellow-500"
-                          >
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>
-                              {alert.type.replace('_', ' ')}
-                            </AlertTitle>
-                            <AlertDescription>
-                              {alert.message} • {formatTimeAgo(alert.timestamp)}
-                            </AlertDescription>
-                          </Alert>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex gap-2 mt-4">
-                      <Button size="sm" variant="outline">
-                        <Settings className="h-3 w-3 mr-1" />
-                        Configure
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Activity className="h-3 w-3 mr-1" />
-                        Monitor
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Schedule
-                      </Button>
-                      {system.status === 'STANDBY' && (
-                        <Button size="sm" variant="default">
-                          <Power className="h-3 w-3 mr-1" />
-                          Start System
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
+              ))
+            )}
+          </div>
+        </TabsContent>
 
-          {/* Energy Storage Tab */}
-          <TabsContent value="storage" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Battery className="h-5 w-5" />
-                  Energy Storage Overview
-                </CardTitle>
-                <CardDescription>
-                  Battery systems and storage capacity management
-                </CardDescription>
+                <CardTitle>System Performance</CardTitle>
+                <CardDescription>Efficiency trends by system type</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <Battery className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>
-                    Energy storage management interface will be implemented here
-                  </p>
-                  <p className="text-sm">
-                    Including battery health, charge cycles, and optimization
-                    controls
-                  </p>
+                <div className="space-y-4">
+                  {['SOLAR', 'WIND', 'BATTERY', 'DIESEL'].map(type => {
+                    const systemsOfType = systems.filter(sys => sys.systemType === type);
+                    const avgEfficiency = systemsOfType.length > 0
+                      ? systemsOfType.reduce((sum, sys) => sum + sys.efficiency, 0) / systemsOfType.length
+                      : 0;
+
+                    return (
+                      <div key={type} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="flex items-center gap-1">
+                            {getSystemTypeIcon(type)}
+                            {type}
+                          </span>
+                          <span className={getEfficiencyColor(avgEfficiency)}>
+                            {avgEfficiency.toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress value={avgEfficiency} className="h-2" />
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Grid Management Tab */}
-          <TabsContent value="grid" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5" />
-                    Grid Status
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        Frequency
-                      </div>
-                      <div className="text-lg font-semibold">
-                        {gridMetrics.frequency} Hz
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        Voltage
-                      </div>
-                      <div className="text-lg font-semibold">
-                        {gridMetrics.voltage} V
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        Power Factor
-                      </div>
-                      <div className="text-lg font-semibold">
-                        {gridMetrics.powerFactor}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">
-                        Energy Traded
-                      </div>
-                      <div className="text-lg font-semibold">
-                        {gridMetrics.energyTraded} kWh
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Performance Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span>Grid Stability</span>
-                      <div className="flex items-center gap-2">
-                        <Progress
-                          value={gridMetrics.gridStability}
-                          className="w-20 h-2"
-                        />
-                        <span className="text-sm font-semibold text-green-600">
-                          {gridMetrics.gridStability}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Supply/Demand Balance</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={95} className="w-20 h-2" />
-                        <span className="text-sm font-semibold text-green-600">
-                          95%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Renewable Mix</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={68} className="w-20 h-2" />
-                        <span className="text-sm font-semibold text-blue-600">
-                          68%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Energy Analytics
-                </CardTitle>
-                <CardDescription>
-                  Performance trends and efficiency analysis
-                </CardDescription>
+                <CardTitle>Capacity Utilization</CardTitle>
+                <CardDescription>Output vs capacity by system</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg">Energy Analytics Coming Soon</p>
-                  <p className="text-sm">
-                    Interactive charts will display energy generation trends,
-                    consumption patterns, and efficiency metrics
-                  </p>
+                <div className="space-y-4">
+                  {systems.map(system => (
+                    <div key={system.id} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>{system.name}</span>
+                        <span>{((system.currentOutput / system.capacity) * 100).toFixed(1)}%</span>
+                      </div>
+                      <Progress
+                        value={(system.currentOutput / system.capacity) * 100}
+                        className="h-2"
+                      />
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </TabsContent>
+      </Tabs>
       </div>
     </AppLayout>
   );

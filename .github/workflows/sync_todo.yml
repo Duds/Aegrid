@@ -46,7 +46,7 @@ jobs:
       - name: Commit changes
         run: |
           git config user.email "councilworks-bot@local"
-          git config user.name "CouncilWorks Bot"
+          git config user.name "Aegrid Bot"
           git checkout -b chore/sync-todo-$(date +%Y%m%d%H%M%S)
           git add docs/TODO.md
           git commit -m "docs(todo): sync TODO from issues"

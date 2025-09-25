@@ -138,23 +138,23 @@ export function AssetList({ initialAssets = [] }: AssetListProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Assets</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-foreground">Assets</h1>
+          <p className="text-sm text-muted-foreground">
             Manage and monitor council assets
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="sm">
             <Link href="/assets/import">
               <Upload className="h-4 w-4 mr-2" />
               Import Assets
             </Link>
           </Button>
-          <Button asChild>
+          <Button asChild size="sm">
             <Link href="/assets/new">
               <Plus className="h-4 w-4 mr-2" />
               Add Asset
@@ -212,7 +212,7 @@ export function AssetList({ initialAssets = [] }: AssetListProps) {
           onTableReady={setTableInstance}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {assets.map((asset) => (
             <Card key={asset.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
@@ -239,7 +239,7 @@ export function AssetList({ initialAssets = [] }: AssetListProps) {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-2">
                   <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getStatusBadgeClass(asset.status)}`}>

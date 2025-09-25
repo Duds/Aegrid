@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for CouncilWorks
+about: Suggest an idea for Aegrid
 title: '[FEATURE] '
 labels: ['enhancement', 'needs-triage']
 assignees: ''

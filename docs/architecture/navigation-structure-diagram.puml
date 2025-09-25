@@ -12,7 +12,7 @@ skinparam package {
   FontColor #000000
 }
 
-title CouncilWorks Journey-Centric Navigation Structure
+title Aegrid Journey-Centric Navigation Structure
 
 package "Strategic Overview" as Strategic {
   rectangle "Dashboard\n(KPI Overview)" as Dashboard

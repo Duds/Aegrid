@@ -3,7 +3,6 @@
 import AppLayout from '@/components/layout/app-layout';
 import { MarginManagementDashboard } from '@/components/manager/margin-management-dashboard';
 import { ResilienceEngine } from '@/components/resilience/resilience-engine';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,23 +40,16 @@ export default function MarginManagementPage() {
   return (
     <AppLayout
       requiredRoles={['ADMIN', 'EXEC']}
-      title="Margin Management"
-      description="Operational slack and antifragile system management"
+      title="Dashboard"
+      description=""
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Margin Management</h1>
-            <p className="text-muted-foreground">
-              Operational slack and antifragile system oversight
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Shield className="h-3 w-3" />
-              Rule 4: Operate with Margin
-            </Badge>
             <Button variant="outline" size="sm">
               <Zap className="h-4 w-4 mr-2" />
               Emergency Deploy

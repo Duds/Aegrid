@@ -133,7 +133,7 @@ export const authOptions: NextAuthOptions = {
       // Check if user already exists (OAuth users might be created multiple times)
       const existingUser = await prisma.user.findUnique({
         where: { email: user.email! },
-        include: { Organisation: true }
+        include: { organisation: true }
       });
 
       if (existingUser) {
@@ -145,19 +145,33 @@ export const authOptions: NextAuthOptions = {
       let organisationId = null;
 
       if (user.email) {
-        // Check if there's an existing user with the same domain
         const domain = user.email.split('@')[1];
-        const existingOrgUser = await prisma.user.findFirst({
-          where: {
-            email: { endsWith: `@${domain}` },
-            organisationId: { not: null }
-          },
-          select: { organisationId: true }
-        });
 
-        if (existingOrgUser?.organisationId) {
-          organisationId = existingOrgUser.organisationId;
-          console.log(`Assigning OAuth user ${user.email} to existing organisation`);
+        // Special case: Assign dalerogers.com.au users to Greenfield Shire Council
+        if (domain === 'dalerogers.com.au') {
+          const greenfieldOrg = await prisma.organisation.findFirst({
+            where: { name: 'Greenfield Shire Council' },
+            select: { id: true }
+          });
+
+          if (greenfieldOrg) {
+            organisationId = greenfieldOrg.id;
+            console.log(`Assigning OAuth user ${user.email} to Greenfield Shire Council`);
+          }
+        } else {
+          // Check if there's an existing user with the same domain
+          const existingOrgUser = await prisma.user.findFirst({
+            where: {
+              email: { endsWith: `@${domain}` },
+              organisationId: { not: null }
+            },
+            select: { organisationId: true }
+          });
+
+          if (existingOrgUser?.organisationId) {
+            organisationId = existingOrgUser.organisationId;
+            console.log(`Assigning OAuth user ${user.email} to existing organisation`);
+          }
         }
       }
 

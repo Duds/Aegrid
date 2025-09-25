@@ -5,25 +5,23 @@ import { CriticalControlMonitor } from '@/components/manager/critical-control-mo
 import { ManagerDashboard } from '@/components/manager/manager-dashboard';
 import { MarginManagementDashboard } from '@/components/manager/margin-management-dashboard';
 import { RiskDrivenPlanner } from '@/components/manager/risk-driven-planner';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Activity,
-  AlertTriangle,
-  BarChart3,
-  Clock,
-  Shield,
-  Target,
-  TrendingUp,
-  Zap,
+    Activity,
+    AlertTriangle,
+    BarChart3,
+    Clock,
+    Target,
+    TrendingUp,
+    Zap,
 } from 'lucide-react';
 
 /**
@@ -46,25 +44,18 @@ export default function ManagerDashboardPage() {
   return (
     <AppLayout
       requiredRoles={['ADMIN', 'MANAGER', 'EXEC']}
-      title="Manager Dashboard"
-      description="Comprehensive asset management dashboard aligned with The Aegrid Rules"
+      title="Dashboard"
+      description=""
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Manager Dashboard
+              Dashboard
             </h1>
-            <p className="text-muted-foreground">
-              Strategic asset oversight and operational control
-            </p>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Shield className="h-3 w-3" />
-              Aegrid Rules Active
-            </Badge>
             <Button variant="outline" size="sm">
               <Zap className="h-4 w-4 mr-2" />
               Emergency Override

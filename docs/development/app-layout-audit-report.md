@@ -1,8 +1,8 @@
 # AppLayout Audit Report
 
-**Date:** 2025-01-27  
-**Auditor:** AI Assistant  
-**Scope:** All sidebar-linked pages in CouncilWorks/Aegrid platform
+**Date:** 2025-01-27
+**Auditor:** AI Assistant
+**Scope:** All sidebar-linked pages in Aegrid/Aegrid platform
 
 ## Executive Summary
 

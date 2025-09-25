@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { prisma } = await import('@/lib/prisma');
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { Organisation: true },
+        include: { organisation: true },
     });
 
     if (!user?.organisationId) {
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     const { prisma } = await import('@/lib/prisma');
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { Organisation: true },
+        include: { organisation: true },
     });
 
     if (!user?.organisationId) {

@@ -1,7 +1,7 @@
 /**
  * Service Interface Definitions
- * 
- * This module defines abstract interfaces for all major services in CouncilWorks.
+ *
+ * This module defines abstract interfaces for all major services in Aegrid.
  * These interfaces allow for different implementations based on deployment tier.
  */
 

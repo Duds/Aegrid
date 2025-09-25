@@ -2,12 +2,12 @@
 
 /**
  * Comprehensive Security Report Generator
- * Analyzes the CouncilWorks codebase for security posture
+ * Analyzes the Aegrid codebase for security posture
  */
 
+import { execSync } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
 
 interface SecurityFinding {
   category: string;
@@ -200,7 +200,7 @@ async function generateSecurityReport(): Promise<SecurityReport> {
 
   return {
     generatedAt: new Date().toISOString(),
-    projectName: 'CouncilWorks - Asset Lifecycle Intelligence Platform',
+    projectName: 'Aegrid - Asset Lifecycle Intelligence Platform',
     version: '0.2.0',
     overallScore,
     findings,
@@ -309,13 +309,13 @@ async function main() {
 function generateMarkdownReport(report: SecurityReport): string {
   return `# Security Report - ${report.projectName}
 
-**Generated:** ${new Date(report.generatedAt).toLocaleString('en-AU')}  
-**Version:** ${report.version}  
+**Generated:** ${new Date(report.generatedAt).toLocaleString('en-AU')}
+**Version:** ${report.version}
 **Overall Security Score:** ${report.overallScore}/100
 
 ## Executive Summary
 
-This comprehensive security report analyzes the CouncilWorks codebase for security vulnerabilities, misconfigurations, and best practices compliance.
+This comprehensive security report analyzes the Aegrid codebase for security vulnerabilities, misconfigurations, and best practices compliance.
 
 ### Security Score Breakdown
 - **Critical Issues:** ${report.summary.critical}

@@ -1,15 +1,15 @@
 # Essential Eight Maturity Model Audit Report
 
-**Audit Date**: January 2025  
-**Audited System**: CouncilWorks - Council Asset Lifecycle Intelligence Platform  
-**Audit Standard**: Australian Cyber Security Centre (ACSC) Essential Eight Maturity Model  
+**Audit Date**: January 2025
+**Audited System**: Aegrid - Council Asset Lifecycle Intelligence Platform
+**Audit Standard**: Australian Cyber Security Centre (ACSC) Essential Eight Maturity Model
 **Audit Scope**: Complete application security posture assessment
 
 ## 🎯 Executive Summary
 
 **Overall Maturity Assessment**: ✅ **MATURITY LEVEL 2 - MOSTLY ALIGNED**
 
-The CouncilWorks platform demonstrates strong security foundations with **6 out of 8 strategies** achieving Maturity Level 2 or higher. Key strengths include robust authentication, comprehensive audit logging, and strong data protection. Areas requiring attention focus on infrastructure-level controls and application hardening.
+The Aegrid platform demonstrates strong security foundations with **6 out of 8 strategies** achieving Maturity Level 2 or higher. Key strengths include robust authentication, comprehensive audit logging, and strong data protection. Areas requiring attention focus on infrastructure-level controls and application hardening.
 
 **Critical Findings**: ⚠️ **2 STRATEGIES REQUIRE IMMEDIATE ATTENTION**
 - **Application Control**: Maturity Level 1 (Partially Aligned)
@@ -228,16 +228,16 @@ RUN apk add --no-cache libc6-compat
 // MFA implementation
 export async function generateMFASecret(userId: string, userEmail: string) {
   const secret = speakeasy.generateSecret({
-    name: `CouncilWorks (${userEmail})`,
-    issuer: 'CouncilWorks',
+    name: `Aegrid (${userEmail})`,
+    issuer: 'Aegrid',
     length: 32,
   });
-  
+
   await prisma.user.update({
     where: { id: userId },
     data: { mfaSecret: secret.base32 },
   });
-  
+
   return secret;
 }
 
@@ -247,9 +247,9 @@ export async function verifyMFAToken(userId: string, token: string): Promise<boo
     where: { id: userId },
     select: { mfaSecret: true },
   });
-  
+
   if (!user?.mfaSecret) return false;
-  
+
   return speakeasy.totp.verify({
     secret: user.mfaSecret,
     encoding: 'base32',
@@ -324,13 +324,13 @@ const providers = [
     async authorize(credentials) {
       // Password verification with bcrypt
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-      
+
       // MFA verification if enabled
       if (user.mfaEnabled) {
         const isValidMFA = await verifyMFAToken(user.id, mfaToken);
         if (!isValidMFA) return null;
       }
-      
+
       return user;
     },
   }),
@@ -589,7 +589,7 @@ export async function logAuditEvent(
 
 **Overall Assessment**: ✅ **MATURITY LEVEL 2 - MOSTLY ALIGNED**
 
-The CouncilWorks platform demonstrates strong security foundations with comprehensive authentication, authorization, and data protection controls. The platform achieves **Maturity Level 2** overall with **6 out of 8 strategies** meeting or exceeding target levels.
+The Aegrid platform demonstrates strong security foundations with comprehensive authentication, authorization, and data protection controls. The platform achieves **Maturity Level 2** overall with **6 out of 8 strategies** meeting or exceeding target levels.
 
 **Key Strengths**:
 - ✅ **Robust authentication** with MFA and RBAC
@@ -615,7 +615,7 @@ The platform is production-ready with the implementation of the recommended secu
 
 ---
 
-**Audit Completed**: January 2025  
-**Audit Lead**: AI Assistant  
-**Status**: ✅ **ESSENTIAL EIGHT AUDIT COMPLETE**  
+**Audit Completed**: January 2025
+**Audit Lead**: AI Assistant
+**Status**: ✅ **ESSENTIAL EIGHT AUDIT COMPLETE**
 **Next Review**: July 2025

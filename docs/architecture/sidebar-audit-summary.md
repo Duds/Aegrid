@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document presents a comprehensive audit of the CouncilWorks sidebar features against the service blueprint, identifies prominent user personas, and creates detailed customer journey diagrams using PlantUML. The analysis reveals both implemented capabilities and gaps requiring attention.
+This document presents a comprehensive audit of the Aegrid sidebar features against the service blueprint, identifies prominent user personas, and creates detailed customer journey diagrams using PlantUML. The analysis reveals both implemented capabilities and gaps requiring attention.
 
 ## Sidebar Feature Audit Results
 
@@ -122,7 +122,7 @@ Added comprehensive sidebar feature audit with:
 
 ## Conclusion
 
-The audit reveals that CouncilWorks has successfully implemented 60% of the planned sidebar features, with strong coverage of core asset management capabilities. The customer journey diagrams provide clear guidance for user experience improvements and feature prioritisation. The refined service blueprint now better reflects the current implementation state and provides a roadmap for completing the remaining features.
+The audit reveals that Aegrid has successfully implemented 60% of the planned sidebar features, with strong coverage of core asset management capabilities. The customer journey diagrams provide clear guidance for user experience improvements and feature prioritisation. The refined service blueprint now better reflects the current implementation state and provides a roadmap for completing the remaining features.
 
 The PlantUML diagrams serve as living documentation that can be used for:
 - User experience design decisions

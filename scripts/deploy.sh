@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CouncilWorks Universal Deployment Script
+# Aegrid Universal Deployment Script
 # Supports all deployment tiers: SaaS, Single-Tenant, Hybrid, On-Premise
 
 set -e
@@ -145,16 +145,16 @@ export ENVIRONMENT=$ENVIRONMENT
 run_tests() {
     if [[ "$RUN_TESTS" == "true" ]]; then
         print_status "Running tests..."
-        
+
         # Run unit tests
         npm run test:unit
-        
+
         # Run integration tests
         npm run test:integration
-        
+
         # Run build tests
         npm run build
-        
+
         print_success "All tests passed"
     else
         print_warning "Skipping tests"
@@ -165,15 +165,15 @@ run_tests() {
 build_image() {
     if [[ "$BUILD_IMAGE" == "true" ]]; then
         print_status "Building Docker image..."
-        
+
         # Build image with tier-specific tag
         IMAGE_TAG="councilworks:$DEPLOYMENT_TIER-$ENVIRONMENT"
         if [[ -n "$CUSTOMER_ID" ]]; then
             IMAGE_TAG="councilworks:$DEPLOYMENT_TIER-$CUSTOMER_ID-$ENVIRONMENT"
         fi
-        
+
         docker build -t $IMAGE_TAG .
-        
+
         print_success "Docker image built: $IMAGE_TAG"
     else
         print_warning "Skipping Docker image build"
@@ -184,15 +184,15 @@ build_image() {
 push_image() {
     if [[ "$PUSH_IMAGE" == "true" && "$BUILD_IMAGE" == "true" ]]; then
         print_status "Pushing Docker image..."
-        
+
         IMAGE_TAG="councilworks:$DEPLOYMENT_TIER-$ENVIRONMENT"
         if [[ -n "$CUSTOMER_ID" ]]; then
             IMAGE_TAG="councilworks:$DEPLOYMENT_TIER-$CUSTOMER_ID-$ENVIRONMENT"
         fi
-        
+
         # Push to registry (Azure Container Registry, Docker Hub, etc.)
         docker push $IMAGE_TAG
-        
+
         print_success "Docker image pushed: $IMAGE_TAG"
     else
         print_warning "Skipping Docker image push"
@@ -202,7 +202,7 @@ push_image() {
 # Function to deploy based on tier
 deploy() {
     print_status "Deploying to $DEPLOYMENT_TIER environment..."
-    
+
     case $DEPLOYMENT_TIER in
         saas)
             deploy_saas
@@ -222,48 +222,48 @@ deploy() {
 # Function to deploy SaaS
 deploy_saas() {
     print_status "Deploying SaaS multi-tenant application..."
-    
+
     # Use docker-compose for SaaS deployment
     docker-compose -f docker-compose.saas.yml down
     docker-compose -f docker-compose.saas.yml up -d
-    
+
     print_success "SaaS deployment completed"
 }
 
 # Function to deploy single-tenant
 deploy_single_tenant() {
     print_status "Deploying single-tenant application for customer: $CUSTOMER_ID"
-    
+
     # Set customer-specific environment variables
     export CUSTOMER_DATABASE_URL="postgresql://user:pass@host:5432/council_$CUSTOMER_ID"
     export CUSTOMER_STORAGE_CONTAINER="council-$CUSTOMER_ID"
-    
+
     # Use customer-specific docker-compose
     docker-compose -f docker-compose.single-tenant.yml down
     docker-compose -f docker-compose.single-tenant.yml up -d
-    
+
     print_success "Single-tenant deployment completed for customer: $CUSTOMER_ID"
 }
 
 # Function to deploy hybrid
 deploy_hybrid() {
     print_status "Deploying hybrid application..."
-    
+
     # Use hybrid docker-compose
     docker-compose -f docker-compose.hybrid.yml down
     docker-compose -f docker-compose.hybrid.yml up -d
-    
+
     print_success "Hybrid deployment completed"
 }
 
 # Function to deploy on-premise
 deploy_on_premise() {
     print_status "Deploying on-premise application..."
-    
+
     # Use on-premise docker-compose
     docker-compose -f docker-compose.on-premise.yml down
     docker-compose -f docker-compose.on-premise.yml up -d
-    
+
     print_success "On-premise deployment completed"
 }
 
@@ -271,10 +271,10 @@ deploy_on_premise() {
 run_migrations() {
     if [[ "$SKIP_MIGRATIONS" == "false" ]]; then
         print_status "Running database migrations..."
-        
+
         # Run Prisma migrations
         npx prisma migrate deploy
-        
+
         # Run tier-specific migrations
         case $DEPLOYMENT_TIER in
             saas)
@@ -289,7 +289,7 @@ run_migrations() {
                 npx prisma migrate deploy --schema=./prisma/schema.on-premise.prisma
                 ;;
         esac
-        
+
         print_success "Database migrations completed"
     else
         print_warning "Skipping database migrations"
@@ -299,16 +299,16 @@ run_migrations() {
 # Function to verify deployment
 verify_deployment() {
     print_status "Verifying deployment..."
-    
+
     # Wait for services to start
     sleep 30
-    
+
     # Check health endpoint
     HEALTH_URL="http://localhost:3000/api/health"
     if [[ "$DEPLOYMENT_TIER" == "single-tenant" && -n "$CUSTOMER_ID" ]]; then
         HEALTH_URL="http://localhost:3000/api/health?customer=$CUSTOMER_ID"
     fi
-    
+
     # Retry health check
     for i in {1..10}; do
         if curl -f $HEALTH_URL > /dev/null 2>&1; then
@@ -318,7 +318,7 @@ verify_deployment() {
         print_warning "Health check failed, retrying... ($i/10)"
         sleep 10
     done
-    
+
     print_error "Health check failed after 10 attempts"
     return 1
 }
@@ -326,7 +326,7 @@ verify_deployment() {
 # Function to cleanup on failure
 cleanup_on_failure() {
     print_error "Deployment failed, cleaning up..."
-    
+
     case $DEPLOYMENT_TIER in
         saas)
             docker-compose -f docker-compose.saas.yml down
@@ -341,7 +341,7 @@ cleanup_on_failure() {
             docker-compose -f docker-compose.on-premise.yml down
             ;;
     esac
-    
+
     print_warning "Cleanup completed"
 }
 
@@ -349,28 +349,28 @@ cleanup_on_failure() {
 main() {
     # Set trap for cleanup on failure
     trap cleanup_on_failure ERR
-    
+
     # Run tests
     run_tests
-    
+
     # Build image
     build_image
-    
+
     # Push image
     push_image
-    
+
     # Run migrations
     run_migrations
-    
+
     # Deploy
     deploy
-    
+
     # Verify deployment
     verify_deployment
-    
+
     print_success "Deployment completed successfully!"
     print_status "Application is available at: http://localhost:3000"
-    
+
     if [[ "$DEPLOYMENT_TIER" == "single-tenant" && -n "$CUSTOMER_ID" ]]; then
         print_status "Customer-specific URL: http://localhost:3000?customer=$CUSTOMER_ID"
     fi

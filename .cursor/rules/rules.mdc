@@ -1,9 +1,9 @@
 ---
-description: Cursor Rules Location (CouncilWorks)
+description: Cursor Rules Location (Aegrid)
 globs: *.mdc
 ---
 
-# CouncilWorks - Cursor Rules Index
+# Aegrid - Cursor Rules Index
 
 ## 📋 Available Rules
 
@@ -70,7 +70,7 @@ pnpm lint
 
 ---
 
-**Remember**: These rules ensure consistent, secure, and high-quality development across the CouncilWorks project. Follow them to maintain code quality and project standards.
+**Remember**: These rules ensure consistent, secure, and high-quality development across the Aegrid project. Follow them to maintain code quality and project standards.
 
 metadata:
 priority: high

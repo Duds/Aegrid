@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🐳 CouncilWorks Container Security Scanner"
+echo "🐳 Aegrid Container Security Scanner"
 echo "=========================================="
 
 # Configuration

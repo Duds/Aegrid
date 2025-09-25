@@ -9,15 +9,12 @@ import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-    Activity,
     AlertTriangle,
-    BarChart3,
     Building2,
     Plus,
     Search,
     Shield,
     Target,
-    Users,
     Zap
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -85,177 +82,36 @@ export default function ContextualDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get dashboard title and description based on role
-  const getDashboardContext = (role: string) => {
-    switch (role) {
-      case 'ADMIN':
-        return {
-          title: 'Administrative Dashboard',
-          description: 'System administration and strategic oversight',
-          icon: Shield,
-          badge: 'System Admin'
-        };
-      case 'EXEC':
-        return {
-          title: 'Executive Dashboard',
-          description: 'Strategic asset oversight and performance monitoring',
-          icon: BarChart3,
-          badge: 'Executive'
-        };
-      case 'MANAGER':
-        return {
-          title: 'Manager Dashboard',
-          description: 'Operational asset management and team coordination',
-          icon: Activity,
-          badge: 'Manager'
-        };
-      case 'SUPERVISOR':
-        return {
-          title: 'Supervisor Dashboard',
-          description: 'Field operations and asset maintenance oversight',
-          icon: Users,
-          badge: 'Supervisor'
-        };
-      default:
-        return {
-          title: 'Dashboard',
-          description: 'Asset management overview',
-          icon: Building2,
-          badge: 'User'
-        };
-    }
-  };
 
-  const dashboardContext = getDashboardContext(userRole);
-
-  // Mock data for demonstration - replace with actual API calls
+  // Load real data from API endpoints
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
         setLoading(true);
 
-        // Mock service purposes data
-        const mockPurposes: ServicePurpose[] = [
-          {
-            id: '1',
-            name: 'Safe Drinking Water Control',
-            description: 'Ensures safe, reliable drinking water supply to the community',
-            priority: 'CRITICAL',
-            status: 'ACTIVE',
-            isCoreFunction: true,
-            assetCount: 45,
-            riskLevel: 'HIGH',
-            lastAssessment: '2024-12-01',
-          },
-          {
-            id: '2',
-            name: 'Road Safety Control',
-            description: 'Maintains safe road conditions and traffic flow',
-            priority: 'HIGH',
-            status: 'ACTIVE',
-            isCoreFunction: true,
-            assetCount: 128,
-            riskLevel: 'MEDIUM',
-            lastAssessment: '2024-11-28',
-          },
-          {
-            id: '3',
-            name: 'Community Recreation Control',
-            description: 'Provides safe and accessible recreational facilities',
-            priority: 'MEDIUM',
-            status: 'ACTIVE',
-            isCoreFunction: false,
-            assetCount: 23,
-            riskLevel: 'LOW',
-            lastAssessment: '2024-11-15',
-          },
-          {
-            id: '4',
-            name: 'Waste Management Control',
-            description: 'Efficient waste collection and disposal services',
-            priority: 'HIGH',
-            status: 'ACTIVE',
-            isCoreFunction: true,
-            assetCount: 67,
-            riskLevel: 'MEDIUM',
-            lastAssessment: '2024-12-05',
-          },
-        ];
+        // Load service purposes from API
+        const purposesResponse = await fetch('/api/dashboard/service-purposes');
+        if (!purposesResponse.ok) throw new Error('Failed to fetch service purposes');
+        const purposesData = await purposesResponse.json();
+        setServicePurposes(purposesData.servicePurposes);
 
-        // Mock asset mappings data
-        const mockMappings: AssetPurposeMapping[] = [
-          {
-            id: '1',
-            assetId: 'A001',
-            assetName: 'Main Water Treatment Plant',
-            assetType: 'WATER_SUPPLY',
-            contribution: 'Primary water treatment and distribution',
-            criticality: 'CRITICAL',
-            condition: 'GOOD',
-            lastInspection: '2024-12-01',
-          },
-          {
-            id: '2',
-            assetId: 'A002',
-            assetName: 'City Centre Intersection',
-            assetType: 'TRAFFIC_LIGHT',
-            contribution: 'Traffic control and pedestrian safety',
-            criticality: 'HIGH',
-            condition: 'FAIR',
-            lastInspection: '2024-11-28',
-          },
-          {
-            id: '3',
-            assetId: 'A003',
-            assetName: 'Community Swimming Pool',
-            assetType: 'SPORTS_FACILITY',
-            contribution: 'Recreational swimming facilities',
-            criticality: 'MEDIUM',
-            condition: 'EXCELLENT',
-            lastInspection: '2024-11-15',
-          },
-        ];
+        // Load asset mappings from API
+        const mappingsResponse = await fetch('/api/dashboard/asset-mappings');
+        if (!mappingsResponse.ok) throw new Error('Failed to fetch asset mappings');
+        const mappingsData = await mappingsResponse.json();
+        setAssetMappings(mappingsData.assetMappings);
 
-        // Mock critical controls data
-        const mockControls: CriticalControlStatus[] = [
-          {
-            id: '1',
-            name: 'Water Quality Monitoring',
-            type: 'SAFETY',
-            status: 'GREEN',
-            riskLevel: 'LOW',
-            assetCount: 12,
-            lastInspection: '2024-12-01',
-            nextDue: '2024-12-08',
-          },
-          {
-            id: '2',
-            name: 'Traffic Signal Maintenance',
-            type: 'SAFETY',
-            status: 'AMBER',
-            riskLevel: 'MEDIUM',
-            assetCount: 45,
-            lastInspection: '2024-11-28',
-            nextDue: '2024-12-05',
-          },
-          {
-            id: '3',
-            name: 'Playground Safety Inspection',
-            type: 'SAFETY',
-            status: 'GREEN',
-            riskLevel: 'LOW',
-            assetCount: 8,
-            lastInspection: '2024-11-15',
-            nextDue: '2024-12-15',
-          },
-        ];
+        // Load critical controls from API
+        const controlsResponse = await fetch('/api/dashboard/critical-controls');
+        if (!controlsResponse.ok) throw new Error('Failed to fetch critical controls');
+        const controlsData = await controlsResponse.json();
+        setCriticalControls(controlsData.criticalControls);
 
-        setServicePurposes(mockPurposes);
-        setAssetMappings(mockMappings);
-        setCriticalControls(mockControls);
-        setLoading(false);
+        setError(null);
       } catch (err) {
         setError('Failed to load dashboard data');
+        console.error('Dashboard load error:', err);
+      } finally {
         setLoading(false);
       }
     };
@@ -339,26 +195,18 @@ export default function ContextualDashboard() {
   return (
     <AppLayout
       requiredRoles={['ADMIN', 'MANAGER', 'EXEC', 'SUPERVISOR']}
-      title={dashboardContext.title}
-      description={dashboardContext.description}
+      title="Dashboard"
+      description=""
     >
       <div className="space-y-6">
       {/* Header */}
         <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <dashboardContext.icon className="h-8 w-8" />
-            {dashboardContext.title}
+          <h1 className="text-3xl font-bold tracking-tight">
+            Dashboard
           </h1>
-          <p className="text-muted-foreground">
-            {dashboardContext.description} - Aligned with Aegrid Rules
-          </p>
         </div>
         <div className="flex gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Shield className="h-3 w-3" />
-            {dashboardContext.badge}
-          </Badge>
           {['ADMIN', 'MANAGER', 'EXEC'].includes(userRole) && (
             <Button variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />

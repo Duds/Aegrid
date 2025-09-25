@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
   requiredRoles?: string[];
 }
 
-export function ProtectedRoute({ children, requiredRole, requiredRoles }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiredRole, requiredRoles }: ProtectedRouteProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
 

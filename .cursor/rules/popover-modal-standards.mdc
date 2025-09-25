@@ -1,4 +1,4 @@
-# Popover & Modal Standards (CouncilWorks)
+# Popover & Modal Standards (Aegrid)
 
 ## 🎯 Core Principles
 
@@ -7,7 +7,7 @@
 "purpose": "popover_modal_standards",
 "format_version": "1.0.0",
 "enforced_for": "all contributors",
-"project": "CouncilWorks - Council Asset Lifecycle Intelligence Platform"
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
 }
 
 ### **Consistent Background Styling**

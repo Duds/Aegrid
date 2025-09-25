@@ -1,4 +1,4 @@
-# Pre-commit security hooks for CouncilWorks
+# Pre-commit security hooks for Aegrid
 echo "🔐 Running pre-commit security checks..."
 
 # Run lint-staged for staged files

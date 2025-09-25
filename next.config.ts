@@ -1,10 +1,17 @@
-import type { NextConfig } from "next";
 import { generateSecurityHeaders } from "@/lib/security/csp-config";
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   outputFileTracingRoot: __dirname,
+  webpack: (config: any) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'detect-node-es': 'detect-node-es',
+    };
+    return config;
+  },
   images: {
     remotePatterns: [
       {

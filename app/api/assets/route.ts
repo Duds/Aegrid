@@ -105,25 +105,18 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { createdAt: "desc" },
         include: {
-          User_Asset_createdByToUser: {
+          createdByUser: {
             select: { id: true, name: true, email: true },
           },
-          User_Asset_updatedByToUser: {
+          updatedByUser: {
             select: { id: true, name: true, email: true },
-          },
-          assetPurposeMappings: {
-            include: {
-              servicePurpose: {
-                select: { id: true, name: true, description: true, priority: true }
-              }
-            }
           },
           _count: {
             select: {
-              AssetDocument: true,
-              AssetInspection: true,
-              AssetMaintenance: true,
-              WorkOrder: true,
+              documents: true,
+              inspections: true,
+              maintenance: true,
+              workOrders: true,
             },
           },
         },
@@ -245,10 +238,10 @@ export async function POST(request: NextRequest) {
     const asset = await prisma.asset.create({
       data: assetData,
       include: {
-        User_Asset_createdByToUser: {
+        createdByUser: {
           select: { id: true, name: true, email: true },
         },
-        User_Asset_updatedByToUser: {
+        updatedByUser: {
           select: { id: true, name: true, email: true },
         },
       },
