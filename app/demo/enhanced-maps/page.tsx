@@ -1,6 +1,7 @@
 'use client';
 
 import { EnhancedAssetMap } from '@/components/maps/enhanced-asset-map';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
@@ -8,8 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { MapPin, Layers, Satellite } from 'lucide-react';
+import { Layers, MapPin, Satellite } from 'lucide-react';
 
 interface Asset {
   id: string;

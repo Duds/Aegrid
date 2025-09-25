@@ -1,7 +1,7 @@
 # ArcGIS Integration Implementation
 
-**Version**: 1.0  
-**Date**: January 15, 2025  
+**Version**: 1.0
+**Date**: January 15, 2025
 **Status**: Implementation Complete
 
 ## Overview
@@ -12,7 +12,7 @@ This document describes the ArcGIS integration implemented in Aegrid to enhance 
 
 ### Why ArcGIS Services + Leaflet?
 
-**Decision**: Integrate ArcGIS basemap services with existing Leaflet client  
+**Decision**: Integrate ArcGIS basemap services with existing Leaflet client
 **Rationale**:
 
 - **Cost-Effective**: ArcGIS services are often free/low-cost vs full SDK licensing

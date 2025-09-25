@@ -19,19 +19,20 @@ import {
   Filter,
   MapPin,
   Route,
+  Settings,
   TrafficCone,
   TreePine,
   Zap,
-  Settings,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useLeafletMap } from '@/hooks/use-leaflet-map';
 import {
+  BASEMAP_OPTIONS,
   BasemapSelector,
   useBasemapSelection,
-  BASEMAP_OPTIONS,
 } from './basemap-selector';
 
 // Dynamically import Leaflet components to avoid SSR issues
@@ -71,25 +72,19 @@ function EnhancedLeafletMapComponent({
   onAssetSelect?: (asset: Asset) => void;
   selectedBasemap: string;
 }) {
-  const mapRef = useRef<L.Map | null>(null);
-  const [isMapReady, setIsMapReady] = useState(false);
+  const { mapRef, containerRef, isMapReady, cleanupMap, initializeMap } =
+    useLeafletMap();
 
+  // Re-initialize map when basemap changes
   useEffect(() => {
-    // Set map as ready after component mounts
-    const timer = setTimeout(() => {
-      setIsMapReady(true);
-    }, 100);
+    cleanupMap();
+    const timer = setTimeout(initializeMap, 150);
 
     return () => {
       clearTimeout(timer);
-      setIsMapReady(false);
-      // Clean up map instance if it exists
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
+      cleanupMap();
     };
-  }, []);
+  }, [selectedBasemap, cleanupMap, initializeMap]);
 
   // Don't render map until it's ready
   if (!isMapReady) {
@@ -108,96 +103,102 @@ function EnhancedLeafletMapComponent({
     BASEMAP_OPTIONS.find(b => b.id === selectedBasemap) || BASEMAP_OPTIONS[0];
 
   return (
-    <MapContainer
-      ref={mapRef}
-      center={center}
-      zoom={zoom}
+    <div
+      ref={containerRef}
       className="h-full w-full rounded-lg"
-      whenCreated={mapInstance => {
-        // Only set the map instance if we don't already have one
-        if (!mapRef.current) {
-          mapRef.current = mapInstance;
-        }
-      }}
+      key={`map-container-${selectedBasemap}`}
     >
-      <TileLayer
-        url={basemapConfig.url}
-        attribution={basemapConfig.attribution}
-        maxZoom={18}
-        minZoom={1}
-      />
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        className="h-full w-full"
+        key={`map-${selectedBasemap}-${center[0]}-${center[1]}-${zoom}`}
+        whenCreated={mapInstance => {
+          // Only set the map instance if we don't already have one
+          if (!mapRef.current) {
+            mapRef.current = mapInstance;
+          }
+        }}
+      >
+        <TileLayer
+          url={basemapConfig.url}
+          attribution={basemapConfig.attribution}
+          maxZoom={18}
+          minZoom={1}
+        />
 
-      <MarkerClusterGroup>
-        {assets.map(asset => {
-          if (!asset.latitude || !asset.longitude) return null;
+        <MarkerClusterGroup>
+          {assets.map(asset => {
+            if (!asset.latitude || !asset.longitude) return null;
 
-          const { IconComponent, color } = getAssetIcon(asset);
-          return (
-            <Marker
-              key={asset.id}
-              position={[asset.latitude, asset.longitude]}
-              eventHandlers={{
-                click: () => onAssetSelect?.(asset),
-              }}
-            >
-              <Popup>
-                <div className="p-2 min-w-[200px]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <IconComponent
-                      className="h-5 w-5"
-                      style={{ '--icon-color': color } as React.CSSProperties}
-                    />
-                    <div>
-                      <h4 className="font-semibold text-sm">{asset.name}</h4>
-                      <p className="text-xs text-gray-600">
-                        {asset.assetNumber}
+            const { IconComponent, color } = getAssetIcon(asset);
+            return (
+              <Marker
+                key={asset.id}
+                position={[asset.latitude, asset.longitude]}
+                eventHandlers={{
+                  click: () => onAssetSelect?.(asset),
+                }}
+              >
+                <Popup>
+                  <div className="p-2 min-w-[200px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <IconComponent
+                        className="h-5 w-5"
+                        style={{ '--icon-color': color } as React.CSSProperties}
+                      />
+                      <div>
+                        <h4 className="font-semibold text-sm">{asset.name}</h4>
+                        <p className="text-xs text-gray-600">
+                          {asset.assetNumber}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 mb-3">
+                      <Badge
+                        variant={getStatusBadgeVariant(asset.status)}
+                        className="text-xs"
+                      >
+                        {asset.status.replace('_', ' ')}
+                      </Badge>
+                      <Badge
+                        variant={getConditionBadgeVariant(asset.condition)}
+                        className="text-xs ml-1"
+                      >
+                        {asset.condition}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs ml-1">
+                        {asset.priority}
+                      </Badge>
+                    </div>
+
+                    {asset.address && (
+                      <p className="text-xs text-gray-600 mb-2">
+                        📍 {asset.address}
+                        {asset.suburb && `, ${asset.suburb}`}
+                        {asset.postcode && ` ${asset.postcode}`}
                       </p>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-6 px-2"
+                        onClick={() => onAssetSelect?.(asset)}
+                      >
+                        View Details
+                      </Button>
                     </div>
                   </div>
-
-                  <div className="space-y-1 mb-3">
-                    <Badge
-                      variant={getStatusBadgeVariant(asset.status)}
-                      className="text-xs"
-                    >
-                      {asset.status.replace('_', ' ')}
-                    </Badge>
-                    <Badge
-                      variant={getConditionBadgeVariant(asset.condition)}
-                      className="text-xs ml-1"
-                    >
-                      {asset.condition}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs ml-1">
-                      {asset.priority}
-                    </Badge>
-                  </div>
-
-                  {asset.address && (
-                    <p className="text-xs text-gray-600 mb-2">
-                      📍 {asset.address}
-                      {asset.suburb && `, ${asset.suburb}`}
-                      {asset.postcode && ` ${asset.postcode}`}
-                    </p>
-                  )}
-
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs h-6 px-2"
-                      onClick={() => onAssetSelect?.(asset)}
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
-      </MarkerClusterGroup>
-    </MapContainer>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
+      </MapContainer>
+    </div>
   );
 }
 
@@ -321,9 +322,7 @@ export function EnhancedAssetMap({
     priority: '',
     hasLocation: true,
   });
-  const [mapKey] = useState(
-    () => `map-${Math.random().toString(36).substr(2, 9)}`
-  );
+  // Removed unused mapKey - using basemap-specific keys instead
 
   // Use basemap selection hook
   const { selectedBasemap, setBasemap } = useBasemapSelection();
@@ -542,7 +541,7 @@ export function EnhancedAssetMap({
         <CardContent className="p-0">
           <div className="relative map-container" style={{ height }}>
             <EnhancedLeafletMap
-              key={`${mapKey}-${selectedBasemap}`}
+              key={`enhanced-map-${selectedBasemap}-${filteredAssets.length}`}
               center={mapCenter}
               zoom={defaultZoom}
               assets={filteredAssets}

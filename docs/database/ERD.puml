@@ -417,111 +417,6 @@ Organisation ||--o{ AuditLog : logs
 Organisation ||--o{ ComplianceRecord : tracks
 Organisation ||--o{ EscalationEvent : handles
 
-' Control Center Relationships - Organisation
-Organisation ||--o{ EmergencyAlert : manages
-Organisation ||--o{ EmergencyResource : maintains
-Organisation ||--o{ EnergySystem : operates
-Organisation ||--o{ EnergyAlert : monitors
-Organisation ||--o{ PerformanceKPI : tracks
-Organisation ||--o{ PerformanceAlert : alerts
-Organisation ||--o{ WorkOrderType : defines
-Organisation ||--o{ WorkOrderSkill : catalogues
-Organisation ||--o{ WorkOrderPart : inventories
-Organisation ||--o{ WorkOrderSafetyRequirement : enforces
-
-' Relationships - User & Vendor Management
-User }o--|| Vendor : belongs_to
-User ||--o{ WorkOrder : assigned
-User ||--o{ Inspection : performs
-User ||--o{ AuditLog : creates
-
-' Relationships - Asset & Work Management
-Asset ||--o{ WorkOrder : manages
-Asset ||--o{ Inspection : inspected
-Asset ||--o{ MaintenancePlan : planned
-Asset ||--o{ AssetCriticalControl : controlled
-Asset ||--o{ AssetDocument : documented
-Asset ||--o{ CitizenReport : reported
-Asset ||--o{ RiskSignal : signalled
-Asset ||--o{ EmergencyResponse : emergency
-Asset ||--o{ ComplianceRecord : compliant
-
-' Control Center Relationships - Assets
-Asset ||--o{ EmergencyAlert : alerts
-Asset ||--o{ EnergySystem : powers
-
-' Relationships - Vendor & Contract Management
-Vendor ||--o{ Contract : party
-Vendor ||--o{ WorkOrder : executes
-Vendor ||--o{ AssetCriticalControl : responsible
-Contract ||--o{ SLA : defines
-Contract ||--o{ WorkOrder : covers
-SLA ||--o{ WorkOrder : applies
-
-' Relationships - Work Order & Evidence
-WorkOrder ||--o{ WorkOrderEvidence : documented
-WorkOrder ||--o{ Inspection : includes
-WorkOrder ||--o{ CitizenReport : sourced_from
-WorkOrder ||--o{ EmergencyResponse : emergency
-WorkOrder ||--o{ EscalationEvent : escalated
-
-' Control Center Relationships - Work Orders
-WorkOrder ||--o{ WorkOrderTypeMapping : typed
-WorkOrder ||--o{ WorkOrderSkillMapping : skilled
-WorkOrder ||--o{ WorkOrderPartMapping : parts
-WorkOrder ||--o{ WorkOrderSafetyMapping : safety
-
-' Relationships - RCM & Maintenance
-RCMTemplate ||--o{ MaintenancePlan : template_for
-RCMTemplate ||--o{ MaintenanceTask : contains
-MaintenancePlan ||--o{ MaintenanceTask : includes
-
-' Relationships - Critical Controls
-CriticalControl ||--o{ AssetCriticalControl : applies
-CriticalControl ||--o{ ComplianceRecord : tracked
-CriticalControl ||--o{ EscalationEvent : escalated
-
-' Relationships - Inspections & Evidence
-Inspection ||--o{ InspectionPhoto : documented
-
-' Relationships - Citizen Engagement
-CitizenReport ||--o{ CitizenFeedback : feedback_for
-
-' Relationships - Margin & Emergency
-MarginCapacity ||--o{ EmergencyResponse : supports
-
-' Control Center Relationships - Emergency Management
-EmergencyAlert }o--|| Asset : alerts_for
-EmergencyResource }o--|| Organisation : managed_by
-
-' Control Center Relationships - Energy Management
-EnergySystem }o--|| Asset : powers_asset
-EnergySystem ||--o{ EnergyAlert : generates
-EnergyAlert }o--|| EnergySystem : alerts_for
-
-' Control Center Relationships - Performance Monitoring
-PerformanceKPI }o--|| Organisation : tracked_by
-PerformanceKPI ||--o{ PerformanceAlert : triggers
-PerformanceAlert }o--|| PerformanceKPI : alerts_for
-
-' Control Center Relationships - Enhanced Work Orders
-WorkOrderType }o--|| Organisation : defined_by
-WorkOrderSkill }o--|| Organisation : catalogued_by
-WorkOrderPart }o--|| Organisation : inventoried_by
-WorkOrderSafetyRequirement }o--|| Organisation : enforced_by
-
-WorkOrderTypeMapping }o--|| WorkOrder : maps_work_order
-WorkOrderTypeMapping }o--|| WorkOrderType : maps_type
-
-WorkOrderSkillMapping }o--|| WorkOrder : maps_work_order
-WorkOrderSkillMapping }o--|| WorkOrderSkill : maps_skill
-
-WorkOrderPartMapping }o--|| WorkOrder : maps_work_order
-WorkOrderPartMapping }o--|| WorkOrderPart : maps_part
-
-WorkOrderSafetyMapping }o--|| WorkOrder : maps_work_order
-WorkOrderSafetyMapping }o--|| WorkOrderSafetyRequirement : maps_safety
-
 ' Control Center Models - Emergency Management
 entity EmergencyAlert {
   * id : UUID
@@ -726,6 +621,114 @@ entity WorkOrderSafetyMapping {
   is_compliant : boolean
   compliance_notes : text
 }
+
+' Control Center Relationships - Organisation
+Organisation ||--o{ EmergencyAlert : manages
+Organisation ||--o{ EmergencyResource : maintains
+Organisation ||--o{ EnergySystem : operates
+Organisation ||--o{ EnergyAlert : monitors
+Organisation ||--o{ PerformanceKPI : tracks
+Organisation ||--o{ PerformanceAlert : alerts
+Organisation ||--o{ WorkOrderType : defines
+Organisation ||--o{ WorkOrderSkill : catalogues
+Organisation ||--o{ WorkOrderPart : inventories
+Organisation ||--o{ WorkOrderSafetyRequirement : enforces
+
+' Relationships - User & Vendor Management
+User }o--|| Vendor : belongs_to
+User ||--o{ WorkOrder : assigned
+User ||--o{ Inspection : performs
+User ||--o{ AuditLog : creates
+
+' Relationships - Asset & Work Management
+Asset ||--o{ WorkOrder : manages
+Asset ||--o{ Inspection : inspected
+Asset ||--o{ MaintenancePlan : planned
+Asset ||--o{ AssetCriticalControl : controlled
+Asset ||--o{ AssetDocument : documented
+Asset ||--o{ CitizenReport : reported
+Asset ||--o{ RiskSignal : signalled
+Asset ||--o{ EmergencyResponse : emergency
+Asset ||--o{ ComplianceRecord : compliant
+
+' Control Center Relationships - Assets
+Asset ||--o{ EmergencyAlert : alerts
+Asset ||--o{ EnergySystem : powers
+
+' Relationships - Vendor & Contract Management
+Vendor ||--o{ Contract : party
+Vendor ||--o{ WorkOrder : executes
+Vendor ||--o{ AssetCriticalControl : responsible
+Contract ||--o{ SLA : defines
+Contract ||--o{ WorkOrder : covers
+SLA ||--o{ WorkOrder : applies
+
+' Relationships - Work Order & Evidence
+WorkOrder ||--o{ WorkOrderEvidence : documented
+WorkOrder ||--o{ Inspection : includes
+WorkOrder ||--o{ CitizenReport : sourced_from
+WorkOrder ||--o{ EmergencyResponse : emergency
+WorkOrder ||--o{ EscalationEvent : escalated
+
+' Control Center Relationships - Work Orders
+WorkOrder ||--o{ WorkOrderTypeMapping : typed
+WorkOrder ||--o{ WorkOrderSkillMapping : skilled
+WorkOrder ||--o{ WorkOrderPartMapping : parts
+WorkOrder ||--o{ WorkOrderSafetyMapping : safety
+
+' Relationships - RCM & Maintenance
+RCMTemplate ||--o{ MaintenancePlan : template_for
+RCMTemplate ||--o{ MaintenanceTask : contains
+MaintenancePlan ||--o{ MaintenanceTask : includes
+
+' Relationships - Critical Controls
+CriticalControl ||--o{ AssetCriticalControl : applies
+CriticalControl ||--o{ ComplianceRecord : tracked
+CriticalControl ||--o{ EscalationEvent : escalated
+
+' Relationships - Inspections & Evidence
+Inspection ||--o{ InspectionPhoto : documented
+
+' Relationships - Citizen Engagement
+CitizenReport ||--o{ CitizenFeedback : feedback_for
+
+' Relationships - Margin & Emergency
+MarginCapacity ||--o{ EmergencyResponse : supports
+
+' Control Center Relationships - Emergency Management
+EmergencyAlert }o--|| Asset : alerts_for
+EmergencyResource }o--|| Organisation : managed_by
+
+' Control Center Relationships - Energy Management
+EnergySystem }o--|| Asset : powers_asset
+EnergySystem ||--o{ EnergyAlert : generates
+EnergyAlert }o--|| EnergySystem : alerts_for
+
+' Control Center Relationships - Performance Monitoring
+PerformanceKPI }o--|| Organisation : tracked_by
+PerformanceKPI ||--o{ PerformanceAlert : triggers
+PerformanceAlert }o--|| PerformanceKPI : alerts_for
+
+' Control Center Relationships - Enhanced Work Orders
+WorkOrderType }o--|| Organisation : defined_by
+WorkOrderSkill }o--|| Organisation : catalogued_by
+WorkOrderPart }o--|| Organisation : inventoried_by
+WorkOrderSafetyRequirement }o--|| Organisation : enforced_by
+
+WorkOrderTypeMapping }o--|| WorkOrder : maps_work_order
+WorkOrderTypeMapping }o--|| WorkOrderType : maps_type
+
+WorkOrderSkillMapping }o--|| WorkOrder : maps_work_order
+WorkOrderSkillMapping }o--|| WorkOrderSkill : maps_skill
+
+WorkOrderPartMapping }o--|| WorkOrder : maps_work_order
+WorkOrderPartMapping }o--|| WorkOrderPart : maps_part
+
+WorkOrderSafetyMapping }o--|| WorkOrder : maps_work_order
+WorkOrderSafetyMapping }o--|| WorkOrderSafetyRequirement : maps_safety
+
+
+
 
 ' Resilience Command Models for Aegrid Rules Implementation
 entity ServicePurpose {
