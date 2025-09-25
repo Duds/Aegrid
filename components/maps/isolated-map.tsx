@@ -58,14 +58,25 @@ export function IsolatedMap({
   onAssetSelect,
   height = '500px',
 }: IsolatedMapProps) {
-  const [isMounted, setIsMounted] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
+    setIsLoading(true);
+    // Force complete re-render with new key
+    setMapKey(prev => prev + 1);
+
+    // Small delay to ensure DOM cleanup
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [selectedBasemap]);
 
-  if (!isMounted) {
+  if (isLoading) {
     return (
       <div
         className="h-full w-full flex items-center justify-center bg-gray-100 rounded-lg"
@@ -85,11 +96,9 @@ export function IsolatedMap({
   const defaultZoom = 10;
 
   return (
-    <div
-      style={{ height }}
-      key={`isolated-map-${selectedBasemap}-${Date.now()}`}
-    >
+    <div style={{ height }} key={`map-wrapper-${mapKey}`}>
       <MapContainer
+        key={`map-container-${mapKey}`}
         center={mapCenter}
         zoom={defaultZoom}
         className="h-full w-full rounded-lg"

@@ -11,7 +11,7 @@ import {
 import { Filter, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { BasemapSelector, useBasemapSelection } from './basemap-selector';
-import { IsolatedMap } from './isolated-map';
+import { RefManagedMap } from './ref-managed-map';
 
 interface Asset {
   id: string;
@@ -254,7 +254,7 @@ export function SimpleAssetMap({
       {/* Map Container */}
       <Card>
         <CardContent className="p-0">
-          <IsolatedMap
+          <RefManagedMap
             assets={filteredAssets}
             selectedBasemap={selectedBasemap}
             onAssetSelect={onAssetSelect}
