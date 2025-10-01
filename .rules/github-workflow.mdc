@@ -1,0 +1,56 @@
+---
+description: Github Workflow Rules and Github Issue Rules (Aegrid)
+globs:
+alwaysApply: false
+---
+# GitHub Workflow Rules (Aegrid)
+
+## Issue Management
+
+- Migrate TODOs to issues with clear acceptance criteria
+- Use labels: enhancement, bug, documentation, security, database, auth
+- Provide effort estimates and link related PRs
+
+## Branch Strategy and Standards
+
+- **main**: Production-ready, stable code only
+- **develop**: Integration branch for ongoing development
+- **feature/***: Individual feature development branches from develop
+
+Naming:
+- Feature: `feature/issue-123-short-description`
+- Fix: `fix/issue-123-short-description`
+- Docs: `docs/topic-name`
+- Refactor: `refactor/component-name`
+
+## PR Template
+
+```markdown
+## Related Issue
+Fixes #[issue_number]
+
+## Changes
+- [Change 1]
+
+## Testing
+- [ ] Unit tests
+- [ ] Integration tests
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Tests added/updated
+- [ ] Documentation updated
+```
+
+## Commit Standards
+
+```
+type(scope): description
+```
+
+Types: feat, fix, docs, style, refactor, test, chore
+
+## 📚 Related Documentation
+
+- `../../docs/development/developer-brief.md` — Workflow and branching in project
+- `../../docs/TODO.md` — Backlog and planning

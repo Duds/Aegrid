@@ -7,22 +7,38 @@ export async function POST(request: NextRequest) {
 
     // Validate event structure
     if (!event.type || !event.timestamp || !event.sessionId) {
-      return NextResponse.json({ error: 'Invalid event structure' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid event structure' },
+        { status: 400 }
+      );
     }
 
     // Validate event type
-    const validTypes = ['page_view', 'cta_click', 'section_view', 'scroll_depth', 'time_on_page', 'feature_interaction'];
+    const validTypes = [
+      'page_view',
+      'cta_click',
+      'section_view',
+      'scroll_depth',
+      'time_on_page',
+      'feature_interaction',
+    ];
     if (!validTypes.includes(event.type)) {
-      return NextResponse.json({ error: 'Invalid event type' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid event type' },
+        { status: 400 }
+      );
     }
 
     // Add server-side metadata
     const enrichedEvent = {
       ...event,
       serverTimestamp: Date.now(),
-      ip: request.ip || request.headers.get('x-forwarded-for') || 'unknown',
+      ip:
+        request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        'unknown',
       userAgent: request.headers.get('user-agent') || event.userAgent,
-      referrer: request.headers.get('referer') || event.referrer
+      referrer: request.headers.get('referer') || event.referrer,
     };
 
     // Store event (in production, this would go to a database or analytics service)
@@ -34,14 +50,20 @@ export async function POST(request: NextRequest) {
         type: enrichedEvent.type,
         timestamp: new Date(enrichedEvent.timestamp).toISOString(),
         sessionId: enrichedEvent.sessionId,
-        properties: enrichedEvent.properties
+        properties: enrichedEvent.properties,
       });
     }
 
-    return NextResponse.json({ success: true, eventId: enrichedEvent.sessionId });
+    return NextResponse.json({
+      success: true,
+      eventId: enrichedEvent.sessionId,
+    });
   } catch (error) {
     console.error('Analytics API error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -74,14 +96,16 @@ async function storeAnalyticsEvent(event: any) {
   // or write to a file for analysis
   if (process.env.NODE_ENV === 'development') {
     // Store in a global array for development analysis
-    if (!global.analyticsEvents) {
-      global.analyticsEvents = [];
+    if (!(global as any).analyticsEvents) {
+      (global as any).analyticsEvents = [];
     }
-    global.analyticsEvents.push(event);
+    (global as any).analyticsEvents.push(event);
 
     // Keep only last 1000 events to prevent memory issues
-    if (global.analyticsEvents.length > 1000) {
-      global.analyticsEvents = global.analyticsEvents.slice(-1000);
+    if ((global as any).analyticsEvents.length > 1000) {
+      (global as any).analyticsEvents = (global as any).analyticsEvents.slice(
+        -1000
+      );
     }
   }
 }

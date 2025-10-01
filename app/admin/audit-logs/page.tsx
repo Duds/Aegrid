@@ -1,18 +1,10 @@
-"use client";
+'use client';
 
-import AppLayout from "@/components/layout/app-layout";
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { 
-  Activity, 
-  Search, 
-  Filter,
-  Download,
-  Calendar,
-  User,
-  Shield
-} from "lucide-react";
-import { AuditAction } from "@prisma/client";
+import AppLayout from '@/components/layout/app-layout';
+import { Button } from '@/components/ui/button';
+import { AuditAction } from '@prisma/client';
+import { Activity, Download, Filter, Shield, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 interface AuditLog {
@@ -47,17 +39,27 @@ interface AuditLogsResponse {
 }
 
 const actionLabels: Record<AuditAction, string> = {
-  USER_LOGIN: "User Login",
-  USER_LOGOUT: "User Logout",
-  USER_ROLE_CHANGE: "Role Change",
-  USER_STATUS_CHANGE: "Status Change",
-  USER_PASSWORD_RESET: "Password Reset",
-  USER_CREATED: "User Created",
-  USER_UPDATED: "User Updated",
-  USER_DELETED: "User Deleted",
-  ORGANISATION_CREATED: "Organisation Created",
-  ORGANISATION_UPDATED: "Organisation Updated",
-  ORGANISATION_DELETED: "Organisation Deleted",
+  USER_LOGIN: 'User Login',
+  USER_LOGOUT: 'User Logout',
+  USER_ROLE_CHANGE: 'Role Change',
+  USER_STATUS_CHANGE: 'Status Change',
+  USER_PASSWORD_RESET: 'Password Reset',
+  USER_CREATED: 'User Created',
+  USER_UPDATED: 'User Updated',
+  USER_DELETED: 'User Deleted',
+  ORGANISATION_CREATED: 'Organisation Created',
+  ORGANISATION_UPDATED: 'Organisation Updated',
+  ORGANISATION_DELETED: 'Organisation Deleted',
+  MFA_ENABLED: 'MFA Enabled',
+  MFA_DISABLED: 'MFA Disabled',
+  MFA_VERIFIED: 'MFA Verified',
+  MFA_BACKUP_CODE_USED: 'MFA Backup Code Used',
+  ASSET_CREATED: 'Asset Created',
+  ASSET_UPDATED: 'Asset Updated',
+  ASSET_DELETED: 'Asset Deleted',
+  ASSET_IMPORTED: 'Asset Imported',
+  ASSET_DOCUMENT_ATTACHED: 'Asset Document Attached',
+  ASSET_DOCUMENT_REMOVED: 'Asset Document Removed',
 };
 
 /**
@@ -76,10 +78,10 @@ export default function AuditLogs() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionFilter, setActionFilter] = useState<AuditAction | "">("");
-  const [userFilter, setUserFilter] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [actionFilter, setActionFilter] = useState<AuditAction | ''>('');
+  const [userFilter, setUserFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -93,25 +95,25 @@ export default function AuditLogs() {
       setLoading(true);
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: "50",
+        limit: '50',
       });
 
-      if (actionFilter) params.append("action", actionFilter);
-      if (userFilter) params.append("userId", userFilter);
-      if (startDate) params.append("startDate", startDate);
-      if (endDate) params.append("endDate", endDate);
+      if (actionFilter) params.append('action', actionFilter);
+      if (userFilter) params.append('userId', userFilter);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
 
       const response = await fetch(`/api/admin/audit-logs?${params}`);
-      
+
       if (!response.ok) {
-        throw new Error("Failed to fetch audit logs");
+        throw new Error('Failed to fetch audit logs');
       }
 
       const data: AuditLogsResponse = await response.json();
       setLogs(data.logs);
       setPagination(data.pagination);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -129,17 +131,17 @@ export default function AuditLogs() {
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    console.log("Export audit logs");
+    console.log('Export audit logs');
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("en-AU", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+    return new Date(dateString).toLocaleString('en-AU', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
   };
 
@@ -159,16 +161,16 @@ export default function AuditLogs() {
   const getActionColor = (action: AuditAction) => {
     switch (action) {
       case AuditAction.USER_LOGIN:
-        return "text-green-600";
+        return 'text-green-600';
       case AuditAction.USER_LOGOUT:
-        return "text-blue-600";
+        return 'text-blue-600';
       case AuditAction.USER_ROLE_CHANGE:
       case AuditAction.USER_STATUS_CHANGE:
-        return "text-orange-600";
+        return 'text-orange-600';
       case AuditAction.USER_DELETED:
-        return "text-red-600";
+        return 'text-red-600';
       default:
-        return "text-gray-600";
+        return 'text-gray-600';
     }
   };
 
@@ -182,7 +184,6 @@ export default function AuditLogs() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <LoadingSpinner size="lg" />
-            
           </div>
         </div>
       </AppLayout>
@@ -199,7 +200,6 @@ export default function AuditLogs() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Audit Logs</h1>
-            
           </div>
           <Button onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
@@ -217,11 +217,13 @@ export default function AuditLogs() {
                 </label>
                 <select
                   value={actionFilter}
-                  onChange={(e) => setActionFilter(e.target.value as AuditAction | "")}
+                  onChange={e =>
+                    setActionFilter(e.target.value as AuditAction | '')
+                  }
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">All Actions</option>
-                  {Object.values(AuditAction).map((action) => (
+                  {Object.values(AuditAction).map(action => (
                     <option key={action} value={action}>
                       {actionLabels[action]}
                     </option>
@@ -236,7 +238,7 @@ export default function AuditLogs() {
                   type="text"
                   placeholder="Search by user email..."
                   value={userFilter}
-                  onChange={(e) => setUserFilter(e.target.value)}
+                  onChange={e => setUserFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -247,7 +249,7 @@ export default function AuditLogs() {
                 <input
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={e => setStartDate(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -258,7 +260,7 @@ export default function AuditLogs() {
                 <input
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={e => setEndDate(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -275,7 +277,11 @@ export default function AuditLogs() {
         {/* Audit Logs Table */}
         <div className="bg-card border border-border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full" role="table" aria-label="Audit logs table">
+            <table
+              className="w-full"
+              role="table"
+              aria-label="Audit logs table"
+            >
               <thead className="bg-muted">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -296,7 +302,7 @@ export default function AuditLogs() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {logs.map((log) => (
+                {logs.map(log => (
                   <tr key={log.id} className="hover:bg-muted/50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -312,14 +318,16 @@ export default function AuditLogs() {
                       {log.user ? (
                         <div>
                           <div className="text-sm font-medium text-foreground">
-                            {log.user.name || "No name"}
+                            {log.user.name || 'No name'}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {log.user.email}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-sm text-muted-foreground">System</span>
+                        <span className="text-sm text-muted-foreground">
+                          System
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -329,12 +337,12 @@ export default function AuditLogs() {
                             {JSON.stringify(log.details, null, 2)}
                           </pre>
                         ) : (
-                          "No details"
+                          'No details'
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                      {log.ipAddress || "Unknown"}
+                      {log.ipAddress || 'Unknown'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {formatDate(log.createdAt)}
@@ -349,9 +357,9 @@ export default function AuditLogs() {
           {pagination.pages > 1 && (
             <div className="bg-muted px-6 py-3 flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                Showing {((pagination.page - 1) * pagination.limit) + 1} to{" "}
-                {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-                {pagination.total} results
+                Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+                {Math.min(pagination.page * pagination.limit, pagination.total)}{' '}
+                of {pagination.total} results
               </div>
               <div className="flex space-x-2">
                 <Button

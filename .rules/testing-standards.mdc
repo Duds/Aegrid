@@ -1,0 +1,1092 @@
+---
+description: Testing Standards & Requirements
+alwaysApply: false
+---
+
+# Testing Standards & Requirements
+
+## 🧪 Testing Philosophy
+
+@context {
+"type": "testing",
+"purpose": "testing_standards_requirements",
+"format_version": "1.0.0",
+"enforced_for": "all contributors",
+"project": "Pricing Tool"
+}
+
+### **Core Testing Principles**
+
+- **Test-Driven Development**: Write tests before or alongside code
+- **Comprehensive Coverage**: Aim for 80%+ coverage across all metrics
+- **Realistic Testing**: Test real user scenarios and edge cases
+- **Fast Execution**: Tests should run quickly to not block development
+- **Reliable Results**: Tests should be deterministic and repeatable
+
+### **Current Test Status**
+
+- **Total Tests**: 31 passing tests
+- **Coverage Areas**: Password utilities, authentication, user registration
+- **Test Framework**: Jest 30.0.4 + React Testing Library 16.3.0
+- **Test Environment**: jsdom for browser simulation
+
+## 📊 Testing Requirements
+
+@rules [
+{
+"id": "test_coverage_requirement",
+"severity": "warning",
+"description": "Maintain minimum 80% test coverage across statements, branches, functions, and lines."
+},
+{
+"id": "test_structure_requirement",
+"severity": "error",
+"description": "Organize tests by category (unit, component, API, integration) in appropriate directories."
+},
+{
+"id": "test_mocking_requirement",
+"severity": "error",
+"description": "Properly mock external dependencies (Prisma, NextAuth, etc.) to isolate test units."
+},
+{
+"id": "test_data_requirement",
+"severity": "warning",
+"description": "Use consistent test data and implement proper cleanup procedures."
+},
+{
+"id": "test_naming_requirement",
+"severity": "warning",
+"description": "Use descriptive test names that explain the expected behavior and scenario."
+}
+]
+
+## 🏗️ Test Architecture
+
+### **Test Directory Structure**
+
+```
+__tests__/
+├── lib/                    # Utility function tests
+│   └── password-utils.test.ts
+├── api/                    # API endpoint tests
+│   └── auth/
+│       ├── register.test.ts
+│       └── register-simple.test.ts
+├── components/             # React component tests
+│   └── auth/
+│       ├── signin-form.test.tsx
+│       └── signin-form-fixed.test.tsx
+├── context/                # React context tests
+│   └── auth-context.test.tsx
+└── integration/            # End-to-end integration tests
+    └── auth-flow.test.ts
+```
+
+### **Test Categories**
+
+#### **Unit Tests** (`__tests__/lib/`)
+
+- Test individual utility functions
+- Mock all external dependencies
+- Focus on business logic
+- Fast execution (< 100ms per test)
+
+#### **Component Tests** (`__tests__/components/`)
+
+- Test React component behavior
+- Mock Next.js and external libraries
+- Test user interactions and state changes
+- Verify accessibility and rendering
+
+#### **API Tests** (`__tests__/api/`)
+
+- Test API endpoint logic
+- Mock database and external services
+- Test request/response handling
+- Verify error handling and validation
+
+#### **Integration Tests** (`__tests__/integration/`)
+
+- Test complete user workflows
+- Test component interactions
+- Test data flow between layers
+- Verify end-to-end functionality
+
+## 🔧 Testing Configuration
+
+### **Jest Configuration** (`jest.config.js`)
+
+```javascript
+module.exports = {
+  testEnvironment: "jsdom",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
+  moduleNameMapping: {
+    "^@/(.*)$": "<rootDir>/$1",
+  },
+  collectCoverageFrom: [
+    "app/**/*.{js,jsx,ts,tsx}",
+    "components/**/*.{js,jsx,ts,tsx}",
+    "lib/**/*.{js,jsx,ts,tsx}",
+    "!**/*.d.ts",
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 75,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+};
+```
+
+### **Jest Setup** (`jest.setup.js`)
+
+```javascript
+import "@testing-library/jest-dom";
+
+// Mock Next.js router
+jest.mock("next/navigation", () => ({
+  useRouter: jest.fn(),
+}));
+
+// Mock NextAuth
+jest.mock("next-auth/react", () => ({
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  useSession: jest.fn(),
+}));
+
+// Mock Prisma
+jest.mock("@/lib/db", () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+  },
+}));
+```
+
+## 📝 Writing Tests
+
+### **Test File Structure**
+
+```typescript
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { ComponentName } from "@/components/ComponentName";
+
+// Mock dependencies
+jest.mock("dependency-name");
+
+describe("ComponentName", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("Rendering", () => {
+    it("should render correctly", () => {
+      render(<ComponentName />);
+      expect(screen.getByText("Expected Text")).toBeInTheDocument();
+    });
+  });
+
+  describe("Functionality", () => {
+    it("should handle user interactions", async () => {
+      render(<ComponentName />);
+
+      const button = screen.getByRole("button", { name: /click me/i });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText("Result")).toBeInTheDocument();
+      });
+    });
+  });
+});
+```
+
+### **Testing Best Practices**
+
+#### **1. Arrange-Act-Assert Pattern**
+
+```typescript
+it("should handle user input", () => {
+  // Arrange
+  render(<Component />);
+  const input = screen.getByLabelText(/name/i);
+
+  // Act
+  fireEvent.change(input, { target: { value: "John" } });
+
+  // Assert
+  expect(input).toHaveValue("John");
+});
+```
+
+#### **2. Descriptive Test Names**
+
+```typescript
+// Good
+it("should display error message when email is invalid", () => {});
+it("should redirect to dashboard after successful login", () => {});
+it("should disable submit button during form submission", () => {});
+
+// Bad
+it("should work", () => {});
+it("test 1", () => {});
+it("does stuff", () => {});
+```
+
+#### **3. Test Isolation**
+
+```typescript
+beforeEach(() => {
+  jest.clearAllMocks();
+  // Reset any test state
+});
+
+afterEach(() => {
+  // Clean up any side effects
+});
+```
+
+#### **4. Async Testing**
+
+```typescript
+it("should handle async operations", async () => {
+  render(<Component />);
+
+  await waitFor(() => {
+    expect(screen.getByText("Loaded")).toBeInTheDocument();
+  });
+});
+```
+
+## 🚨 Common Testing Issues & Solutions
+
+### **1. Next.js Type Compatibility**
+
+**Problem**: Tests fail with Next.js type errors
+
+```bash
+ReferenceError: Request is not defined
+```
+
+**Solution**: Use simplified tests that don't import route files directly
+
+```typescript
+// Instead of importing the route file
+// import { POST } from '@/app/api/auth/register/route';
+
+// Test the logic separately
+describe("User Registration Logic", () => {
+  // Test business logic without Next.js dependencies
+});
+```
+
+### **2. Prisma Mocking Issues**
+
+**Problem**: `mockPrisma.user` is undefined
+
+```bash
+TypeError: Cannot read properties of undefined (reading 'user')
+```
+
+**Solution**: Proper Prisma mock setup
+
+```typescript
+jest.mock("@/lib/db", () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+  },
+}));
+```
+
+### **3. Component Role Testing**
+
+**Problem**: Form elements don't have expected roles
+
+```bash
+Unable to find an element with the role "form"
+```
+
+**Solution**: Test for actual component structure
+
+```typescript
+it("should have proper form structure", () => {
+  const emailInput = screen.getByLabelText(/email/i);
+  const passwordInput = screen.getByLabelText(/password/i);
+  const submitButton = screen.getByRole("button", { name: /sign in/i });
+
+  expect(emailInput).toBeInTheDocument();
+  expect(passwordInput).toBeInTheDocument();
+  expect(submitButton).toBeInTheDocument();
+});
+```
+
+## 🚀 Running Tests
+
+### **Test Commands**
+
+```bash
+# Run all working tests
+pnpm test:working
+
+# Run specific test categories
+pnpm test:unit            # Unit tests
+pnpm test:api             # API tests
+pnpm test:components      # Component tests
+pnpm test:integration     # Integration tests
+pnpm test:auth            # Authentication tests
+
+# Run with coverage
+pnpm test:coverage
+
+# Watch mode for development
+pnpm test:watch
+
+# Run all tests
+pnpm test:all
+```
+
+### **Test Scripts in package.json**
+
+```json
+{
+  "scripts": {
+    "test:working": "jest --testPathPatterns=\"password-utils|signin-form-fixed|register-simple\" --verbose",
+    "test:auth": "jest --testPathPatterns=\"auth|password|nextauth|register\" --verbose",
+    "test:unit": "jest --testPathPatterns=\"__tests__/(lib|utils)\"",
+    "test:api": "jest --testPathPatterns=\"__tests__/api\"",
+    "test:components": "jest --testPathPatterns=\"__tests__/components\"",
+    "test:integration": "jest --testPathPatterns=\"__tests__/integration\"",
+    "test:coverage": "jest --coverage"
+  }
+}
+```
+
+## 📊 Coverage Requirements
+
+### **Coverage Targets**
+
+- **Statements**: 80% minimum
+- **Branches**: 75% minimum
+- **Functions**: 80% minimum
+- **Lines**: 80% minimum
+
+### **Coverage Reports**
+
+```bash
+# Generate coverage report
+pnpm test:coverage
+
+# Coverage report location
+coverage/
+├── lcov-report/
+│   ├── index.html          # Main coverage report
+│   ├── components/          # Component coverage
+│   ├── lib/                # Utility coverage
+│   └── app/                # App coverage
+└── lcov.info               # Coverage data for CI
+```
+
+## 🔍 Debugging Tests
+
+### **Verbose Output**
+
+```bash
+pnpm test --verbose
+```
+
+### **Debug Specific Test**
+
+```bash
+pnpm test --testNamePattern="should handle user input"
+```
+
+### **Debug with Console**
+
+```typescript
+it("should debug test", () => {
+  console.log("Debug information");
+  // Test code here
+});
+```
+
+### **Screen Debugging**
+
+```typescript
+it("should find elements", () => {
+  render(<Component />);
+
+  // Debug what's rendered
+  screen.debug();
+
+  // Debug specific element
+  screen.debug(screen.getByRole("button"));
+});
+```
+
+## 🚀 CI/CD Integration
+
+### **GitHub Actions Test Workflow**
+
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - run: pnpm install
+      - run: pnpm test:ci
+      - run: pnpm test:coverage
+```
+
+### **Test Commands for CI**
+
+```bash
+# CI-specific test command
+pnpm test:ci
+
+# Coverage for CI
+pnpm test:coverage --watchAll=false
+```
+
+## 📚 Testing Resources
+
+### **Documentation**
+
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Jest DOM Matchers](https://github.com/testing-library/jest-dom)
+
+### **Testing Patterns**
+
+- [Testing React Components](https://react.dev/learn/testing)
+- [Testing Async Code](https://jestjs.io/docs/asynchronous)
+- [Mocking in Jest](https://jestjs.io/docs/mock-functions)
+
+### **Project-Specific Guides**
+
+- [Comprehensive Testing Guide](COMPREHENSIVE_TESTING_GUIDE.md)
+- [Authentication Testing Guide](AUTHENTICATION_TESTING_GUIDE.md)
+- [Test Status Summary](TEST_STATUS_SUMMARY.md)
+
+## 🎯 Testing Roadmap
+
+### **Immediate Improvements**
+
+1. **Fix Remaining Tests**: Resolve NextAuth and integration test issues
+2. **Increase Coverage**: Add tests for untested components and functions
+3. **Performance Testing**: Add tests for performance-critical code
+4. **Visual Testing**: Implement visual regression testing
+
+### **Long-term Goals**
+
+1. **End-to-End Testing**: Add Playwright or Cypress for full user workflows
+2. **Performance Testing**: Automated performance regression testing
+3. **Security Testing**: Automated security vulnerability testing
+4. **Load Testing**: Performance under high load scenarios
+
+---
+
+## 📞 Support
+
+For testing-related questions or issues:
+
+1. **Check this guide** for common solutions
+2. **Review test output** for specific error messages
+3. **Check test status** with `pnpm test:working`
+4. **Create an issue** with detailed error information
+
+**Remember**: Good tests are the foundation of reliable software. Run tests frequently and maintain high coverage to ensure the system remains secure and functional.
+
+## 📚 Related Documentation
+
+### **Testing Implementation**
+- **[Testing Guide](../docs/development/testing-guide.md)** - Comprehensive testing procedures
+- **[Developer Brief](../docs/development/developer-brief.md)** - Testing setup and configuration
+- **[Component Documentation Guide](../docs/architecture/component-documentation-guide.md)** - Component testing patterns
+
+### **Development Resources**
+- **[TypeScript Error Resolution](../docs/development/typescript-error-resolution.md)** - Testing TypeScript issues
+- **[Component Splitting Strategy](../docs/development/component-splitting-strategy.md)** - Testing component architecture
+
+### **Security & Authentication**
+- **[Security Guide](../docs/security/security-guide.md)** - Security testing procedures
+- **[Authentication Guide](../docs/security/authentication-guide.md)** - Authentication testing
+- **[RBAC Implementation](../docs/security/rbac-implementation.md)** - Role-based access testing
+
+### **Database & Data Management**
+- **[PostgreSQL Migration Guide](../docs/database/postgresql-migration-guide.md)** - Database testing procedures
+- **[PostgreSQL Quick Reference](../docs/database/postgresql-quick-reference.md)** - Database test data
+
+### **Deployment & Infrastructure**
+- **[Azure Deployment Guide](../docs/deployment/azure-deployment-guide.md)** - Deployment testing
+- **[GitHub Actions Setup Guide](../docs/deployment/github-actions-setup-guide.md)** - CI/CD testing
+- **[Production Deployment Guide](../docs/deployment/production-deployment-guide.md)** - Production testing
+
+### **Support & Troubleshooting**
+- **[Troubleshooting Guide](../docs/support/troubleshooting.md)** - Testing troubleshooting
+- **[Performance Audit](../docs/support/performance-audit.md)** - Performance testing
+- **[Internal Server Error Resolution](../docs/support/internal-server-error-resolution.md)** - Error testing
+
+### **Project Management**
+- **[Project Status Reports](../docs/project/status-reports.md)** - Test status and metrics
+- **[Release Notes](../docs/releases/changelog.md)** - Testing updates and changes
+
+# Testing Standards & Requirements
+
+## 🧪 Testing Philosophy
+
+@context {
+"type": "testing",
+"purpose": "testing_standards_requirements",
+"format_version": "1.0.0",
+"enforced_for": "all contributors",
+"project": "Pricing Tool"
+}
+
+### **Core Testing Principles**
+
+- **Test-Driven Development**: Write tests before or alongside code
+- **Comprehensive Coverage**: Aim for 80%+ coverage across all metrics
+- **Realistic Testing**: Test real user scenarios and edge cases
+- **Fast Execution**: Tests should run quickly to not block development
+- **Reliable Results**: Tests should be deterministic and repeatable
+
+### **Current Test Status**
+
+- **Total Tests**: 31 passing tests
+- **Coverage Areas**: Password utilities, authentication, user registration
+- **Test Framework**: Jest 30.0.4 + React Testing Library 16.3.0
+- **Test Environment**: jsdom for browser simulation
+
+## 📊 Testing Requirements
+
+@rules [
+{
+"id": "test_coverage_requirement",
+"severity": "warning",
+"description": "Maintain minimum 80% test coverage across statements, branches, functions, and lines."
+},
+{
+"id": "test_structure_requirement",
+"severity": "error",
+"description": "Organize tests by category (unit, component, API, integration) in appropriate directories."
+},
+{
+"id": "test_mocking_requirement",
+"severity": "error",
+"description": "Properly mock external dependencies (Prisma, NextAuth, etc.) to isolate test units."
+},
+{
+"id": "test_data_requirement",
+"severity": "warning",
+"description": "Use consistent test data and implement proper cleanup procedures."
+},
+{
+"id": "test_naming_requirement",
+"severity": "warning",
+"description": "Use descriptive test names that explain the expected behavior and scenario."
+}
+]
+
+## 🏗️ Test Architecture
+
+### **Test Directory Structure**
+
+```
+__tests__/
+├── lib/                    # Utility function tests
+│   └── password-utils.test.ts
+├── api/                    # API endpoint tests
+│   └── auth/
+│       ├── register.test.ts
+│       └── register-simple.test.ts
+├── components/             # React component tests
+│   └── auth/
+│       ├── signin-form.test.tsx
+│       └── signin-form-fixed.test.tsx
+├── context/                # React context tests
+│   └── auth-context.test.tsx
+└── integration/            # End-to-end integration tests
+    └── auth-flow.test.ts
+```
+
+### **Test Categories**
+
+#### **Unit Tests** (`__tests__/lib/`)
+
+- Test individual utility functions
+- Mock all external dependencies
+- Focus on business logic
+- Fast execution (< 100ms per test)
+
+#### **Component Tests** (`__tests__/components/`)
+
+- Test React component behavior
+- Mock Next.js and external libraries
+- Test user interactions and state changes
+- Verify accessibility and rendering
+
+#### **API Tests** (`__tests__/api/`)
+
+- Test API endpoint logic
+- Mock database and external services
+- Test request/response handling
+- Verify error handling and validation
+
+#### **Integration Tests** (`__tests__/integration/`)
+
+- Test complete user workflows
+- Test component interactions
+- Test data flow between layers
+- Verify end-to-end functionality
+
+## 🔧 Testing Configuration
+
+### **Jest Configuration** (`jest.config.js`)
+
+```javascript
+module.exports = {
+  testEnvironment: "jsdom",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
+  moduleNameMapping: {
+    "^@/(.*)$": "<rootDir>/$1",
+  },
+  collectCoverageFrom: [
+    "app/**/*.{js,jsx,ts,tsx}",
+    "components/**/*.{js,jsx,ts,tsx}",
+    "lib/**/*.{js,jsx,ts,tsx}",
+    "!**/*.d.ts",
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 75,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+};
+```
+
+### **Jest Setup** (`jest.setup.js`)
+
+```javascript
+import "@testing-library/jest-dom";
+
+// Mock Next.js router
+jest.mock("next/navigation", () => ({
+  useRouter: jest.fn(),
+}));
+
+// Mock NextAuth
+jest.mock("next-auth/react", () => ({
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  useSession: jest.fn(),
+}));
+
+// Mock Prisma
+jest.mock("@/lib/db", () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+  },
+}));
+```
+
+## 📝 Writing Tests
+
+### **Test File Structure**
+
+```typescript
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { ComponentName } from "@/components/ComponentName";
+
+// Mock dependencies
+jest.mock("dependency-name");
+
+describe("ComponentName", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("Rendering", () => {
+    it("should render correctly", () => {
+      render(<ComponentName />);
+      expect(screen.getByText("Expected Text")).toBeInTheDocument();
+    });
+  });
+
+  describe("Functionality", () => {
+    it("should handle user interactions", async () => {
+      render(<ComponentName />);
+
+      const button = screen.getByRole("button", { name: /click me/i });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText("Result")).toBeInTheDocument();
+      });
+    });
+  });
+});
+```
+
+### **Testing Best Practices**
+
+#### **1. Arrange-Act-Assert Pattern**
+
+```typescript
+it("should handle user input", () => {
+  // Arrange
+  render(<Component />);
+  const input = screen.getByLabelText(/name/i);
+
+  // Act
+  fireEvent.change(input, { target: { value: "John" } });
+
+  // Assert
+  expect(input).toHaveValue("John");
+});
+```
+
+#### **2. Descriptive Test Names**
+
+```typescript
+// Good
+it("should display error message when email is invalid", () => {});
+it("should redirect to dashboard after successful login", () => {});
+it("should disable submit button during form submission", () => {});
+
+// Bad
+it("should work", () => {});
+it("test 1", () => {});
+it("does stuff", () => {});
+```
+
+#### **3. Test Isolation**
+
+```typescript
+beforeEach(() => {
+  jest.clearAllMocks();
+  // Reset any test state
+});
+
+afterEach(() => {
+  // Clean up any side effects
+});
+```
+
+#### **4. Async Testing**
+
+```typescript
+it("should handle async operations", async () => {
+  render(<Component />);
+
+  await waitFor(() => {
+    expect(screen.getByText("Loaded")).toBeInTheDocument();
+  });
+});
+```
+
+## 🚨 Common Testing Issues & Solutions
+
+### **1. Next.js Type Compatibility**
+
+**Problem**: Tests fail with Next.js type errors
+
+```bash
+ReferenceError: Request is not defined
+```
+
+**Solution**: Use simplified tests that don't import route files directly
+
+```typescript
+// Instead of importing the route file
+// import { POST } from '@/app/api/auth/register/route';
+
+// Test the logic separately
+describe("User Registration Logic", () => {
+  // Test business logic without Next.js dependencies
+});
+```
+
+### **2. Prisma Mocking Issues**
+
+**Problem**: `mockPrisma.user` is undefined
+
+```bash
+TypeError: Cannot read properties of undefined (reading 'user')
+```
+
+**Solution**: Proper Prisma mock setup
+
+```typescript
+jest.mock("@/lib/db", () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+  },
+}));
+```
+
+### **3. Component Role Testing**
+
+**Problem**: Form elements don't have expected roles
+
+```bash
+Unable to find an element with the role "form"
+```
+
+**Solution**: Test for actual component structure
+
+```typescript
+it("should have proper form structure", () => {
+  const emailInput = screen.getByLabelText(/email/i);
+  const passwordInput = screen.getByLabelText(/password/i);
+  const submitButton = screen.getByRole("button", { name: /sign in/i });
+
+  expect(emailInput).toBeInTheDocument();
+  expect(passwordInput).toBeInTheDocument();
+  expect(submitButton).toBeInTheDocument();
+});
+```
+
+## 🚀 Running Tests
+
+### **Test Commands**
+
+```bash
+# Run all working tests
+pnpm test:working
+
+# Run specific test categories
+pnpm test:unit            # Unit tests
+pnpm test:api             # API tests
+pnpm test:components      # Component tests
+pnpm test:integration     # Integration tests
+pnpm test:auth            # Authentication tests
+
+# Run with coverage
+pnpm test:coverage
+
+# Watch mode for development
+pnpm test:watch
+
+# Run all tests
+pnpm test:all
+```
+
+### **Test Scripts in package.json**
+
+```json
+{
+  "scripts": {
+    "test:working": "jest --testPathPatterns=\"password-utils|signin-form-fixed|register-simple\" --verbose",
+    "test:auth": "jest --testPathPatterns=\"auth|password|nextauth|register\" --verbose",
+    "test:unit": "jest --testPathPatterns=\"__tests__/(lib|utils)\"",
+    "test:api": "jest --testPathPatterns=\"__tests__/api\"",
+    "test:components": "jest --testPathPatterns=\"__tests__/components\"",
+    "test:integration": "jest --testPathPatterns=\"__tests__/integration\"",
+    "test:coverage": "jest --coverage"
+  }
+}
+```
+
+## 📊 Coverage Requirements
+
+### **Coverage Targets**
+
+- **Statements**: 80% minimum
+- **Branches**: 75% minimum
+- **Functions**: 80% minimum
+- **Lines**: 80% minimum
+
+### **Coverage Reports**
+
+```bash
+# Generate coverage report
+pnpm test:coverage
+
+# Coverage report location
+coverage/
+├── lcov-report/
+│   ├── index.html          # Main coverage report
+│   ├── components/          # Component coverage
+│   ├── lib/                # Utility coverage
+│   └── app/                # App coverage
+└── lcov.info               # Coverage data for CI
+```
+
+## 🔍 Debugging Tests
+
+### **Verbose Output**
+
+```bash
+pnpm test --verbose
+```
+
+### **Debug Specific Test**
+
+```bash
+pnpm test --testNamePattern="should handle user input"
+```
+
+### **Debug with Console**
+
+```typescript
+it("should debug test", () => {
+  console.log("Debug information");
+  // Test code here
+});
+```
+
+### **Screen Debugging**
+
+```typescript
+it("should find elements", () => {
+  render(<Component />);
+
+  // Debug what's rendered
+  screen.debug();
+
+  // Debug specific element
+  screen.debug(screen.getByRole("button"));
+});
+```
+
+## 🚀 CI/CD Integration
+
+### **GitHub Actions Test Workflow**
+
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - run: pnpm install
+      - run: pnpm test:ci
+      - run: pnpm test:coverage
+```
+
+### **Test Commands for CI**
+
+```bash
+# CI-specific test command
+pnpm test:ci
+
+# Coverage for CI
+pnpm test:coverage --watchAll=false
+```
+
+## 📚 Testing Resources
+
+### **Documentation**
+
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Jest DOM Matchers](https://github.com/testing-library/jest-dom)
+
+### **Testing Patterns**
+
+- [Testing React Components](https://react.dev/learn/testing)
+- [Testing Async Code](https://jestjs.io/docs/asynchronous)
+- [Mocking in Jest](https://jestjs.io/docs/mock-functions)
+
+### **Project-Specific Guides**
+
+- [Comprehensive Testing Guide](COMPREHENSIVE_TESTING_GUIDE.md)
+- [Authentication Testing Guide](AUTHENTICATION_TESTING_GUIDE.md)
+- [Test Status Summary](TEST_STATUS_SUMMARY.md)
+
+## 🎯 Testing Roadmap
+
+### **Immediate Improvements**
+
+1. **Fix Remaining Tests**: Resolve NextAuth and integration test issues
+2. **Increase Coverage**: Add tests for untested components and functions
+3. **Performance Testing**: Add tests for performance-critical code
+4. **Visual Testing**: Implement visual regression testing
+
+### **Long-term Goals**
+
+1. **End-to-End Testing**: Add Playwright or Cypress for full user workflows
+2. **Performance Testing**: Automated performance regression testing
+3. **Security Testing**: Automated security vulnerability testing
+4. **Load Testing**: Performance under high load scenarios
+
+---
+
+## 📞 Support
+
+For testing-related questions or issues:
+
+1. **Check this guide** for common solutions
+2. **Review test output** for specific error messages
+3. **Check test status** with `pnpm test:working`
+4. **Create an issue** with detailed error information
+
+**Remember**: Good tests are the foundation of reliable software. Run tests frequently and maintain high coverage to ensure the system remains secure and functional.
+
+## 📚 Related Documentation
+
+### **Testing Implementation**
+- **[Testing Guide](../docs/development/testing-guide.md)** - Comprehensive testing procedures
+- **[Developer Brief](../docs/development/developer-brief.md)** - Testing setup and configuration
+- **[Component Documentation Guide](../docs/architecture/component-documentation-guide.md)** - Component testing patterns
+
+### **Development Resources**
+- **[TypeScript Error Resolution](../docs/development/typescript-error-resolution.md)** - Testing TypeScript issues
+- **[Component Splitting Strategy](../docs/development/component-splitting-strategy.md)** - Testing component architecture
+
+### **Security & Authentication**
+- **[Security Guide](../docs/security/security-guide.md)** - Security testing procedures
+- **[Authentication Guide](../docs/security/authentication-guide.md)** - Authentication testing
+- **[RBAC Implementation](../docs/security/rbac-implementation.md)** - Role-based access testing
+
+### **Database & Data Management**
+- **[PostgreSQL Migration Guide](../docs/database/postgresql-migration-guide.md)** - Database testing procedures
+- **[PostgreSQL Quick Reference](../docs/database/postgresql-quick-reference.md)** - Database test data
+
+### **Deployment & Infrastructure**
+- **[Azure Deployment Guide](../docs/deployment/azure-deployment-guide.md)** - Deployment testing
+- **[GitHub Actions Setup Guide](../docs/deployment/github-actions-setup-guide.md)** - CI/CD testing
+- **[Production Deployment Guide](../docs/deployment/production-deployment-guide.md)** - Production testing
+
+### **Support & Troubleshooting**
+- **[Troubleshooting Guide](../docs/support/troubleshooting.md)** - Testing troubleshooting
+- **[Performance Audit](../docs/support/performance-audit.md)** - Performance testing
+- **[Internal Server Error Resolution](../docs/support/internal-server-error-resolution.md)** - Error testing
+
+### **Project Management**
+- **[Project Status Reports](../docs/project/status-reports.md)** - Test status and metrics
+- **[Release Notes](../docs/releases/changelog.md)** - Testing updates and changes

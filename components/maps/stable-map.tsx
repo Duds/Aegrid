@@ -10,13 +10,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Filter, Settings } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import {
+  BASEMAP_OPTIONS,
   BasemapSelector,
   useBasemapSelection,
-  BASEMAP_OPTIONS,
 } from './basemap-selector';
-import dynamic from 'next/dynamic';
 
 // Dynamically import Leaflet components
 const MapContainer = dynamic(

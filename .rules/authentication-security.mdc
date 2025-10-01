@@ -1,0 +1,145 @@
+---
+alwaysApply: true
+---
+
+# Authentication & Security Standards (Aegrid)
+
+## 🔐 Core Security Principles
+
+@context {
+"type": "security",
+"purpose": "authentication_security_standards",
+"format_version": "1.0.0",
+"enforced_for": "all contributors",
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
+}
+
+### **Password Security**
+
+- **Hashing Algorithm**: Use bcrypt with 12 salt rounds for all password operations
+- **Password Storage**: Never store plain text passwords in database or logs
+- **Password Validation**: Enforce minimum 8 characters with complexity requirements
+- **Password Reset**: Implement secure password reset with time-limited tokens
+
+### **Authentication Flow**
+
+- **Framework**: Use NextAuth.js for all authentication operations
+- **Session Management**: JWT tokens with proper expiration and refresh
+- **Login Process**: Secure credential verification with rate limiting
+- **Logout Process**: Proper session cleanup and token invalidation
+
+### **Role-Based Access Control (RBAC)**
+
+- **User Roles (Aegrid)**: ADMIN, MANAGER, SUPERVISOR, CREW, EXEC, CITIZEN (read-only intake)
+- **Permission Checks**: Verify user permissions before sensitive operations
+- **Route Protection**: Wrap protected pages with ProtectedRoute component
+- **API Security**: Validate user permissions in all API endpoints
+
+## 🛡️ Security Implementation Rules
+
+@rules [
+{
+"id": "password_hashing",
+"severity": "error",
+"description": "All passwords must be hashed using bcrypt with 12 salt rounds before storage."
+},
+{
+"id": "authentication_required",
+"severity": "error",
+"description": "All sensitive operations must go through NextAuth.js authentication."
+},
+{
+"id": "role_verification",
+"severity": "error",
+"description": "Verify user roles and permissions before allowing access to protected resources."
+},
+{
+"id": "input_validation",
+"severity": "error",
+"description": "Validate and sanitize all user inputs using Zod schemas."
+},
+{
+"id": "session_security",
+"severity": "error",
+"description": "Implement secure session management with proper token handling."
+}
+]
+
+## 🔒 Security Best Practices
+
+### **Input Validation & Sanitization**
+
+```typescript
+import { z } from "zod";
+
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  role: z.enum(["ADMIN", "MANAGER", "SUPERVISOR", "CREW", "EXEC", "CITIZEN"]),
+});
+
+const validatedData = userSchema.parse(userInput);
+```
+
+### **Password Hashing Implementation**
+
+```typescript
+import bcrypt from "bcryptjs";
+
+const hashedPassword = await bcrypt.hash(password, 12);
+const isValid = await bcrypt.compare(password, hashedPassword);
+```
+
+### **Protected Route Implementation**
+
+```typescript
+import ProtectedRoute from "@/components/auth/protected-route";
+
+export default function SensitivePage() {
+  return (
+    <ProtectedRoute>
+      <div>Protected content here</div>
+    </ProtectedRoute>
+  );
+}
+```
+
+### **API Route Security**
+
+```typescript
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!hasRole(session.user.role, ["ADMIN", "MANAGER"])) return new Response("Forbidden", { status: 403 });
+  // ...
+}
+```
+
+## 🔍 Security Testing Requirements
+
+- Auth success/failure
+- Password hashing and verification
+- Session management and expiration
+- Logout functionality
+- RBAC route and API enforcement
+- Input validation (SQLi/XSS/CSRF)
+
+## 📋 Security Checklist
+
+- [ ] bcrypt hashing enforced
+- [ ] Auth required for sensitive ops
+- [ ] RBAC checks implemented
+- [ ] Zod validation in place
+- [ ] Secure session handling
+- [ ] API endpoints protected
+- [ ] Security tests passing
+- [ ] Environment secrets secured
+
+## 📚 Related Documentation
+
+- `../../docs/security/rbac-implementation.md` — Role-based access control setup
+- `../../docs/architecture/SAD.md` — Security architecture overview
+- `../../docs/development/developer-brief.md` — Security checklist in dev

@@ -1,0 +1,234 @@
+# TODO.md Standards
+
+## 🎯 Mandatory User Story Format
+
+Every TODO item MUST follow this exact user story structure:
+
+```markdown
+**US-XXX: [Descriptive Title]**
+
+- **As a** [user role/persona]
+- **I want** [specific functionality/feature]
+- **So that** [business value/benefit]
+- **Acceptance Criteria:**
+  - [ ] [Specific, testable criterion 1]
+  - [ ] [Specific, testable criterion 2]
+  - [ ] [Specific, testable criterion 3]
+- **Story Points:** [1, 2, 3, 5, 8, 13, 21, 34, 55]
+- **Dependencies:** [List of US-XXX dependencies or "None"]
+- **Branch:** [feature/US-XXX-description] (added when work begins)
+- **Started:** [YYYY-MM-DD] (date when branch created)
+- **Completed:** [YYYY-MM-DD] (date when deployed to production)
+- **Deployment:** [Azure staging/production URLs] (added when deployed)
+```
+
+## 🚨 User Story Requirements
+
+1. **User Story ID**: Must use US-XXX format (e.g., US-001, US-002)
+2. **User Role**: Must specify who the story is for (developer, user, admin, etc.)
+3. **Functionality**: Must describe what the user wants to accomplish
+4. **Business Value**: Must explain why this is valuable
+5. **Acceptance Criteria**: Must be specific, testable, and measurable
+6. **Story Points**: Must use Fibonacci sequence (1, 2, 3, 5, 8, 13, 21, 34, 55)
+7. **Dependencies**: Must list any blocking user stories or "None"
+8. **Branch**: Must be added when work begins (feature/US-XXX-description format)
+9. **Started Date**: Must be added when branch is created (YYYY-MM-DD format)
+10. **Completed Date**: Must be added when deployed to production (YYYY-MM-DD format)
+11. **Deployment Info**: Must include Azure URLs when deployed
+
+## 📊 Priority Levels
+
+All user stories MUST be categorized by priority:
+
+- **🔴 Critical Priority (Must Have)**: Essential for system operation
+- **🟡 High Priority (Should Have)**: Important for business operations
+- **🟢 Medium Priority (Could Have)**: Valuable features for enhancement
+- **🔵 Low Priority (Nice to Have)**: Future considerations
+
+## 🚀 User Story Workflow Rules
+
+Every user story MUST follow this complete workflow:
+
+### 1. Branch Creation (First Step)
+
+- Create feature branch from develop: `git checkout -b feature/US-XXX-description`
+- Branch naming: `feature/US-XXX-short-description` (e.g., `feature/US-020-excel-table-view`)
+- Update branch in TODO.md with branch name and start date
+
+### 2. Development Work
+
+- Work on user story in feature branch
+- Follow Test Driven Development (TDD) approach
+- Write tests before implementation
+- Ensure all acceptance criteria are met
+
+### 3. Completion Requirements (Before Marking Complete)
+
+- [ ] All acceptance criteria implemented and tested
+- [ ] Code reviewed and approved
+- [ ] All tests passing (unit, integration, e2e)
+- [ ] Documentation updated (README, API docs, component docs)
+- [ ] Feature branch committed and pushed
+- [ ] Pull request created and merged to develop branch
+- [ ] Release notes updated in CHANGELOG.md
+- [ ] Version bumped and tagged
+- [ ] Deployed to Azure staging environment
+- [ ] Staging testing completed successfully
+- [ ] Deployed to Azure production environment
+- [ ] Production verification completed
+- [ ] Feature branch deleted after successful deployment
+
+### 4. Documentation Updates
+
+- Update README.md with new features
+- Update API documentation
+- Update component documentation
+- Update CHANGELOG.md with release notes
+- Update any relevant architecture documentation
+
+### 5. Deployment Verification
+
+- Verify feature works in staging environment
+- Run smoke tests in production
+- Confirm no regressions introduced
+- Update TODO.md with completion date and deployment info
+
+## 📝 Content Standards
+
+1. **No Generic Tasks**: Every item must be a proper user story
+2. **No Technical Tasks**: Focus on business value, not implementation details
+3. **No Bug Fixes**: Use separate bug tracking system
+4. **No Documentation Tasks**: Use separate documentation system
+5. **No Refactoring**: Use separate technical debt tracking
+
+## 🔄 Maintenance Rules
+
+1. **Update Frequency**: Review and update weekly
+2. **Story Point Validation**: Re-estimate story points monthly
+3. **Dependency Review**: Check dependencies quarterly
+4. **Priority Review**: Re-prioritize based on business needs
+5. **Completion Tracking**: Move completed stories to "Recently Completed"
+
+## ❌ Prohibited Content
+
+- Generic task lists
+- Technical implementation details
+- Bug reports
+- Documentation tasks
+- Refactoring items
+- Non-user-focused items
+- Vague or unclear requirements
+
+## ✅ Required Sections
+
+1. **Recently Completed**: Completed user stories with completion dates
+2. **User Stories by Priority**: All active stories organized by priority
+3. **Release Planning**: Sprint planning with story point totals
+4. **Development Guidelines**: Standards for story creation and management
+
+## 🎯 Story Point Guidelines
+
+- **1 point**: Trivial changes, minor UI tweaks
+- **2 points**: Simple features, basic functionality
+- **3 points**: Small features, well-defined scope
+- **5 points**: Medium features, clear requirements
+- **8 points**: Complex features, multiple components
+- **13 points**: Large features, may need breaking down
+- **21 points**: Epic-level features, significant scope
+- **34 points**: Major initiatives, multiple sprints
+- **55 points**: Enterprise features, long-term projects
+
+## 🔗 Dependency Management
+
+- **Technical Dependencies**: Must be clearly marked
+- **Business Dependencies**: Must be identified
+- **Parallel Development**: Note opportunities for concurrent work
+- **Blocking Stories**: Highlight critical path items
+
+## 🚨 Enforcement Actions
+
+When editing TODO.md:
+
+1. **Validate User Story Format**: Ensure every item follows the mandatory structure
+2. **Check Priority Assignment**: Verify all stories have proper priority levels
+3. **Validate Story Points**: Ensure points use Fibonacci sequence
+4. **Check Dependencies**: Verify dependency references are correct
+5. **Enforce Workflow**: Ensure workflow fields are updated when work begins
+6. **Require Completion Steps**: Prevent marking complete without deployment
+
+## 📋 Checklist for TODO.md Changes
+
+Before committing TODO.md changes:
+
+- [ ] All user stories follow mandatory format
+- [ ] All stories have proper priority levels
+- [ ] Story points use Fibonacci sequence
+- [ ] Dependencies are correctly referenced
+- [ ] Workflow fields are updated for active stories
+- [ ] Release planning reflects current story numbers
+- [ ] No prohibited content included
+- [ ] Required sections are present and complete
+
+## 🔄 Integration with Other Rules
+
+This rule works in conjunction with:
+
+- **development-standards.mdc**: For code quality and testing requirements
+- **github-workflow.mdc**: For branch and PR management
+- **authentication-security.mdc**: For security considerations
+- **database-operations.mdc**: For database-related stories
+- **testing-standards.mdc**: For testing requirements
+- **update-docs.mdc**: For documentation updates
+
+## 🎯 Examples
+
+### ✅ Correct User Story Format
+
+```markdown
+**US-020: Resource Planning Excel-Style Table View**
+
+- **As a** project manager
+- **I want** an Excel-like table view in the Resource Planning tab
+- **So that** I can quickly plan resources when there are many resources and/or phases to add
+- **Acceptance Criteria:**
+  - [ ] Create Excel-style editable table interface for resource planning
+  - [ ] Implement inline cell editing with validation
+  - [ ] Add dropdown selectors for resources, phases, and roles
+  - [ ] Include date pickers in table cells for start/end dates
+  - [ ] Implement mode switching between table view and normal entry mode
+- **Story Points:** 21
+- **Dependencies:** US-003, US-019
+- **Branch:** feature/US-020-excel-table-view
+- **Started:** 2024-01-15
+- **Completed:** 2024-01-30
+- **Deployment:** https://staging.pricing-tool.azurewebsites.net, https://pricing-tool.azurewebsites.net
+```
+
+### ❌ Incorrect Format (Will Be Flagged)
+
+```markdown
+- Add table view to resources tab
+- Fix the date picker bug
+- Update documentation
+- Refactor the component
+```
+
+## 🚀 Next Steps
+
+When working on a user story:
+
+1. **Start**: Create branch and update TODO.md with branch info
+2. **Develop**: Follow TDD approach with tests first
+3. **Complete**: Follow all completion requirements
+4. **Deploy**: Ensure staging and production deployment
+5. **Document**: Update all relevant documentation
+6. **Close**: Mark complete in TODO.md with deployment info
+
+---
+
+**Remember**: TODO.md is the single source of truth for all development work. Every change must follow these standards to maintain quality and consistency.
+description:
+globs:
+alwaysApply: true
+
+---

@@ -1,23 +1,23 @@
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/dashboard/critical-controls - Get critical controls status for dashboard
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.organisationId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get critical controls
     const criticalControls = await prisma.criticalControl.findMany({
       where: {
         organisationId: session.user.organisationId,
-        status: "ACTIVE",
+        status: 'ACTIVE',
       },
       include: {
         assetMappings: {
@@ -70,10 +70,16 @@ export async function GET(request: NextRequest) {
         }
 
         // Track inspection dates
-        if (asset.lastInspection && (!lastInspection || asset.lastInspection > lastInspection)) {
+        if (
+          asset.lastInspection &&
+          (!lastInspection || asset.lastInspection > lastInspection)
+        ) {
           lastInspection = asset.lastInspection;
         }
-        if (asset.nextInspection && (!nextDue || asset.nextInspection < nextDue)) {
+        if (
+          asset.nextInspection &&
+          (!nextDue || asset.nextInspection < nextDue)
+        ) {
           nextDue = asset.nextInspection;
         }
       });
@@ -103,8 +109,10 @@ export async function GET(request: NextRequest) {
         status,
         riskLevel,
         assetCount: totalAssets,
-        lastInspection: lastInspection?.toISOString().split('T')[0],
-        nextDue: nextDue?.toISOString().split('T')[0],
+        lastInspection: lastInspection
+          ? (lastInspection as Date).toISOString().split('T')[0]
+          : null,
+        nextDue: nextDue ? (nextDue as Date).toISOString().split('T')[0] : null,
         compliantAssets,
         nonCompliantAssets,
         overdueAssets,
@@ -115,9 +123,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ criticalControls: controlsStatus });
   } catch (error) {
-    console.error("Error fetching critical controls:", error);
+    console.error('Error fetching critical controls:', error);
     return NextResponse.json(
-      { error: "Failed to fetch critical controls" },
+      { error: 'Failed to fetch critical controls' },
       { status: 500 }
     );
   }

@@ -1,28 +1,28 @@
 /**
  * Resilience Engine API Endpoints
- * 
+ *
  * RESTful API endpoints for resilience operations
  * Aligned with The Aegrid Rules for resilient asset management
- * 
+ *
  * @file app/api/resilience/route.ts
  * @version 1.0.0
  * @since PI3 - Resilience Implementation
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { 
-  ResilienceEngine, 
-  createResilienceEngine, 
-  defaultResilienceConfig 
+import {
+  ResilienceEngine,
+  createResilienceEngine,
+  defaultResilienceConfig,
 } from '@/lib/resilience-engine';
-import { 
-  ResilienceResponse, 
-  SignalProcessingRequest, 
+import {
   MarginAllocationRequest,
-  ResilienceConfigUpdateRequest 
+  ResilienceConfigUpdateRequest,
+  ResilienceResponse,
+  SignalProcessingRequest,
 } from '@/types/resilience';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Global resilience engine instance
 let resilienceEngine: ResilienceEngine | null = null;
@@ -42,7 +42,7 @@ async function initializeResilienceEngine(): Promise<ResilienceEngine> {
  * GET /api/resilience
  * Get current resilience status and health
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -74,18 +74,18 @@ export async function GET(request: NextRequest) {
       metadata: {
         endpoint: '/api/resilience',
         method: 'GET',
-        user: session.user.email
-      }
+        user: session.user.email,
+      },
     };
 
     return NextResponse.json(response);
   } catch (error) {
     console.error('❌ GET /api/resilience failed:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date()
+        timestamp: new Date(),
       },
       { status: 500 }
     );
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    
+
     // Validate request body
     if (!body.action) {
       return NextResponse.json(
@@ -136,31 +136,31 @@ export async function POST(request: NextRequest) {
       case 'process_signals':
         response = await handleProcessSignals(engine, body);
         break;
-      
+
       case 'allocate_margin':
         response = await handleAllocateMargin(engine, body);
         break;
-      
+
       case 'deploy_margin':
         response = await handleDeployMargin(engine, body);
         break;
-      
+
       case 'update_config':
         response = await handleUpdateConfig(engine, body);
         break;
-      
+
       case 'health_check':
         response = await handleHealthCheck(engine);
         break;
-      
+
       case 'get_adaptive':
         response = await handleGetAdaptive(engine);
         break;
-      
+
       case 'update_adaptive_config':
         response = await handleUpdateAdaptiveConfig(engine, body);
         break;
-      
+
       default:
         return NextResponse.json(
           { success: false, error: `Unknown action: ${body.action}` },
@@ -172,10 +172,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ POST /api/resilience failed:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date()
+        timestamp: new Date(),
       },
       { status: 500 }
     );
@@ -207,7 +207,7 @@ export async function PUT(request: NextRequest) {
 
     // Parse request body
     const body: ResilienceConfigUpdateRequest = await request.json();
-    
+
     // Validate request body
     if (!body.updates) {
       return NextResponse.json(
@@ -226,10 +226,10 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('❌ PUT /api/resilience failed:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date()
+        timestamp: new Date(),
       },
       { status: 500 }
     );
@@ -240,7 +240,7 @@ export async function PUT(request: NextRequest) {
  * DELETE /api/resilience
  * Shutdown resilience engine (admin only)
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -272,18 +272,18 @@ export async function DELETE(request: NextRequest) {
       metadata: {
         endpoint: '/api/resilience',
         method: 'DELETE',
-        user: session.user.email
-      }
+        user: session.user.email,
+      },
     };
 
     return NextResponse.json(response);
   } catch (error) {
     console.error('❌ DELETE /api/resilience failed:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date()
+        timestamp: new Date(),
       },
       { status: 500 }
     );
@@ -295,225 +295,11 @@ export async function DELETE(request: NextRequest) {
 // ============================================================================
 
 /**
- * GET /api/resilience/antifragile - Get antifragile system status
- */
-export async function GET_ANTIFRAGILE(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session || !hasResiliencePermission(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Unauthorized access to antifragile system' },
-        { status: 401 }
-      );
-    }
-
-    if (!resilienceEngine) {
-      return NextResponse.json(
-        { error: 'Resilience engine not initialized' },
-        { status: 503 }
-      );
-    }
-
-    const antifragileStatus = resilienceEngine.getAntifragileStatus();
-    const patterns = resilienceEngine.getAntifragilePatterns();
-    const stressEvents = resilienceEngine.getStressEvents();
-    const adaptationHistory = resilienceEngine.getAdaptationHistory();
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        status: antifragileStatus,
-        patterns,
-        stressEvents: stressEvents.slice(-10), // Last 10 events
-        adaptationHistory: adaptationHistory.slice(-20) // Last 20 adaptations
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Failed to get antifragile status:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * POST /api/resilience/antifragile - Process stress event through antifragile system
- */
-export async function POST_ANTIFRAGILE(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session || !hasResiliencePermission(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Unauthorized access to antifragile system' },
-        { status: 401 }
-      );
-    }
-
-    if (!resilienceEngine) {
-      return NextResponse.json(
-        { error: 'Resilience engine not initialized' },
-        { status: 503 }
-      );
-    }
-
-    const body = await request.json();
-    const { signals } = body;
-
-    if (!signals || !Array.isArray(signals)) {
-      return NextResponse.json(
-        { error: 'Invalid signals data' },
-        { status: 400 }
-      );
-    }
-
-    // Process signals through resilience engine (which includes antifragile processing)
-    const result = await resilienceEngine.processSignals(signals);
-
-    if (result.success) {
-      const antifragileStatus = resilienceEngine.getAntifragileStatus();
-      
-      return NextResponse.json({
-        success: true,
-        data: {
-          processedSignals: result.data,
-          antifragileStatus,
-          message: 'Stress event processed successfully'
-        }
-      });
-    } else {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: result.error || 'Failed to process stress event' 
-        },
-        { status: 500 }
-      );
-    }
-
-  } catch (error) {
-    console.error('❌ Failed to process stress event:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * GET /api/resilience/adaptive - Get adaptive algorithm status
- */
-export async function GET_ADAPTIVE(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session || !hasResiliencePermission(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Unauthorized access to adaptive algorithms' },
-        { status: 401 }
-      );
-    }
-
-    if (!resilienceEngine) {
-      return NextResponse.json(
-        { error: 'Resilience engine not initialized' },
-        { status: 503 }
-      );
-    }
-
-    const adaptiveStatus = resilienceEngine.getAdaptiveAlgorithmStatus();
-    const learningEvents = resilienceEngine.getLearningEvents();
-    const models = resilienceEngine.getMachineLearningModels();
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        status: adaptiveStatus,
-        learningEvents: learningEvents.slice(-10), // Last 10 events
-        models: models.map(model => ({
-          ...model,
-          trainingData: {
-            ...model.trainingData,
-            lastUpdated: model.trainingData.lastUpdated.toISOString()
-          },
-          performance: {
-            ...model.performance,
-            lastEvaluated: model.performance.lastEvaluated.toISOString()
-          }
-        }))
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Failed to get adaptive algorithm status:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * POST /api/resilience/adaptive - Update adaptive algorithm configuration
- */
-export async function POST_ADAPTIVE(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session || !hasResiliencePermission(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Unauthorized access to adaptive algorithms' },
-        { status: 401 }
-      );
-    }
-
-    if (!resilienceEngine) {
-      return NextResponse.json(
-        { error: 'Resilience engine not initialized' },
-        { status: 503 }
-      );
-    }
-
-    const body = await request.json();
-    if (!body.config) {
-      return NextResponse.json(
-        { error: 'Missing config parameter' },
-        { status: 400 }
-      );
-    }
-
-    resilienceEngine.updateAdaptiveAlgorithmConfig(body.config);
-
-    return NextResponse.json({
-      success: true,
-      message: 'Adaptive algorithm configuration updated successfully',
-      timestamp: new Date()
-    });
-
-  } catch (error) {
-    console.error('❌ Failed to update adaptive algorithm config:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
  * Handle get adaptive algorithm action
  */
-async function handleGetAdaptive(engine: ResilienceEngine): Promise<ResilienceResponse> {
+async function handleGetAdaptive(
+  engine: ResilienceEngine
+): Promise<ResilienceResponse> {
   const adaptiveStatus = engine.getAdaptiveAlgorithmStatus();
   const learningEvents = engine.getLearningEvents();
   const models = engine.getMachineLearningModels();
@@ -527,15 +313,15 @@ async function handleGetAdaptive(engine: ResilienceEngine): Promise<ResilienceRe
         ...model,
         trainingData: {
           ...model.trainingData,
-          lastUpdated: model.trainingData.lastUpdated.toISOString()
+          lastUpdated: model.trainingData.lastUpdated.toISOString(),
         },
         performance: {
           ...model.performance,
-          lastEvaluated: model.performance.lastEvaluated.toISOString()
-        }
-      }))
+          lastEvaluated: model.performance.lastEvaluated.toISOString(),
+        },
+      })),
     },
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 }
 
@@ -543,7 +329,7 @@ async function handleGetAdaptive(engine: ResilienceEngine): Promise<ResilienceRe
  * Handle update adaptive algorithm configuration action
  */
 async function handleUpdateAdaptiveConfig(
-  engine: ResilienceEngine, 
+  engine: ResilienceEngine,
   body: any
 ): Promise<ResilienceResponse> {
   if (!body.config) {
@@ -555,7 +341,7 @@ async function handleUpdateAdaptiveConfig(
   return {
     success: true,
     message: 'Adaptive algorithm configuration updated successfully',
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 }
 
@@ -575,7 +361,7 @@ function hasResiliencePermission(role: string): boolean {
  * Handle process signals action
  */
 async function handleProcessSignals(
-  engine: ResilienceEngine, 
+  engine: ResilienceEngine,
   body: SignalProcessingRequest
 ): Promise<ResilienceResponse> {
   if (!body.signals) {
@@ -589,43 +375,35 @@ async function handleProcessSignals(
  * Handle allocate margin action
  */
 async function handleAllocateMargin(
-  engine: ResilienceEngine, 
+  engine: ResilienceEngine,
   body: MarginAllocationRequest
 ): Promise<ResilienceResponse> {
   if (!body.marginType || !body.amount || !body.reason) {
     throw new Error('Missing required parameters: marginType, amount, reason');
   }
 
-  return await engine.allocateMargin(
-    body.marginType,
-    body.amount,
-    body.reason
-  );
+  return await engine.allocateMargin(body.marginType, body.amount, body.reason);
 }
 
 /**
  * Handle deploy margin action
  */
 async function handleDeployMargin(
-  engine: ResilienceEngine, 
+  engine: ResilienceEngine,
   body: MarginAllocationRequest
 ): Promise<ResilienceResponse> {
   if (!body.marginType || !body.amount || !body.reason) {
     throw new Error('Missing required parameters: marginType, amount, reason');
   }
 
-  return await engine.deployMargin(
-    body.marginType,
-    body.amount,
-    body.reason
-  );
+  return await engine.deployMargin(body.marginType, body.amount, body.reason);
 }
 
 /**
  * Handle update config action
  */
 async function handleUpdateConfig(
-  engine: ResilienceEngine, 
+  engine: ResilienceEngine,
   body: ResilienceConfigUpdateRequest
 ): Promise<ResilienceResponse> {
   if (!body.updates) {
@@ -638,12 +416,14 @@ async function handleUpdateConfig(
 /**
  * Handle health check action
  */
-async function handleHealthCheck(engine: ResilienceEngine): Promise<ResilienceResponse> {
+async function handleHealthCheck(
+  engine: ResilienceEngine
+): Promise<ResilienceResponse> {
   const healthCheck = await engine.performHealthCheck();
-  
+
   return {
     success: true,
     data: healthCheck,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 }

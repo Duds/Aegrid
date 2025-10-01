@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-10-01
+
+### 🔧 **Manager Role Refactor & Code Optimization**
+
+#### **Major Refactoring**
+
+- **API Route Cleanup**: Significant code reduction across all API routes (3,346 lines removed, 928 lines added)
+- **Type System Enhancement**: Improved TypeScript type definitions in resilience module
+- **Component Optimization**: Cleaned up and optimized map components
+- **Aegrid Rules Updates**: Comprehensive updates to core Aegrid Rules documentation
+
+#### **API Route Improvements**
+
+- **Authentication Standardization**: Consistent authentication patterns across all API routes
+- **Energy Analytics Refactor**: Streamlined energy analytics API with improved data handling
+- **Security API Cleanup**: Reduced code complexity in security-related endpoints:
+  - Application Inventory: 173 lines removed
+  - Backup Enhancement: 346 lines removed
+  - Infrastructure Control: 364 lines removed
+  - OS Patch Management: 341 lines removed
+  - Patch Management: 286 lines removed
+- **Resilience API Optimization**: Simplified resilience route with better type definitions (288 lines removed)
+- **Session Management**: Improved session handling in profile and sessions APIs
+
+#### **Type Definitions & Data Models**
+
+- **Resilience Types**: Enhanced resilience type definitions with 197 new lines of type safety
+- **Component Props**: Improved component prop interfaces and type checking
+- **API Response Types**: Better typed API responses across all routes
+
+#### **Component Updates**
+
+- **Map Components**: Optimized stable-map and working-asset-map components
+- **UI Components**: Removed obsolete sidebar and skeleton components
+- **Demo Pages**: Updated enhanced-maps demo page
+
+#### **Documentation Updates**
+
+- **Aegrid Rules**: Major documentation improvements with 358 lines streamlined
+- **Core Principles**: Enhanced clarity in Aegrid Rules presentation
+- **Cursor Rules**: Updated development rules for better alignment
+
+#### **Technical Debt Reduction**
+
+- **Code Duplication**: Eliminated redundant code patterns across API routes
+- **Dead Code Removal**: Removed unused components and imports
+- **Performance**: Improved overall application performance through code optimization
+- **Maintainability**: Enhanced code maintainability with better structure and types
+
+### 🔧 **Bug Fixes**
+
+- **Import Path Corrections**: Fixed import paths across multiple API routes
+- **Type Safety**: Resolved TypeScript strict mode issues
+- **Authentication Flow**: Corrected authentication checks in API endpoints
+
+### 📚 **Documentation Updates**
+
+- **Aegrid Rules**: Comprehensive update to core rules documentation
+- **API Documentation**: Improved inline documentation for API routes
+- **Type Documentation**: Enhanced TypeScript interface documentation
+
+### 📊 **Business Impact**
+
+- **Code Quality**: Significant improvement in code quality and maintainability
+- **Performance**: Faster API response times through code optimization
+- **Developer Experience**: Better type safety and clearer code structure
+- **Technical Debt**: Major reduction in technical debt across the platform
+
 ## [0.5.0] - 2025-01-24
 
 ### 🚀 **Comprehensive Platform Improvements & ISO 55000 Policy Framework**

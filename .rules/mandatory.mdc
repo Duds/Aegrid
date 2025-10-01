@@ -1,0 +1,345 @@
+---
+Description: Mandatory Project Rules (Aegrid)
+alwaysApply: true
+---
+
+# Mandatory Project Rules (Aegrid)
+
+@context {
+"type": "documentation",
+"purpose": "project_rules",
+"format_version": "1.0.0",
+"enforced_for": "all contributors",
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
+}
+
+## Documentation and Commit Enforcement
+
+- All contributors must directly update all relevant documentation files (README, changelog, code comments, architecture docs, etc.) as part of every change.
+- Do not just describe or suggest documentation updates, make the actual edits.
+- All changes must be committed and pushed before ending a session.
+- This rule is mandatory and applies to all code, content, and design changes.
+
+## Project Directory Tree
+
+```text
+/ (root)
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── auth/              # Authentication pages
+│   ├── projects/          # Project management
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Landing page
+├── components/             # React components
+│   ├── ui/                # shadcn/ui components
+│   ├── auth/              # Authentication components
+│   ├── layout/            # Layout components
+│   ├── charts/            # Chart components
+│   └── gantt/             # Gantt chart components
+├── context/                # React context providers
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utility libraries
+├── prisma/                 # Database schema and migrations
+├── __tests__/              # Test files
+├── scripts/                # Utility scripts
+├── infra/                  # Infrastructure as Code
+├── types/                  # TypeScript type definitions
+├── utils/                  # Utility functions
+├── styles/                 # Global styles
+└── public/                 # Static assets
+```
+
+## Project Summary
+
+- **Aegrid** — Asset Lifecycle Intelligence Platform (formerly Aegrid)
+- **Technology Stack**: Next.js 15, React 18, TypeScript, Prisma ORM, PostgreSQL + PostGIS, Azure Cosmos DB Gremlin API
+- **Features**: Hybrid database architecture, graph-based asset intelligence, journey-centric UX, ISO compliance, sector-neutral platform
+- **Security**: NextAuth.js, bcrypt password hashing, role-based access control, ISO 27001/27002 compliance
+- **Testing**: Comprehensive test strategy with Jest and React Testing Library, real data testing (no mocks)
+- **Deployment**: Azure Container Apps with monitoring and health checks
+- **Core Principles**: The Aegrid Rules (Every Asset Has a Purpose, Match Maintenance to Risk, Protect the Critical Few, Plan for Tomorrow Today)
+
+## Core Architecture Principles
+
+@rules [
+{
+"id": "nextjs_app_router",
+"severity": "error",
+"description": "Use Next.js 15 App Router structure with proper file-based routing and API routes."
+},
+{
+"id": "typescript_strict",
+"severity": "error",
+"description": "Use TypeScript strict mode with proper type definitions and interfaces."
+},
+{
+"id": "hybrid_database",
+"severity": "error",
+"description": "Use hybrid PostgreSQL + Azure Cosmos DB Gremlin API architecture for relational and graph data."
+},
+{
+"id": "aegrid_rules_alignment",
+"severity": "error",
+"description": "All features must align with The Aegrid Rules: Every Asset Has a Purpose, Match Maintenance to Risk, Protect the Critical Few, Plan for Tomorrow Today."
+},
+{
+"id": "journey_centric_ux",
+"severity": "error",
+"description": "Design navigation and workflows around user journeys, not isolated features."
+},
+{
+"id": "sector_neutral_language",
+"severity": "error",
+"description": "Use industry sector-neutral language, avoiding council-specific terminology."
+},
+{
+"id": "iso_compliance",
+"severity": "error",
+"description": "Ensure compliance with ISO 14224, ISO 55000, ISO 27001, ISO 27002, ISO 31000, ISO/IEC 42010, ISO/IEC 20547-3, ISO 8000, ISO 15926, ISO 20000, ISO 21500, ISO 9001, and ISO 22301 standards."
+},
+{
+"id": "authentication_required",
+"severity": "error",
+"description": "All sensitive operations must go through NextAuth.js authentication with proper role checks."
+},
+{
+"id": "real_data_testing",
+"severity": "error",
+"description": "Use real data in tests, avoid mocks unless absolutely necessary."
+},
+{
+"id": "branch_strategy",
+"severity": "error",
+"description": "Follow development branch + main strategy with feature sub-branches for all development work."
+}
+]
+
+## Authentication & Security Standards
+
+- **Password Security**: Use bcrypt with 12 salt rounds for all password hashing
+- **Role-Based Access**: Implement roles ADMIN, MANAGER, SUPERVISOR, CREW, EXEC, CITIZEN with proper permissions
+- **Session Management**: Use NextAuth.js with JWT tokens and secure session handling
+- **Input Validation**: Validate and sanitise all user inputs using Zod schemas
+- **Protected Routes**: Wrap sensitive pages with ProtectedRoute component
+
+## Git Workflow and Branch Strategy
+
+- **Branch Structure**: Use main (production) + develop (integration) + feature branches
+- **Feature Development**: Always create feature branches from develop branch
+- **Integration**: Merge completed features to develop for testing
+- **Production**: Merge develop to main only for releases
+- **Naming**: Use descriptive branch names (feature/name, fix/issue, enhancement/improvement)
+- **Commit Messages**: Follow semantic commit format (type(scope): description)
+
+## Database Standards
+
+- **Hybrid Architecture**: Use PostgreSQL for transactional data and Azure Cosmos DB Gremlin API for graph relationships
+- **Schema Design**: Use Prisma schema with proper relationships and constraints for PostgreSQL
+- **Graph Modeling**: Implement graph-based asset models with function-based anchoring and multiple hierarchies
+- **Data Synchronization**: Maintain consistency between PostgreSQL and Cosmos DB with conflict resolution
+- **Migrations**: Always create and test migrations before schema changes
+- **Seeding**: Maintain comprehensive seed data for development and testing
+- **Connection Management**: Use proper connection pooling and error handling for both databases
+- **Data Validation**: Implement validation at both database and application levels
+
+## Testing Standards
+
+- **Test Coverage**: Maintain high test coverage across all components and functions
+- **Real Data Testing**: Use real data in tests, avoid mocks unless absolutely necessary
+- **Test Structure**: Organise tests by category (unit, component, API, integration)
+- **Graph Database Testing**: Test both PostgreSQL and Cosmos DB operations
+- **Test Data**: Use consistent test data and cleanup procedures
+- **Performance**: Ensure tests run efficiently and don't block development
+- **Aegrid Rules Testing**: Verify all features align with The Aegrid Rules
+
+## Code Quality Standards
+
+- **TypeScript**: Use strict mode with proper type definitions
+- **ESLint**: Follow project ESLint configuration and fix all warnings
+- **Component Design**: Use functional components with hooks and proper prop interfaces
+- **Error Handling**: Implement comprehensive error handling with user-friendly messages
+- **Performance**: Optimise components with proper memoisation and lazy loading
+
+## Documentation Standards
+
+- **Code Comments**: Document complex logic and business rules
+- **API Documentation**: Document all API endpoints with examples
+- **Component Documentation**: Document component props and usage examples
+- **Architecture Documentation**: Keep SAD and technical documentation up to date
+- **User Guides**: Maintain user-facing documentation for all features
+
+## Deployment Standards
+
+- **Environment Configuration**: Use proper environment variables and .env files
+- **Docker**: Maintain Docker configurations for consistent deployment
+- **Azure Integration**: Follow Azure deployment best practices
+- **Health Checks**: Implement proper health check endpoints
+- **Monitoring**: Use Application Insights for production monitoring
+
+## Rules & When to Use
+
+@rules [
+{ "id": "component_organization", "severity": "error", "description": "For creating, moving, or refactoring components. Ensures correct directory, types, docs, and styles." },
+{ "id": "development_standards", "severity": "error", "description": "For all code changes. Enforces TypeScript, documentation, accessibility, and security standards." },
+{ "id": "authentication_security", "severity": "error", "description": "For any authentication or security changes. Use NextAuth.js, bcrypt, and proper role checks." },
+{ "id": "hybrid_database_operations", "severity": "error", "description": "For database changes. Use hybrid PostgreSQL + Cosmos DB architecture with proper synchronization." },
+{ "id": "aegrid_rules_compliance", "severity": "error", "description": "For all features. Ensure alignment with The Aegrid Rules and function-based asset modeling." },
+{ "id": "journey_centric_design", "severity": "error", "description": "For UX/UI changes. Design around user journeys and workflows, not isolated features." },
+{ "id": "sector_neutral_implementation", "severity": "error", "description": "For language and terminology. Use industry sector-neutral language throughout." },
+{ "id": "iso_compliance_verification", "severity": "error", "description": "For compliance features. Ensure ISO 14224, 55000, 27001, 27002, 31000, 42010, 20547-3, 8000, 15926, 20000, 21500, 9001, 22301 standards adherence." },
+{ "id": "real_data_testing", "severity": "error", "description": "For testing. Use real data, avoid mocks unless absolutely necessary." },
+{ "id": "github_workflow", "severity": "error", "description": "For all git operations. Use feature branches, semantic commits, PRs, and code reviews." },
+{ "id": "update_docs", "severity": "warning", "description": "Directly update all relevant documentation files as part of your change." },
+{ "id": "performance_optimization", "severity": "warning", "description": "For performance-critical code. Use proper optimization techniques and monitoring." },
+{ "id": "accessibility_compliance", "severity": "error", "description": "For UI/UX changes. Follow WCAG AA guidelines and test with screen readers." }
+]
+
+## Usage Guidance
+
+- **When adding or editing code**: Apply development-standards, component-organization, authentication_security, and aegrid_rules_compliance
+- **When updating UI/UX**: Apply accessibility_compliance, journey_centric_design, performance_optimization, and real_data_testing
+- **When changing database**: Apply hybrid_database_operations, aegrid_rules_compliance, and real_data_testing
+- **When working with git**: Apply github_workflow
+- **When updating docs**: Apply update_docs and sector_neutral_implementation
+- **When adding features**: Apply aegrid_rules_compliance, journey_centric_design, and iso_compliance_verification
+- **When implementing compliance**: Apply iso_compliance_verification and sector_neutral_implementation
+
+## Core Development Rules
+
+### Rule 1: Real Data Only
+**NEVER use mock data, always use real data from the database in the Greenfield Shire Council (Test) organisation.**
+
+- All components, pages, and API routes must use real data from the database
+- Always check the Prisma schema for the correct field names and relationships
+- If required data does not exist in the schema, suggest creating the entities and adding them to the seed data and updating the Schema
+- Use proper error handling and loading states when data is missing
+- Test with real data to ensure functionality works with actual database records
+
+### Rule 2: Database Schema Compliance
+**Always check the Prisma schema for correct field names and relationships before making database queries.**
+
+- Use correct field names as defined in `prisma/schema.prisma`
+- For Asset model: use `createdByUser` and `updatedByUser` (not `User_Asset_createdByToUser`)
+- For PostGIS fields: use `address`, `suburb`, `postcode`, `state` instead of selecting `location` directly
+- Always validate field names against the schema before making Prisma queries
+- Use proper TypeScript types that match the Prisma schema
+
+### Rule 3: Organization-Specific Data
+**All data operations must be scoped to the user's organization (Greenfield Shire Council for testing).**
+
+- Always filter data by `organisationId` in database queries
+- Ensure users can only access data from their assigned organization
+- Use session-based organization context for all data operations
+- Implement proper RBAC checks for organization-scoped data access
+
+### Rule 4: Error Handling and Loading States
+**Implement proper error handling and loading states for all data operations.**
+
+- Show loading indicators while fetching data
+- Display user-friendly error messages when data operations fail
+- Provide retry mechanisms for failed operations
+- Handle edge cases gracefully (null/undefined data, empty results)
+- Log errors for debugging while showing appropriate user messages
+
+### Rule 5: Real API Integration
+**Use real API endpoints that connect to actual database data.**
+
+- Create API routes that fetch real data from the database
+- Implement proper authentication and authorization checks
+- Use consistent API response formats
+- Handle database connection errors gracefully
+- Provide meaningful error responses with appropriate HTTP status codes
+
+## Implementation Guidelines
+
+### Database Queries
+```typescript
+// ✅ CORRECT - Use real data with proper field names
+const assets = await prisma.asset.findMany({
+  where: { organisationId: session.user.organisationId },
+  include: {
+    createdByUser: { select: { id: true, name: true, email: true } },
+    updatedByUser: { select: { id: true, name: true, email: true } },
+  },
+});
+
+// ❌ WRONG - Using incorrect field names
+const assets = await prisma.asset.findMany({
+  include: {
+    User_Asset_createdByToUser: { select: { id: true, name: true } },
+  },
+});
+```
+
+### Component Implementation
+```typescript
+// ✅ CORRECT - Real data with proper error handling
+const [assets, setAssets] = useState<Asset[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
+
+const fetchAssets = async () => {
+  try {
+    setLoading(true);
+    const response = await fetch('/api/assets');
+    if (!response.ok) throw new Error('Failed to fetch assets');
+    const data = await response.json();
+    setAssets(data.assets);
+    setError(null);
+  } catch (err) {
+    setError('Failed to load assets');
+  } finally {
+    setLoading(false);
+  }
+};
+
+// ❌ WRONG - Using mock data
+const mockAssets = [
+  { id: '1', name: 'Mock Asset', condition: 'GOOD' }
+];
+```
+
+### API Route Implementation
+```typescript
+// ✅ CORRECT - Real data with proper authentication
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.organisationId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const assets = await prisma.asset.findMany({
+    where: { organisationId: session.user.organisationId },
+    // ... proper field selections
+  });
+
+  return NextResponse.json({ assets });
+}
+```
+
+## Additional Guidance
+
+- Always offer suggestions as a lettered list (a), b), c.), etc.
+- Always perform changes directly to the file, do not replay in chat and suggest user does it
+- Follow Australian English spelling and conventions
+- Maintain security best practices for all authentication and data operations
+- Ensure all changes are properly tested before committing
+
+## Enforcement
+
+These rules are **MANDATORY** and must be followed for:
+- All new feature development
+- All bug fixes
+- All refactoring work
+- All API route implementations
+- All component development
+- All database operations
+
+**Violation of these rules will result in code rejection and required fixes before merge.**
+
+## Related Documentation
+
+- `prisma/schema.prisma` - Database schema definition
+- `docs/core/aegrid-rules.md` - Core Aegrid Rules
+- `docs/development/developer-brief.md` - Development guidelines
+- `docs/architecture/SAD.md` - System Architecture Document

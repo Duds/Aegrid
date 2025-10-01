@@ -1,283 +1,183 @@
-# The Aegrid Rules - Core North Star
+# The Aegrid Rules - Resilient Asset Management for Critical Control
 
-**Version**: 2.0
+**Version**: 3.0
 **Date**: January 15, 2025
 **Status**: Core Principles - Non-Negotiable
+**ISO 55000 Alignment**: Full compliance with ISO 55000 Asset Management standards
 
 ## Purpose
 
-The Aegrid Rules serve as the foundational principles that guide every decision, feature, and interaction within the Aegrid platform. These rules represent a resilience-first philosophy that transforms asset management from reactive maintenance into proactive risk management. They are not suggestions or guidelines—they are the core north star that ensures Aegrid delivers genuine value to organisations managing critical assets.
+The Aegrid Rules serve as the foundational principles that guide every decision, feature, and interaction within the Aegrid platform. These rules represent a resilience-first philosophy that transforms asset management from reactive maintenance into proactive risk management aligned with international ISO 55000 standards. They are not suggestions or guidelines—they are the core north star that ensures Aegrid delivers genuine value to organisations managing critical assets while maintaining full compliance with global asset management best practices.
 
 ## The Resilience-First Philosophy
 
-Traditional asset management has failed because it treats assets as isolated objects rather than components of critical control systems. The result is a brittle, reactive approach that breaks down under pressure. The Aegrid Rules create antifragile asset management systems that get stronger when stressed.
+Traditional asset management has failed because it treats assets as isolated objects rather than components of critical control systems. The result is a brittle, reactive approach that breaks down under pressure. The Aegrid Rules create antifragile asset management systems that get stronger when stressed, while ensuring full alignment with ISO 55000 Asset Management standards.
 
 **The Problem**: $1.3 billion in "found assets" that councils didn't know they owned, 60-80% CMMS implementation failure rates, and only 9.6% of councils meeting international asset management standards.
 
-**The Solution**: The Aegrid Rules - a resilience-first philosophy that transforms asset management into a proactive risk management discipline.
+**The Solution**: The Aegrid Rules - a resilience-first philosophy that transforms asset management into a proactive risk management discipline aligned with ISO 55000 standards.
+
+## ISO 55000 Asset Management Alignment
+
+The Aegrid Rules are designed to fully align with ISO 55000 Asset Management standards, ensuring systematic and value-driven asset management practices:
+
+### **ISO 55000.1:2014 - Asset Management Overview**
+
+- **Value Realisation**: Every asset must deliver measurable value aligned with organisational objectives
+- **Lifecycle Approach**: Assets managed from conception to disposal with continuous value optimisation
+- **Risk-Based Decision Making**: Asset decisions based on risk assessment and consequence analysis
+
+### **ISO 55000.2:2014 - Asset Management Guidelines**
+
+- **Strategic Asset Management Plan**: Assets aligned with organisational strategy and service delivery
+- **Asset Management Policy**: Clear policies supporting critical control effectiveness
+- **Performance Evaluation**: Continuous monitoring of asset performance against objectives
+
+### **ISO 55000.3:2017 - Asset Management Implementation**
+
+- **Organisational Context**: Assets managed within organisational context and constraints
+- **Leadership and Commitment**: Clear accountability for asset performance and critical control support
+- **Planning and Support**: Adequate resources and capabilities for effective asset management
 
 ## The Four Aegrid Rules
 
-### Rule 1: Every Asset Has a Purpose
+### Rule 1: Every Asset Has a Purpose → Service and critical control alignment
 
-**"Tie each asset to the service it enables and the critical control it supports. If it doesn't serve a control or outcome, question why it exists."**
+**"Tie each asset to the service it enables and the critical control it supports. Every asset must have a clear connection to the services it delivers and the critical controls it maintains."**
 
 #### What This Means
 
-- Every asset in the system must be linked to a critical control that prevents a significant hazard or enables a vital service
-- Asset management decisions are driven by control effectiveness, not just ownership
-- Asset value is measured by its contribution to critical control systems and service delivery
-- Assets without clear control purpose should be questioned, not just maintained
+Tie each asset to the service it enables and the critical control it supports. Every asset must have a clear connection to the services it delivers and the critical controls it maintains. This ensures assets are managed based on their contribution to service delivery and risk mitigation.
 
-#### The Critical Control Connection
+#### Implementation Principles
 
-Every asset in your portfolio should connect to a critical control that prevents a significant hazard or enables a vital service. For example:
-
-- **Stormwater pumps** → Flood prevention control → Public safety outcome
-- **Water treatment filters** → Safe drinking water control → Public health outcome
-- **Traffic signals** → Intersection safety control → Road safety outcome
-- **Playground equipment** → Child safety control → Community wellbeing outcome
-
-When assets are disconnected from their control purpose, maintenance becomes arbitrary. When they're connected, every maintenance decision becomes a risk management decision.
-
-#### Implementation Principles: Function-Based Anchoring
-
-- **Structure assets around what they do (their service purpose), not just where they sit**
-- **Hierarchies or tags should reflect intended function** (e.g., mowing, transport, lifting) so value is always visible
-- **Avoid "miscellaneous" or "other" buckets** that obscure purpose
-- **Purpose-Driven Asset Registration**: Every asset must have a defined service function
-- **Value-Based Prioritisation**: Asset importance determined by service impact
-- **Service-Level Tracking**: Monitor how assets contribute to service delivery
-- **Purpose Validation**: Regular review of asset purpose and alignment with business goals
+- **Service-Enabled Modeling**: Every asset must be linked to specific services it enables
+- **Critical Control Mapping**: Assets must be mapped to critical controls they support
+- **Service Impact Assessment**: Understand how asset failure affects service delivery
+- **Control Effectiveness**: Monitor how assets contribute to critical control effectiveness
 
 #### Technical Implementation
 
 ```cypher
-// Function-based asset modeling
-(asset:Asset)-[:PERFORMS_FUNCTION]->(function:ServiceFunction)
-(function:ServiceFunction)-[:DELIVERS_VALUE]->(value:BusinessValue)
-(asset:Asset)-[:TAGGED_WITH]->(tag:FunctionTag {type: "service_purpose"})
-
-// Avoid generic categories
-// BAD: (asset:Asset)-[:CATEGORISED_AS]->(category:Category {name: "Other"})
-// GOOD: (asset:Asset)-[:PERFORMS_FUNCTION]->(function:ServiceFunction {name: "Mowing"})
+// Graph query to find assets by service and critical control
+MATCH (a:Asset)-[:ENABLES_SERVICE]->(s:Service)
+MATCH (a)-[:SUPPORTS_CONTROL]->(c:CriticalControl)
+WHERE s.name = "Water Supply" AND c.type = "Safety"
+RETURN a.name, s.name, c.name, a.serviceImpact, a.controlEffectiveness
 ```
 
 #### User Story Alignment
 
-- **US1.1**: As an Asset Manager, I want to define the service purpose of each asset so that I can align maintenance with business objectives
-- **US1.2**: As a Manager, I want to see how assets contribute to service delivery so that I can prioritise investments
-- **US1.3**: As an Executive, I want to understand asset value in terms of service impact so that I can make informed decisions
+- **As a Manager**: I want to see all assets mapped to services and critical controls so I can understand their true value
+- **As a Supervisor**: I want to filter assets by service impact so I can prioritise maintenance
+- **As an Executive**: I want to see asset alignment with critical controls so I can ensure compliance
 
-### Rule 2: Risk Sets the Rhythm
+### Rule 2: Risk Sets the Rhythm → Consequence and likelihood-driven cadence
 
-**"Let consequence × likelihood determine cadence, scope, and budget allocation. Assurance and maintenance intensity scale with the importance of the critical controls an asset underpins."**
+**"Let consequence × likelihood determine cadence, scope, and budget allocation. Risk assessment drives maintenance frequency, inspection intervals, and resource allocation."**
 
 #### What This Means
 
-- The rhythm of maintenance—how often, how thoroughly, how much budget—is determined by the consequence of control failure multiplied by the likelihood of that failure occurring
-- A critical water pump that could cause a boil-water notice (high consequence) with aging components (high likelihood) requires intensive maintenance investment
-- A park bench that could cause minor inconvenience (low consequence) with low failure probability requires minimal investment
-- Risk is not static—it changes based on seasonal factors, usage patterns, aging profiles, and external factors
+Let consequence × likelihood determine cadence, scope, and budget allocation. Risk assessment drives maintenance frequency, inspection intervals, and resource allocation. High-consequence, high-likelihood risks get more frequent attention, while low-risk assets can operate with longer intervals.
 
-#### Dynamic Risk Assessment
+#### Implementation Principles
 
-Risk changes based on:
-
-- **Seasonal Factors**: Stormwater systems become higher risk before wet season
-- **Usage Patterns**: Playground equipment becomes higher risk during school holidays
-- **Aging Profiles**: Assets move from low to high likelihood as they age
-- **External Factors**: Extreme weather, regulatory changes, community events
-
-The Aegrid approach continuously recalculates risk and adjusts maintenance rhythm accordingly.
-
-#### Implementation Principles: Criticality-Driven Grouping
-
-- **Asset hierarchy should enable risk-based maintenance** by clearly tagging/structuring criticality, failure modes, and service impact
-- **Allow grouping by condition, risk, and performance**, not just asset type or location
-- **This supports RCM-lite approaches** — easy to filter assets into "inspect quarterly vs run-to-fail"
-- **Risk-Based Maintenance**: Maintenance frequency and methods determined by risk assessment
-- **RCM-Lite Methodology**: Simplified Reliability Centred Maintenance for practical implementation
-- **Cost-Risk Optimization**: Balance maintenance costs against risk reduction benefits
-- **Dynamic Adjustment**: Maintenance strategies adapt as risk profiles change
+- **Risk-Based Cadence**: Maintenance frequency determined by risk assessment
+- **Consequence-Driven Scope**: Inspection and maintenance scope based on potential consequences
+- **Likelihood-Informed Budget**: Resource allocation proportional to risk likelihood
+- **Dynamic Risk Adjustment**: Update cadence as risk profiles change
 
 #### Technical Implementation
 
 ```cypher
-// Risk-based asset grouping
-(asset:Asset)-[:HAS_RISK]->(risk:RiskAssessment)
-(risk:RiskAssessment)-[:DETERMINES]->(strategy:MaintenanceStrategy)
-(asset:Asset)-[:TAGGED_WITH]->(tag:RiskTag {type: "criticality", value: "High"})
-(asset:Asset)-[:TAGGED_WITH]->(tag:ConditionTag {type: "condition", value: "Poor"})
-
-// RCM-lite grouping examples
-// Quarterly inspection group
-MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:RiskTag {value: "Medium"})
-WHERE asset.maintenanceStrategy = "Inspect Quarterly"
-RETURN asset
-
-// Run-to-fail group
-MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:RiskTag {value: "Low"})
-WHERE asset.maintenanceStrategy = "Run to Fail"
-RETURN asset
+// Graph query for risk-based maintenance cadence
+MATCH (a:Asset)-[:HAS_RISK]->(r:Risk)
+WHERE r.consequence = "High" AND r.likelihood = "High"
+RETURN a.name, r.consequence, r.likelihood, r.maintenanceCadence, r.budgetAllocation
 ```
 
 #### User Story Alignment
 
-- **US2.1**: As a Maintenance Manager, I want to set maintenance strategies based on asset risk so that I can optimise resource allocation
-- **US2.2**: As a Planner, I want to see risk-based maintenance recommendations so that I can create efficient schedules
-- **US2.3**: As a Supervisor, I want to understand why maintenance is required so that I can execute with purpose
+- **As a Manager**: I want maintenance schedules driven by risk so I can allocate resources efficiently
+- **As a Supervisor**: I want to see risk-based cadence so I can plan work schedules
+- **As a Crew Member**: I want clear risk indicators so I know which assets need immediate attention
 
-### Rule 3: Respond to the Real World
+### Rule 3: Respond to the Real World → Adaptive planning and resource reallocation
 
-**"Plans are guides, not gospel. When conditions, signals, or context change—adapt resources and priorities quickly."**
+**"Treat plans as hypotheses, roll with the punches and reallocate resources when risk signals change. Asset management plans must be flexible and responsive to changing conditions."**
 
 #### What This Means
 
-- Traditional asset management treats plans as sacred documents, creating brittleness
-- The Aegrid approach treats plans as hypotheses to be tested against reality
-- When signals indicate that conditions have changed, resources and priorities adapt quickly to maintain control effectiveness
-- This creates antifragile systems that get stronger when stressed
+Treat plans as hypotheses, roll with the punches and reallocate resources when risk signals change. Asset management plans must be flexible and responsive to changing conditions, new information, and emerging risks. When reality diverges from plans, adapt quickly rather than rigidly following outdated assumptions.
 
-#### Signals That Trigger Adaptation
+#### Implementation Principles
 
-**Condition Signals:**
-
-- Asset condition deterioration faster than expected
-- Performance metrics falling below thresholds
-- Inspection findings revealing unexpected issues
-- Sensor data indicating abnormal operating conditions
-
-**Environmental Signals:**
-
-- Weather patterns changing seasonal risk profiles
-- Usage patterns shifting due to community changes
-- Regulatory changes altering compliance requirements
-- Budget constraints requiring resource reallocation
-
-**Operational Signals:**
-
-- Backlog spikes indicating resource shortfalls
-- SLA breaches showing service degradation
-- Near misses revealing emerging risks
-- Staff feedback identifying operational challenges
-
-#### Implementation Principles: Visibility of Crown Jewels
-
-- **Hierarchy must make the critical assets stand out from the noise**
-- **Ensure the system can flag and elevate "high consequence" assets** in any view (finance, location, engineering)
-- **Don't bury the vital 10% of assets in a deep tree** — surface them with tags, dashboards, or dedicated groupings
-- **Critical Asset Identification**: Systematic process to identify truly critical assets
-- **Consequence-Based Prioritisation**: Focus on failure impact, not just asset value
-- **Resource Concentration**: Allocate disproportionate resources to critical assets
-- **Continuous Monitoring**: Critical assets receive enhanced monitoring and attention
+- **Hypothesis-Based Planning**: Treat maintenance plans as testable hypotheses
+- **Signal-Driven Adaptation**: Respond to changing risk signals and conditions
+- **Resource Flexibility**: Enable quick reallocation of resources when priorities shift
+- **Continuous Learning**: Update plans based on real-world outcomes and new information
 
 #### Technical Implementation
 
 ```cypher
-// Critical asset visibility and elevation
-(asset:Asset)-[:HAS_CONSEQUENCE]->(consequence:FailureConsequence)
-(consequence:FailureConsequence)-[:IMPACTS]->(impact:ImpactArea {type: "Safety"})
-(asset:Asset)-[:TAGGED_WITH]->(tag:CriticalityTag {type: "crown_jewel", value: "Critical"})
-
-// Surface critical assets in all views
-// Finance view
-MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:CriticalityTag {value: "Critical"})
-RETURN asset.name, asset.value, asset.criticalityReason
-
-// Location view
-MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:CriticalityTag {value: "Critical"})
-MATCH (asset)-[:LOCATED_AT]->(location:Location)
-RETURN asset.name, location.name, asset.criticalityReason
-
-// Engineering view
-MATCH (asset:Asset)-[:TAGGED_WITH]->(tag:CriticalityTag {value: "Critical"})
-MATCH (asset)-[:HAS_CONSEQUENCE]->(consequence:FailureConsequence)
-RETURN asset.name, consequence.description, consequence.impactLevel
+// Graph query for adaptive resource allocation
+MATCH (a:Asset)-[:HAS_RISK]->(r:Risk)
+WHERE r.signalChange = true AND r.priority = "High"
+RETURN a.name, r.newSignal, r.resourceReallocation, r.planUpdate
 ```
 
 #### User Story Alignment
 
-- **US3.1**: As a Risk Manager, I want to identify critical assets based on failure consequences so that I can protect what matters most
-- **US3.2**: As a Manager, I want to see critical asset status at a glance so that I can ensure they receive proper attention
-- **US3.3**: As a Supervisor, I want alerts for critical asset issues so that I can respond immediately
+- **As a Manager**: I want to adapt plans quickly when conditions change so I can maintain service delivery
+- **As a Supervisor**: I want to reallocate resources based on new risk signals so I can respond effectively
+- **As a Crew Member**: I want updated priorities when conditions change so I can focus on what matters most
 
-### Rule 4: Operate with Margin
+### Rule 4: Operate with Margin → Practical slack and resilience building
 
-**"Build practical slack, create room to recover so today's actions create tomorrow's resilience. Margin = time, capacity, and materials that let you absorb shocks without losing control."**
+**"Build practical slack, create room to recover that creates tomorrow's resilience from today's actions. Maintain operational margins that allow for unexpected events."**
 
 #### What This Means
 
-- Traditional asset management optimizes for efficiency, eliminating "waste" like spare capacity, redundancy, and buffer time, creating brittle systems
-- The Aegrid approach deliberately builds margin into the system—practical slack that enables resilience
-- Margin appears inefficient in the short term but creates antifragility in the long term
-- As Nassim Taleb notes: "redundancy is ambiguous because it seems like a waste if nothing unusual happens. Except that something unusual happens—usually"
+Build practical slack, create room to recover that creates tomorrow's resilience from today's actions. Maintain operational margins that allow for unexpected events, resource constraints, and changing conditions. This margin enables the organisation to absorb shocks and continue operating effectively.
 
-#### Types of Margin in Asset Management
+#### Implementation Principles
 
-**Time Margin:**
-
-- Protected crew hours each week for emergent risk work
-- Buffer time in maintenance schedules for unexpected complexity
-- Advance scheduling that allows for weather delays or equipment failures
-
-**Capacity Margin:**
-
-- Redundancy/failover on the critical path (N+1 for controls that prevent major hazards)
-- Cross-trained staff who can work across different asset types
-- Surge capacity agreements with contractors for peak demand periods
-
-**Material Margin:**
-
-- Critical spares for high-consequence assets (min–max with review on demand signals)
-- Pre-kitted jobs: parts + permits + procedures bundled for rapid deployment
-- Strategic inventory positioned near critical assets
-
-**Financial Margin:**
-
-- Pre-approved change windows and contingency budget for rapid rebalancing
-- Emergency response budget separate from routine maintenance
-- Reserve funds for unexpected critical repairs
-
-#### Implementation Principles: Flexible, Future-Proof Models
-
-- **Use graph-based or tag-enabled hierarchies that can adapt** when organisations, depots, or funding models change
-- **Avoid hardcoding today's org chart into the structure** — assets outlive reporting lines
-- **Enable multiple views (ops, finance, compliance, digital twin)** without restructuring
-- **Strategic Asset Planning**: Long-term view drives short-term decisions
-- **Sustainability Integration**: Environmental and social considerations in asset decisions
-- **Resilience Building**: Assets designed and maintained for future challenges
-- **Future Service Alignment**: Asset planning anticipates changing service requirements
+- **Operational Margin**: Maintain capacity buffers for unexpected demands
+- **Recovery Capability**: Build systems that can recover from disruptions
+- **Resilience Investment**: Invest in capabilities that improve future resilience
+- **Adaptive Capacity**: Create room for learning and improvement
 
 #### Technical Implementation
 
 ```cypher
-// Flexible, future-proof asset modeling
-(asset:Asset)-[:TAGGED_WITH]->(tag:ViewTag {type: "ops_view", value: "Operations"})
-(asset:Asset)-[:TAGGED_WITH]->(tag:ViewTag {type: "finance_view", value: "Finance"})
-(asset:Asset)-[:TAGGED_WITH]->(tag:ViewTag {type: "compliance_view", value: "Compliance"})
-(asset:Asset)-[:TAGGED_WITH]->(tag:ViewTag {type: "digital_twin_view", value: "Digital Twin"})
-
-// Multiple overlapping hierarchies
-(asset:Asset)-[:BELONGS_TO]->(orgUnit:OrganisationalUnit)
-(asset:Asset)-[:LOCATED_IN]->(depot:Depot)
-(asset:Asset)-[:FUNDED_BY]->(fundingModel:FundingModel)
-
-// Future scenario modeling
-(asset:Asset)-[:PLANNED_FOR]->(scenario:FutureScenario)
-(scenario:FutureScenario)-[:CONSIDERS]->(factor:SustainabilityFactor)
-(scenario:FutureScenario)-[:CONSIDERS]->(factor:ResilienceFactor)
-
-// Avoid hardcoded structures
-// BAD: (asset:Asset)-[:BELONGS_TO_DEPARTMENT]->(dept:Department {name: "Current Dept"})
-// GOOD: (asset:Asset)-[:TAGGED_WITH]->(tag:OrgTag {type: "department", value: "Current Dept", validFrom: "2025-01-01", validTo: "2025-12-31"})
+// Graph query for margin and resilience metrics
+MATCH (a:Asset)-[:HAS_MARGIN]->(m:Margin)
+WHERE m.type = "Operational" AND m.level = "Adequate"
+RETURN a.name, m.capacityBuffer, m.recoveryTime, m.resilienceScore
 ```
 
 #### User Story Alignment
 
-- **US4.1**: As a Strategic Planner, I want to model long-term asset scenarios so that I can make informed investment decisions
-- **US4.2**: As a Manager, I want to see sustainability impact of asset decisions so that I can align with environmental goals
-- **US4.3**: As an Executive, I want to understand future service needs so that I can plan asset investments accordingly
+- **As a Manager**: I want operational margins so I can handle unexpected events without service disruption
+- **As a Supervisor**: I want recovery capabilities so I can restore operations quickly after incidents
+- **As an Executive**: I want resilience investments so I can build long-term organisational capability
+
+## Aegrid Rules ↔ ISO 55000 Mapping
+
+| Aegrid Rule                           | ISO 55000 Alignment                              | Key Standard Requirements                                         |
+| ------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------- |
+| **Rule 1: Every Asset Has a Purpose** | ISO 55000.1 §4.1 Value Realisation               | Assets must deliver value aligned with organisational objectives  |
+| **Rule 2: Risk Sets the Rhythm**      | ISO 55000.1 §4.2 Risk-Based Decision Making      | Asset decisions based on risk assessment and consequence analysis |
+| **Rule 3: Respond to the Real World** | ISO 55000.2 §6.1 Strategic Asset Management Plan | Adaptive planning responding to changing conditions               |
+| **Rule 4: Operate with Margin**       | ISO 55000.3 §7.1 Planning and Support            | Adequate resources and capabilities for resilience                |
+
+### Compliance Requirements
+
+- **Asset Management System**: Implement systematic approach to asset management
+- **Value-Based Decisions**: All asset decisions must demonstrate value contribution
+- **Risk Integration**: Risk assessment integrated into all asset management activities
+- **Continuous Improvement**: Regular review and improvement of asset management practices
+- **Stakeholder Engagement**: Clear communication of asset value and risk to stakeholders
 
 ## Cross-Cutting Principles
 
@@ -379,27 +279,39 @@ Every epic must demonstrate:
 
 ### Rule 1 Metrics (Purpose)
 
-- **Asset Purpose Coverage**: % of assets with defined service purpose
+- **Asset Purpose Coverage**: % of assets with defined service purpose (ISO 8000, 15926, 55000.1)
 - **Purpose Alignment**: % of maintenance aligned with asset purpose
 - **Service Impact Tracking**: Measurement of asset contribution to service delivery
+- **Critical Control Mapping**: % of assets mapped to critical controls
 
 ### Rule 2 Metrics (Risk)
 
-- **Risk-Based Maintenance**: % of maintenance scheduled based on risk assessment
+- **Risk-Based Maintenance**: % of maintenance scheduled based on risk assessment (ISO 14224, 31000, 55000.1)
 - **Maintenance Efficiency**: Cost per unit of risk reduction
-- **RCM-Lite Adoption**: % of assets using risk-based maintenance strategies
+- **Consequence × Likelihood Matrix**: Implementation of risk-based decision framework
+- **Dynamic Risk Adjustment**: Frequency of risk profile updates
 
-### Rule 3 Metrics (Critical)
+### Rule 3 Metrics (Adaptive Planning)
 
-- **Critical Asset Identification**: % of critical assets properly identified
-- **Critical Asset Performance**: Uptime and reliability of critical assets
-- **Resource Allocation**: % of resources allocated to critical vs non-critical assets
+- **Plan Adaptation Rate**: % of plans modified based on changing conditions (ISO 27001, 27002, 22301, 55000.2)
+- **Resource Reallocation Speed**: Time to reallocate resources when priorities change
+- **Signal Response Time**: Time from signal detection to plan adjustment
+- **Hypothesis Testing**: % of plans treated as testable hypotheses
 
-### Rule 4 Metrics (Future)
+### Rule 4 Metrics (Margin and Resilience)
 
-- **Strategic Planning**: % of asset decisions considering long-term implications
-- **Sustainability Integration**: % of decisions incorporating sustainability factors
-- **Future Service Alignment**: % of asset planning aligned with future service needs
+- **Operational Margin**: Measurement of capacity buffers and recovery capabilities (ISO/IEC 42010, 20547-3, 55000.3)
+- **Resilience Investment**: % of budget allocated to resilience building
+- **Recovery Time**: Time to restore operations after disruptions
+- **Adaptive Capacity**: Measurement of learning and improvement capabilities
+
+### ISO 55000 Compliance Metrics
+
+- **Asset Management System Certification**: Progress toward ISO 55000 certification
+- **Value-Based Decision Making**: % of decisions demonstrating value contribution
+- **Risk Integration**: % of activities integrating risk assessment
+- **Continuous Improvement**: Frequency and effectiveness of improvement cycles
+- **Stakeholder Engagement**: Quality and frequency of stakeholder communication
 
 ## Governance and Compliance
 
@@ -409,6 +321,7 @@ Every epic must demonstrate:
 - **User Testing**: User acceptance testing includes rule-based scenarios
 - **Performance Monitoring**: Continuous monitoring of rule-based metrics
 - **Regular Audits**: Quarterly reviews of rule implementation and effectiveness
+- **ISO 55000 Audit**: Regular assessment of asset management practices against ISO 55000 requirements
 
 ### Training and Education
 
@@ -416,6 +329,7 @@ Every epic must demonstrate:
 - **Developer Training**: Development team trained on rule-based design
 - **Management Training**: Leadership trained on rule-based decision making
 - **Continuous Learning**: Regular updates on rule implementation best practices
+- **ISO 55000 Training**: Comprehensive training on ISO 55000 Asset Management standards
 
 ## From Reactive to Resilient: A Transformation Framework
 
@@ -498,15 +412,19 @@ Organisations implementing these principles report:
 - **50% improvement in regulatory compliance** through critical control focus
 - **20% increase in service reliability** through resilient system design
 - **15% reduction in total maintenance costs** despite increased resilience investment
+- **ISO 55000 Certification Achievement** within 18 months of implementation
+- **Enhanced Stakeholder Confidence** through transparent, value-based asset management
+- **Improved Risk Management** with systematic consequence × likelihood frameworks
+- **Greater Organisational Resilience** through margin building and adaptive planning
 
 ## Conclusion
 
-The Aegrid Rules are not just principles—they are the foundation upon which every aspect of the Aegrid platform is built. They represent a fundamental shift from brittle, efficiency-focused asset management to resilient, outcome-focused asset management.
+The Aegrid Rules are not just principles—they are the foundation upon which every aspect of the Aegrid platform is built. They represent a fundamental shift from brittle, efficiency-focused asset management to resilient, outcome-focused asset management aligned with international ISO 55000 standards.
 
-By following these rules, Aegrid becomes more than a platform—it becomes a partner in delivering reliable, efficient, and sustainable asset management that serves the real needs of organisations and their stakeholders.
+By following these rules, Aegrid becomes more than a platform—it becomes a partner in delivering reliable, efficient, and sustainable asset management that serves the real needs of organisations and their stakeholders while maintaining full compliance with global asset management best practices.
 
-The traditional approach to asset management—rigid, efficiency-focused, and reactive—is fundamentally broken. In a world of increasing complexity, climate volatility, and resource constraints, brittle systems fail catastrophically. The Aegrid Rules offer a different path—one that leads to resilient, antifragile asset management systems that thrive under pressure.
+The traditional approach to asset management—rigid, efficiency-focused, and reactive—is fundamentally broken. In a world of increasing complexity, climate volatility, and resource constraints, brittle systems fail catastrophically. The Aegrid Rules offer a different path—one that leads to resilient, antifragile asset management systems that thrive under pressure while meeting international standards.
 
-**Remember**: Every decision, every feature, every interaction must be evaluated against these rules. They are our north star, our quality gate, and our promise to deliver value that matters.
+**Remember**: Every decision, every feature, every interaction must be evaluated against these rules and ISO 55000 compliance requirements. They are our north star, our quality gate, and our promise to deliver value that matters while maintaining global best practices.
 
-The question is not whether your asset management system will face unexpected challenges—it will. The question is whether it will break under pressure or get stronger. The choice is yours.
+The question is not whether your asset management system will face unexpected challenges—it will. The question is whether it will break under pressure or get stronger while maintaining compliance with international standards. The choice is yours.

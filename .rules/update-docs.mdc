@@ -1,0 +1,422 @@
+---
+description: Guidelines for maintaining and updating project documentation, including standards for Australian English usage, formatting conventions, and review processes. Ensures consistent and high-quality documentation across the project.
+globs:
+alwaysApply: false
+---
+
+@context {
+"type": "guidelines",
+"purpose": "documentation_standards",
+"format_version": "1.0.0",
+"supported_content_types": [
+"markdown",
+"api_docs",
+"code_comments",
+"architecture_docs"
+]
+}
+
+@structure {
+"required_sections": [
+"documentation_types",
+"formatting_standards",
+"update_procedures",
+"review_process",
+"templates",
+"maintenance"
+]
+}
+
+# Documentation Standards
+
+## Documentation Types
+
+1. **Core Documentation**
+
+   ```markdown
+   docs/
+   ├── README.md # Project overview and quick start
+   ├── ARCHITECTURE.md # System architecture and design decisions
+   ├── CONTRIBUTING.md # Contribution guidelines
+   ├── DEVELOPMENT.md # Development setup and workflows
+   ├── DEPLOYMENT.md # Deployment procedures
+   ├── SECURITY.md # Security policies and procedures
+   ├── TESTING.md # Testing strategies and requirements.md # Version history and changes
+   ```
+
+2. **API Documentation**
+
+   ````typescript
+   // docs/d
+   # Authentication API
+
+   ## Endpoints
+
+   ### POST /api/v1/auth/login
+
+   Authenticates a user and returns a session token.
+
+   #### Request Body
+   ```json
+   {
+     "email": "string",
+     "password": "string",
+     "mfaCode": "string?"
+   }
+   ````
+
+   #### Response
+
+   ```json
+   {
+     "token": "string",
+     "user": {
+       "id": "string",
+       "email": "string",
+       "roles": "string[]"
+     }
+   }
+   ```
+
+   #### Error Responses
+
+   - 400: Invalid credentials
+   - 401: Unauthorized
+   - 403: MFA required
+
+   ```
+
+   ```
+
+## Formatting Standards
+
+1. **Markdown Style Guide**
+
+   ```markdown
+   # Document Title
+
+   ## Section Heading
+
+   ### Subsection
+
+   #### Details
+
+   - Use bullet points for lists
+   - Keep lines under 80 characters
+   - Use code blocks with language specification
+   - Include table of contents for long documents
+
+   1. Use numbered lists for sequences
+   2. Include examples where appropriate
+   3. Link to related documentation
+
+   > Use blockquotes for important notes or warnings
+
+   \`\`\`typescript
+   // Use code blocks with proper syntax highlighting
+   function example(): void {
+   console.log('Example code')
+   }
+   \`\`\`
+
+   | Column 1 | Column 2 |
+   | -------- | -------- |
+   | Use      | Tables   |
+   | When     | Needed   |
+   ```
+
+2. **Code Comments**
+   ````typescript
+   /**
+    * Component documentation using JSDoc format
+    *
+    * @component Button
+    * @description A reusable button component with various styles
+    *
+    * @example
+    * ```tsx
+    * <Button variant="primary" onClick={handleClick}>
+    *   Click me
+    * </Button>
+    * ```
+    *
+    * @prop {string} variant - Button style variant
+    * @prop {function} onClick - Click handler
+    * @prop {ReactNode} children - Button content
+    */
+   ````
+
+## Update Procedures
+
+1. **Documentation Updates**
+
+   ```typescript
+   // scripts/docs/update.ts
+   interface DocumentationUpdate {
+     type: "feature" | "fix" | "breaking";
+     files: string[];
+     changes: {
+       section: string;
+       content: string;
+       reason: string;
+     }[];
+     reviewers: string[];
+   }
+
+   async function updateDocumentation(
+     update: DocumentationUpdate
+   ): Promise<void> {
+     // Implementation
+     await validateChanges(update);
+     await updateFiles(update.files);
+     await createPullRequest(update);
+   }
+   ```
+
+2. **Version Control**
+   ```yaml
+   # .github/workflows/docs.yml
+   name: Documentation
+   on:
+     push:
+       paths:
+         - "docs/**"
+         - "**/*.md"
+   jobs:
+     validate:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v2
+         - name: Check links
+           uses: gaurav-nelson/github-action-markdown-link-check@v1
+         - name: Check formatting
+           run: npm run docs:lint
+   ```
+
+## Review Process
+
+1. **Documentation Review Checklist**
+
+   ```typescript
+   interface ReviewChecklist {
+     technical_accuracy: {
+       code_examples_work: boolean;
+       api_endpoints_correct: boolean;
+       configuration_valid: boolean;
+     };
+     completeness: {
+       all_parameters_documented: boolean;
+       error_cases_covered: boolean;
+       examples_provided: boolean;
+     };
+     clarity: {
+       clear_explanations: boolean;
+       proper_formatting: boolean;
+       no_jargon: boolean;
+     };
+     maintenance: {
+       no_outdated_info: boolean;
+       links_valid: boolean;
+       versions_correct: boolean;
+     };
+   }
+   ```
+
+2. **Review Workflow**
+   ```mermaid
+   graph TD
+     A[Update Documentation] --> B[Self Review]
+     B --> C[Technical Review]
+     C --> D[Editorial Review]
+     D --> E[Update Based on Feedback]
+     E --> F[Final Approval]
+     F --> G[Merge]
+   ```
+
+## Templates
+
+1. **Feature Documentation**
+
+   ```markdown
+   # Feature Name
+
+   ## Overview
+
+   Brief description of the feature
+
+   ## Configuration
+
+   How to configure and set up the feature
+
+   ## Usage
+
+   How to use the feature with examples
+
+   ## API Reference
+
+   Detailed API documentation if applicable
+
+   ## Troubleshooting
+
+   Common issues and solutions
+
+   ## Related
+
+   Links to related features or documentation
+   ```
+
+2. **API Documentation**
+
+   ```markdown
+   # API Endpoint
+
+   ## Overview
+
+   Brief description of the endpoint
+
+   ## Request
+
+   - Method: [HTTP Method]
+   - Path: [Path]
+   - Headers: [Required Headers]
+   - Body: [Request Body Schema]
+
+   ## Response
+
+   - Status: [Success Status Code]
+   - Body: [Response Body Schema]
+
+   ## Error Responses
+
+   - [Error Status Code]: [Error Description]
+
+   ## Examples
+
+   \`\`\`bash
+
+   # Example request
+
+   curl -X POST http://api.example.com/endpoint
+   \`\`\`
+   ```
+
+## Maintenance
+
+1. **Regular Updates**
+
+   ```typescript
+   // scripts/docs/maintenance.ts
+   interface MaintenanceTask {
+     type: "review" | "update" | "cleanup";
+     schedule: "weekly" | "monthly" | "quarterly";
+     assignee: string;
+     checklist: string[];
+   }
+
+   const maintenanceTasks: MaintenanceTask[] = [
+     {
+       type: "review",
+       schedule: "weekly",
+       assignee: "tech-lead",
+       checklist: [
+         "Check for broken links",
+         "Verify code examples",
+         "Update API documentation",
+         "Review recent changes",
+       ],
+     },
+     {
+       type: "update",
+       schedule: "monthly",
+       assignee: "docs-team",
+       checklist: [
+         "Update version numbers",
+         "Review deprecation notices",
+         "Update screenshots",
+         "Verify environment setup",
+       ],
+     },
+     {
+       type: "cleanup",
+       schedule: "quarterly",
+       assignee: "team-lead",
+       checklist: [
+         "Remove outdated content",
+         "Consolidate duplicate docs",
+         "Update architecture diagrams",
+         "Review external dependencies",
+       ],
+     },
+   ];
+   ```
+
+2. **Documentation Health Metrics**
+   ```typescript
+   interface DocsHealthMetrics {
+     coverage: {
+       features: number; // Percentage of features documented
+       apis: number; // Percentage of APIs documented
+       code: number; // Percentage of code documented
+     };
+     quality: {
+       brokenLinks: number; // Number of broken links
+       outdatedContent: number; // Pages not updated in 90 days
+       readability: number; // Flesch reading ease score
+     };
+     engagement: {
+       pageViews: number; // Monthly page views
+       searchQueries: number; // Monthly search queries
+       feedback: {
+         // User feedback
+         helpful: number;
+         needsWork: number;
+       };
+     };
+   }
+   ```
+
+# Update Documentation Rule
+
+## 📚 Related Documentation
+
+### **Documentation Implementation**
+
+- **[Documentation Hub](../docs/README.md)** - Central documentation index
+- **[Migration Plan](../docs/MIGRATION_PLAN.md)** - Documentation migration strategy
+- **[Validation Report](../docs/VALIDATION_REPORT.md)** - Documentation validation results
+- **[Cross-Linking System](../docs/CROSS_LINKING_SYSTEM.md)** - Cross-linking implementation
+
+### **Development Resources**
+
+- **[Developer Brief](../docs/development/developer-brief.md)** - Quick start for developers
+- **[Testing Guide](../docs/development/testing-guide.md)** - Testing procedures
+- **[Component Documentation Guide](../docs/architecture/component-documentation-guide.md)** - Component documentation standards
+
+### **Architecture & Design**
+
+- **[Solution Architecture Document](../docs/architecture/sad.md)** - System architecture documentation
+- **[Implementation Plan](../docs/architecture/implementation-plan.md)** - Implementation documentation
+
+### **Security & Authentication**
+
+- **[Security Guide](../docs/security/security-guide.md)** - Security documentation
+- **[Authentication Guide](../docs/security/authentication-guide.md)** - Authentication documentation
+- **[RBAC Implementation](../docs/security/rbac-implementation.md)** - RBAC documentation
+
+### **Deployment & Infrastructure**
+
+- **[Azure Deployment Guide](../docs/deployment/azure-deployment-guide.md)** - Deployment documentation
+- **[GitHub Actions Setup Guide](../docs/deployment/github-actions-setup-guide.md)** - CI/CD documentation
+- **[Production Deployment Guide](../docs/deployment/production-deployment-guide.md)** - Production documentation
+
+### **Project Management**
+
+- **[Project Status Reports](../docs/project/status-reports.md)** - Project documentation status
+- **[Release Notes](../docs/releases/changelog.md)** - Release documentation
+
+## Direct Documentation Updates (Mandatory)
+
+- All contributors must directly update all relevant documentation files (README, changelog, code comments, architecture docs, etc.) as part of every change.
+- Do not just describe or suggest documentation updates, make the actual edits.
+- All changes must be committed and pushed before ending a session.
+- This rule is mandatory and applies to all code, content, and design changes.

@@ -1,7 +1,7 @@
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/assets/by-purpose - Search assets by service purpose
@@ -10,51 +10,51 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const searchTerm = searchParams.get("search");
-    const limit = parseInt(searchParams.get("limit") || "1000");
+    const searchTerm = searchParams.get('search');
+    const limit = parseInt(searchParams.get('limit') || '1000');
 
     if (!searchTerm) {
-      return NextResponse.json({ error: "Search term required" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Search term required' },
+        { status: 400 }
+      );
     }
 
     // Build where clause for purpose-based search
     const where = {
-      organisationId: session.user.organisationId,
-      assetPurposeMappings: {
-        some: {
-          servicePurpose: {
-            OR: [
-              { name: { contains: searchTerm, mode: "insensitive" as const } },
-              { description: { contains: searchTerm, mode: "insensitive" as const } },
-            ],
+      organisationId: session.user.organisationId!,
+      OR: [
+        { purpose: { contains: searchTerm, mode: 'insensitive' as const } },
+        {
+          purposeDescription: {
+            contains: searchTerm,
+            mode: 'insensitive' as const,
           },
-          contribution: { contains: searchTerm, mode: "insensitive" as const },
         },
-      },
+        {
+          functionBasedCategory: {
+            contains: searchTerm,
+            mode: 'insensitive' as const,
+          },
+        },
+      ],
     };
 
     const [assets, total] = await Promise.all([
       prisma.asset.findMany({
         where,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         include: {
-          User_Asset_createdByToUser: {
+          createdByUser: {
             select: { id: true, name: true, email: true },
           },
-          User_Asset_updatedByToUser: {
+          updatedByUser: {
             select: { id: true, name: true, email: true },
-          },
-          assetPurposeMappings: {
-            include: {
-              servicePurpose: {
-                select: { id: true, name: true, description: true, priority: true }
-              }
-            }
           },
           _count: {
             select: {
@@ -74,21 +74,22 @@ export async function GET(request: NextRequest) {
       let latitude: number | undefined;
       let longitude: number | undefined;
 
-      if (asset.location) {
-        try {
-          // Parse PostGIS geometry - assuming it's stored as GeoJSON
-          const locationData = typeof asset.location === 'string'
-            ? JSON.parse(asset.location)
-            : asset.location;
-
-          if (locationData && locationData.coordinates && Array.isArray(locationData.coordinates)) {
-            // PostGIS stores coordinates as [longitude, latitude]
-            [longitude, latitude] = locationData.coordinates;
-          }
-        } catch (error) {
-          console.warn('Failed to parse location data for asset:', asset.id, error);
-        }
-      }
+      // Location field not available in current query
+      // if (asset.location) {
+      //   try {
+      //     // Parse PostGIS geometry - assuming it's stored as GeoJSON
+      //     const locationData = typeof asset.location === 'string'
+      //       ? JSON.parse(asset.location)
+      //       : asset.location;
+      //
+      //     if (locationData && locationData.coordinates && Array.isArray(locationData.coordinates)) {
+      //       // PostGIS stores coordinates as [longitude, latitude]
+      //       [longitude, latitude] = locationData.coordinates;
+      //     }
+      //   } catch (error) {
+      //     console.warn('Failed to parse location data for asset:', asset.id, error);
+      //   }
+      // }
 
       return {
         ...asset,
@@ -105,9 +106,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching assets by purpose:", error);
+    console.error('Error fetching assets by purpose:', error);
     return NextResponse.json(
-      { error: "Failed to fetch assets by purpose" },
+      { error: 'Failed to fetch assets by purpose' },
       { status: 500 }
     );
   }

@@ -1,0 +1,298 @@
+# Popover & Modal Standards (Aegrid)
+
+## 🎯 Core Principles
+
+@context {
+"type": "ui_standards",
+"purpose": "popover_modal_standards",
+"format_version": "1.0.0",
+"enforced_for": "all contributors",
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
+}
+
+### **Consistent Background Styling**
+- **Popovers**: Use `bg-popover` and `text-popover-foreground` classes
+- **Dialogs**: Use `bg-background` with proper overlay (`bg-background/80 backdrop-blur-sm`)
+- **Sheets**: Use `bg-background` with dark overlay (`bg-black/80`)
+- **Dropdowns**: Use `bg-popover` and `text-popover-foreground` classes
+- **Tooltips**: Use `bg-primary` and `text-primary-foreground` classes
+
+### **Z-Index Management**
+- **Standard z-index**: Use `z-50` for all overlays and floating elements
+- **Portal rendering**: Always use Radix UI Portal components for proper layering
+- **No custom z-index**: Avoid custom z-index values that could conflict
+
+## 🛠️ Implementation Standards
+
+@rules [
+{
+"id": "radix_ui_only",
+"severity": "error",
+"description": "Use only Radix UI components for popovers, modals, and overlays. No custom implementations."
+},
+{
+"id": "proper_background_styling",
+"severity": "error",
+"description": "All popovers and modals must use proper background classes (bg-popover, bg-background, etc.)"
+},
+{
+"id": "portal_rendering",
+"severity": "error",
+"description": "All floating elements must use Portal components for proper DOM layering."
+},
+{
+"id": "accessibility_compliance",
+"severity": "error",
+"description": "All modals must include proper ARIA attributes, focus management, and keyboard navigation."
+},
+{
+"id": "consistent_animations",
+"severity": "error",
+"description": "Use consistent animation classes for all modal/popover state transitions."
+}
+]
+
+## 📋 Component Standards
+
+### **Dialog Component**
+```typescript
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+// ✅ Correct usage
+<Dialog open={isOpen} onOpenChange={setIsOpen}>
+  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Modal Title</DialogTitle>
+      <DialogDescription>Modal description</DialogDescription>
+    </DialogHeader>
+    {/* Content */}
+    <DialogFooter>
+      <Button variant="outline" onClick={() => setIsOpen(false)}>
+        Cancel
+      </Button>
+      <Button onClick={handleSubmit}>Submit</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### **Popover Component**
+```typescript
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+// ✅ Correct usage
+<Popover open={isOpen} onOpenChange={setIsOpen}>
+  <PopoverTrigger asChild>
+    <Button>Trigger</Button>
+  </PopoverTrigger>
+  <PopoverContent className="w-80" align="start" side="bottom">
+    {/* Content */}
+  </PopoverContent>
+</Popover>
+```
+
+### **Sheet Component**
+```typescript
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+// ✅ Correct usage
+<Sheet open={isOpen} onOpenChange={setIsOpen}>
+  <SheetTrigger asChild>
+    <Button>Open Sheet</Button>
+  </SheetTrigger>
+  <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+    <SheetHeader>
+      <SheetTitle>Sheet Title</SheetTitle>
+    </SheetHeader>
+    {/* Content */}
+  </SheetContent>
+</Sheet>
+```
+
+### **Dropdown Menu Component**
+```typescript
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// ✅ Correct usage
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="outline">Options</Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="end">
+    <DropdownMenuItem>Option 1</DropdownMenuItem>
+    <DropdownMenuItem>Option 2</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+## 🚫 Anti-Patterns
+
+### **❌ Custom Modal Implementations**
+```typescript
+// ❌ NEVER do this
+<div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+  <Card className="w-full max-w-md">
+    {/* Content */}
+  </Card>
+</div>
+```
+
+### **❌ Custom Popover Implementations**
+```typescript
+// ❌ NEVER do this
+<Card className="absolute top-full left-0 right-0 z-50 mt-1 shadow-lg">
+  <CardContent>
+    {/* Content */}
+  </CardContent>
+</Card>
+```
+
+### **❌ Hardcoded Z-Index**
+```typescript
+// ❌ NEVER do this
+<div className="fixed z-[9999]">
+```
+
+## 🎨 Styling Standards
+
+### **Background Colors**
+- **Light Theme**:
+  - `bg-popover`: `var(--white)` - Pure white for popovers
+  - `bg-background`: `var(--white)` - Background for dialogs
+- **Dark Theme**:
+  - `bg-popover`: `var(--nocturn)` - Dark background for popovers
+  - `bg-background`: `var(--nocturn)` - Background for dialogs
+
+### **Overlay Styling**
+- **Dialog Overlay**: `bg-background/80 backdrop-blur-sm` - Semi-transparent with blur
+- **Sheet Overlay**: `bg-black/80` - Dark overlay for side panels
+
+### **Animation Classes**
+- **Open/Close**: `data-[state=open]:animate-in data-[state=closed]:animate-out`
+- **Fade**: `data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`
+- **Zoom**: `data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95`
+- **Slide**: `data-[side=bottom]:slide-in-from-top-2`
+
+## ♿ Accessibility Standards
+
+### **Required ARIA Attributes**
+- All modals must have proper `role="dialog"`
+- Include `aria-labelledby` pointing to the title
+- Include `aria-describedby` pointing to description
+- Use `aria-hidden="true"` on background content
+
+### **Focus Management**
+- Focus trap within modal content
+- Return focus to trigger element on close
+- Proper tab order for interactive elements
+
+### **Keyboard Navigation**
+- `Escape` key closes modal
+- `Tab` cycles through focusable elements
+- `Enter` and `Space` activate buttons
+- Arrow keys for menu navigation
+
+## 🔧 Technical Implementation
+
+### **State Management**
+```typescript
+// ✅ Correct state management
+const [isOpen, setIsOpen] = useState(false);
+
+// For controlled components
+<Dialog open={isOpen} onOpenChange={setIsOpen}>
+
+// For uncontrolled components (with defaultOpen)
+<Dialog defaultOpen={false}>
+```
+
+### **Event Handling**
+```typescript
+// ✅ Proper event handling
+const handleOpenChange = (open: boolean) => {
+  setIsOpen(open);
+  if (!open) {
+    // Cleanup logic
+    handleClose();
+  }
+};
+```
+
+### **Portal Rendering**
+- Always use Radix UI Portal components
+- Never render modals directly in component tree
+- Ensure proper DOM layering for z-index management
+
+## 🧪 Testing Standards
+
+### **Unit Tests**
+- Test open/close state changes
+- Test keyboard navigation
+- Test focus management
+- Test accessibility attributes
+
+### **Integration Tests**
+- Test modal interactions with forms
+- Test popover positioning
+- Test responsive behavior
+- Test theme switching
+
+### **E2E Tests**
+- Test complete user workflows
+- Test modal stacking behavior
+- Test mobile interactions
+
+## 📱 Responsive Design
+
+### **Mobile Considerations**
+- Use `max-h-[90vh]` for mobile viewport constraints
+- Ensure touch-friendly close buttons
+- Test on various screen sizes
+- Consider mobile-specific interactions
+
+### **Tablet Considerations**
+- Optimize modal sizes for tablet screens
+- Test landscape and portrait orientations
+- Ensure proper touch targets
+
+## 🔍 Code Review Checklist
+
+- [ ] Uses Radix UI components only
+- [ ] Proper background styling applied
+- [ ] Portal rendering implemented
+- [ ] Accessibility attributes present
+- [ ] Keyboard navigation works
+- [ ] Focus management implemented
+- [ ] Responsive design tested
+- [ ] Animation classes consistent
+- [ ] No custom z-index values
+- [ ] Proper state management
+- [ ] Event handling correct
+- [ ] Mobile-friendly interactions
+
+## 📚 Related Documentation
+
+- `../../components/ui/dialog.tsx` — Dialog component implementation
+- `../../components/ui/popover.tsx` — Popover component implementation
+- `../../components/ui/sheet.tsx` — Sheet component implementation
+- `../../components/ui/dropdown-menu.tsx` — Dropdown menu implementation
+- `../../styles/brand-tokens.css` — Background color definitions
+- `../../docs/accessibility/aria-standards.md` — Accessibility guidelines

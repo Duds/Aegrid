@@ -1,0 +1,274 @@
+# Product Increment (PI) Standards
+
+## 🎯 PI Documentation Requirements
+
+Every PI document MUST follow this structure and approach:
+
+### Mandatory PI Structure
+
+```markdown
+# Aegrid Product Backlog - PI[X]
+
+**Product Increment [X] (PI[X]) - [Descriptive Title]**
+**Period**: [Start Month Year] - [End Month Year]
+**Status**: [🚀 PLANNING | 🔄 IMPLEMENTING | ✅ COMPLETED]
+**Approach**: TDD-Focused Implementation
+
+Last updated: [Date]
+```
+
+### Core Sections Required
+
+1. **Vision & Objectives**: Clear business value and strategic goals
+2. **Implementation Approach**: TDD methodology and individual development focus
+3. **Epics Overview**: Detailed epic breakdown with features and user stories
+4. **TDD Strategy**: Test-driven development approach and test categories
+5. **Implementation Timeline**: Phased approach with clear milestones
+6. **Success Metrics**: Measurable technical, business, and UX metrics
+7. **Risk Management**: Technical and business risks with mitigation strategies
+
+## 🚨 PI Content Requirements
+
+### 1. Individual Development Focus
+
+- **NO Team References**: Remove all team-based terminology
+- **Solo Development**: Single developer (Dale Rogers) with AI assistance (Cursor)
+- **Direct Implementation**: No team coordination overhead
+- **Rapid Iteration**: Fast feedback loops and immediate implementation
+
+### 2. TDD-First Approach
+
+- **Test-Driven Development**: All features start with failing tests
+- **Real Data Testing**: Use actual data, avoid mocks unless absolutely necessary
+- **Incremental Implementation**: Small, testable increments
+- **Continuous Integration**: Automated testing on every commit
+
+### 3. Epic Structure Requirements
+
+Each epic MUST include:
+
+```markdown
+### E[X]: [Epic Name]
+
+**Goal**: [Clear business objective]
+**Value**: [Measurable business value]
+**Priority**: [HIGH | MEDIUM | LOW]
+**Story Points**: [Total points]
+**Stack Rank**: [Priority order]
+
+**Aegrid Rules Alignment**:
+- **Rule 1**: [How it aligns with Every Asset Has a Purpose]
+- **Rule 2**: [How it aligns with Risk Sets the Rhythm]
+- **Rule 3**: [How it aligns with Respond to the Real World]
+- **Rule 4**: [How it aligns with Operate with Margin]
+
+**Features**:
+- **F[X].1**: [Feature name and description]
+- **F[X].2**: [Feature name and description]
+- **F[X].3**: [Feature name and description]
+
+**User Stories**:
+- **US[X].1**: [User story following standard format]
+- **US[X].2**: [User story following standard format]
+- **US[X].3**: [User story following standard format]
+```
+
+### 4. User Story Format
+
+Every user story MUST follow this exact format:
+
+```markdown
+**US[X].Y: [Descriptive Title]**
+
+- **As a** [specific user role]
+- **I want** [specific functionality]
+- **So that** [clear business value]
+- **Acceptance Criteria:**
+  - [ ] [Specific, testable criterion]
+  - [ ] [Specific, testable criterion]
+- **Story Points:** [1, 2, 3, 5, 8, 13, 21, 34, 55]
+- **Dependencies:** [List dependencies or "None"]
+- **Test Strategy:** [Unit | Integration | E2E | All]
+- **Data Requirements:** [Real data needed for testing]
+```
+
+## 📊 Success Metrics Requirements
+
+### Technical Metrics (Required)
+- **Test Coverage**: Minimum 95% code coverage
+- **Performance**: Specific response time targets
+- **Integration**: Integration success rates
+- **Quality**: Bug density and resolution time
+
+### Business Metrics (Required)
+- **Value Delivery**: Measurable business value
+- **User Adoption**: Usage and adoption rates
+- **Efficiency**: Process improvement metrics
+- **ROI**: Return on investment indicators
+
+### User Experience Metrics (Required)
+- **Usability**: Task completion rates
+- **Satisfaction**: User satisfaction scores
+- **Learning Curve**: Time to proficiency
+- **Error Rates**: User error reduction
+
+## 🔄 Implementation Timeline Requirements
+
+### Phase Structure
+Each phase MUST include:
+- **Duration**: Specific week ranges
+- **Focus**: Clear phase objective
+- **Deliverables**: Specific features and capabilities
+- **Success Criteria**: Measurable completion criteria
+
+### Milestone Tracking
+- **Week-by-Week Breakdown**: Detailed weekly deliverables
+- **Dependency Management**: Clear dependency identification
+- **Risk Mitigation**: Proactive risk management
+- **Quality Gates**: Testing and validation checkpoints
+
+## 🧪 TDD Strategy Requirements
+
+### Test Categories (Mandatory)
+1. **Unit Tests**: Individual component testing
+2. **Integration Tests**: System integration testing
+3. **Acceptance Tests**: User story validation
+4. **Performance Tests**: Performance and scalability testing
+
+### Test Data Strategy
+- **Real Data Testing**: Use actual production-like data
+- **No Mocks**: Avoid mocks unless absolutely necessary
+- **Data Privacy**: Ensure test data privacy and security
+- **Test Data Management**: Consistent and maintainable test data
+
+### Continuous Integration
+- **Automated Testing**: All tests run on every commit
+- **Quality Gates**: No deployment without passing tests
+- **Performance Monitoring**: Continuous performance tracking
+- **Regression Prevention**: Automated regression testing
+
+## 🚨 Prohibited Content
+
+### Team References (Remove All)
+- Team names and structures
+- Team collaboration frameworks
+- Team member assignments
+- Team-based planning and coordination
+
+### Overly Descriptive Context
+- Excessive background information
+- Unnecessary context explanations
+- Redundant architectural details
+- Verbose implementation descriptions
+
+### Non-TDD Approaches
+- Implementation-first development
+- Mock-heavy testing strategies
+- Feature-first without tests
+- Quality-as-afterthought approaches
+
+## ✅ Required Content
+
+### Business Value Focus
+- Clear business objectives and value propositions
+- Measurable success criteria
+- ROI and business impact statements
+- User-focused outcomes
+
+### Technical Excellence
+- TDD methodology and approach
+- Quality and testing standards
+- Performance and scalability considerations
+- Security and compliance requirements
+
+### Implementation Clarity
+- Clear epic and feature breakdown
+- Specific user stories with acceptance criteria
+- Detailed timeline and milestones
+- Risk management and mitigation
+
+## 🔗 Integration with Other Rules
+
+This rule works in conjunction with:
+- **todo-standards.mdc**: For user story format and workflow
+- **testing-standards.mdc**: For TDD and testing requirements
+- **development-standards.mdc**: For code quality and standards
+- **github-workflow.mdc**: For development workflow
+- **aegrid-rules.mdc**: For Aegrid Rules alignment
+
+## 🎯 Examples
+
+### ✅ Correct PI Epic Structure
+
+```markdown
+### E21: Energy Management Core Integration
+
+**Goal**: Implement energy management as first-class system capability
+**Value**: Address "non-negotiable" energy requirement for property management
+**Priority**: HIGH
+**Story Points**: 45
+**Stack Rank**: 1
+
+**Aegrid Rules Alignment**:
+- **Rule 1**: Energy purpose mapping and value contribution tracking
+- **Rule 2**: Risk-based energy optimisation and maintenance
+- **Rule 3**: Critical energy asset monitoring and response
+- **Rule 4**: Long-term energy planning and sustainability
+
+**Features**:
+- **F21.1**: Energy Data Ingestion
+- **F21.2**: Energy Analytics Engine
+- **F21.3**: Carbon Tracking System
+- **F21.4**: Energy Optimisation Engine
+
+**User Stories**:
+- **US21.1**: As a Facilities Manager, I want to monitor energy consumption in real-time so I can identify optimisation opportunities
+- **US21.2**: As an Energy Manager, I want to track carbon emissions so I can meet sustainability targets
+```
+
+### ❌ Incorrect PI Structure (Will Be Flagged)
+
+```markdown
+### Team 1: "The Energy Eagles" 🦅
+
+**Focus**: Energy Management Excellence
+**Team Members**:
+- Lead: Senior Developer
+- Backend: Node.js Developer
+- Frontend: React Developer
+
+**Team Collaboration**:
+- Daily standups
+- Weekly planning
+- Bi-weekly reviews
+```
+
+## 🚀 Enforcement Actions
+
+When editing PI documents:
+
+1. **Validate Structure**: Ensure all required sections are present
+2. **Remove Team References**: Eliminate all team-based terminology
+3. **Check TDD Focus**: Verify TDD methodology is emphasized
+4. **Validate User Stories**: Ensure proper user story format
+5. **Check Metrics**: Verify measurable success criteria
+6. **Review Timeline**: Ensure realistic and detailed timeline
+
+## 📋 Checklist for PI Documents
+
+Before committing PI changes:
+
+- [ ] Individual development focus (no team references)
+- [ ] TDD methodology clearly defined
+- [ ] All epics follow required structure
+- [ ] User stories follow standard format
+- [ ] Success metrics are measurable
+- [ ] Timeline is realistic and detailed
+- [ ] Risk management is comprehensive
+- [ ] Aegrid Rules alignment is clear
+- [ ] Business value is emphasized
+- [ ] Technical excellence standards met
+
+---
+
+**Remember**: PI documents are the roadmap for product development. Every PI must follow these standards to ensure consistent, high-quality, TDD-focused development that delivers measurable business value.

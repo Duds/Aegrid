@@ -17,16 +17,19 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     if (!query.trim()) {
-      return NextResponse.json({
-        error: 'Search query is required',
-        suggestions: [
-          'water pumps',
-          'critical assets',
-          'maintenance overdue',
-          'treatment plant',
-          'emergency assets'
-        ]
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Search query is required',
+          suggestions: [
+            'water pumps',
+            'critical assets',
+            'maintenance overdue',
+            'treatment plant',
+            'emergency assets',
+          ],
+        },
+        { status: 400 }
+      );
     }
 
     // Parse natural language intent
@@ -38,7 +41,10 @@ export async function GET(request: NextRequest) {
     };
 
     // Add text search conditions
-    const searchTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 2);
+    const searchTerms = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(term => term.length > 2);
 
     if (searchTerms.length > 0) {
       whereClause.OR = [
@@ -132,31 +138,24 @@ export async function GET(request: NextRequest) {
       prisma.asset.findMany({
         where: whereClause,
         include: {
-          User_Asset_createdByToUser: {
+          createdByUser: {
             select: { id: true, name: true, email: true },
           },
-          User_Asset_updatedByToUser: {
+          updatedByUser: {
             select: { id: true, name: true, email: true },
-          },
-          assetPurposeMappings: {
-            include: {
-              servicePurpose: {
-                select: { id: true, name: true, description: true, priority: true }
-              }
-            }
           },
           _count: {
             select: {
-              AssetDocument: true,
-              AssetInspection: true,
-              AssetMaintenance: true,
-              WorkOrder: true,
+              documents: true,
+              inspections: true,
+              maintenance: true,
+              workOrders: true,
             },
           },
         },
         orderBy: [
           // Prioritize exact matches
-          { name: { sort: 'asc' } },
+          { name: 'asc' },
           { priority: 'desc' },
           { condition: 'asc' },
         ],
@@ -180,17 +179,21 @@ export async function GET(request: NextRequest) {
     } else {
       // Generate suggestions based on found assets
       const assetTypes = [...new Set(assets.map(a => a.assetType))];
-      const locations = [...new Set(assets.map(a => a.location))];
-      const purposes = [...new Set(assets.flatMap(a => a.assetPurposeMappings.map(m => m.servicePurpose.name)))];
+      const locations = [...new Set(assets.map(a => a.address))]; // Use address instead of location
+      const purposes = [...new Set(assets.map(a => a.purpose).filter(Boolean))]; // Use purpose field
 
       if (assetTypes.length > 0) {
-        suggestions.push(`Found ${assetTypes.length} asset types: ${assetTypes.slice(0, 3).join(', ')}`);
+        suggestions.push(
+          `Found ${assetTypes.length} asset types: ${assetTypes.slice(0, 3).join(', ')}`
+        );
       }
       if (locations.length > 0) {
         suggestions.push(`Locations: ${locations.slice(0, 3).join(', ')}`);
       }
       if (purposes.length > 0) {
-        suggestions.push(`Service purposes: ${purposes.slice(0, 3).join(', ')}`);
+        suggestions.push(
+          `Service purposes: ${purposes.slice(0, 3).join(', ')}`
+        );
       }
     }
 
@@ -208,11 +211,13 @@ export async function GET(request: NextRequest) {
         currentPage: Math.floor(offset / limit) + 1,
       },
     });
-
   } catch (error) {
     console.error('Search API error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -1,0 +1,119 @@
+---
+description: Development Standards (Aegrid)
+globs:
+alwaysApply: true
+---
+
+# Development Standards
+
+Standards and best practices for development across the project.
+
+<rule>
+name: development_standards
+description: Core development standards and best practices for the project
+filters:
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx|astro)$"
+  - type: event
+    pattern: "(file_create|file_modify)"
+
+actions:
+
+- type: suggest
+  message: |
+  Follow these development standards:
+
+  1. Documentation First:
+
+     ````typescript
+     /**
+      * Component description in Australian English
+      * @component ComponentName
+      * @example
+      * ```tsx
+      * <ComponentName prop="value" />
+      * ```
+      * @accessibility
+      * - ARIA roles: [list roles]
+      * - Keyboard navigation: [describe]
+      */
+     ````
+
+  2. Interface Design:
+
+     ```typescript
+     interface Props {
+       /** Description of the prop */
+       requiredProp: string;
+       /** Optional prop with default value */
+       optionalProp?: string;
+     }
+     ```
+
+  3. Code Quality:
+
+     - Use TypeScript strict mode
+     - Implement error handling
+     - Write comprehensive tests
+     - Monitor performance
+
+  4. Linter Error Prevention:
+
+     - Define complete component interfaces before use
+     - Only import what you use
+     - Use type guards for conditional logic
+     - Validate component props against documentation
+     - Fix one error at a time, test each fix
+
+  5. Accessibility:
+
+     - Document ARIA attributes
+     - Test with screen readers
+     - Implement keyboard navigation
+     - Consider regional requirements
+
+  6. Australian Standards:
+
+     - Use Australian English spelling
+     - Follow DD/MM/YYYY date format
+     - Use 24-hour time format
+     - Implement Australian time zones
+     - Use metric measurements
+
+  7. Component Evolution:
+     - **Utilise shadcn/ui components, blocks, charts, themes, and colours first**
+     - Start with minimal interface
+     - Document breaking changes
+     - Use optional props for new features
+     - Provide migration guides
+
+  8. Icon Usage:
+     - **Use Lucide React icons exclusively** (`lucide-react` package)
+     - **Do not use Radix UI icons** (`@radix-ui/react-icons` package)
+     - Import icons individually: `import { IconName } from "lucide-react"`
+     - Use semantic icon names that match their purpose
+     - Maintain consistent icon sizing with `className="h-4 w-4"` or similar
+
+  ## Common Linter Error Patterns
+  (Examples unchanged for brevity)
+
+examples:
+  - input: |
+      // Bad: No documentation, unclear props
+      interface Props {
+      title: string;
+      desc: string;
+      }
+    output: "Well-documented component with clear props"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: - documentation - typescript - accessibility - australian-standards - component-design - linter-errors - code-quality
+</rule>
+
+## 📚 Related Documentation
+
+- `../../docs/development/developer-brief.md`
+- `../../docs/architecture/SAD.md`
+- `../../docs/security/rbac-implementation.md`

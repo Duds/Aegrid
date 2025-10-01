@@ -1,0 +1,56 @@
+---
+description: Standards for implementing documentation across the site
+globs: ["**/*.md", "**/*.mdc", "**/*.mdx", "**/*.astro", "**/*.tsx"]
+alwaysApply: false
+---
+
+# Documentation Standards (Aegrid)
+
+@context {
+"type": "guidelines",
+"purpose": "documentation_standards",
+"format_version": "1.0.0"
+}
+
+@structure {
+"required_sections": [
+"code_comments",
+"component_documentation",
+"api_documentation",
+"readme_standards"
+]
+}
+
+## Code Comments
+
+- Use consistent comment style
+- Document complex logic (explain why)
+- Use TODO comments sparingly with issue links
+- Explain non-obvious code
+
+## Component Documentation
+
+- Document component purpose
+- Document all props
+- Include usage examples
+- Show variants
+
+## API Documentation
+
+- Document all endpoints
+- Document request/response format
+- Document error handling
+- Include examples
+
+## README Standards
+
+- Include project overview
+- Installation steps
+- Usage guide
+- Configuration and environment
+
+## 📚 Related Documentation
+
+- `../../docs/development/developer-brief.md`
+- `../../docs/architecture/SAD.md`
+- `../../docs/TODO.md`

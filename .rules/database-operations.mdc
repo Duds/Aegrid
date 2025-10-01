@@ -1,0 +1,130 @@
+---
+description: Database and Prisma Standards (Aegrid)
+alwaysApply: false
+---
+
+# Database Operations & Prisma Standards (Aegrid)
+
+## 🗄️ Database Architecture
+
+@context {
+"type": "database",
+"purpose": "database_operations_prisma_standards",
+"format_version": "1.0.0",
+"enforced_for": "all contributors",
+"project": "Aegrid - Council Asset Lifecycle Intelligence Platform"
+}
+
+### **Database Technology Stack**
+
+- **Database**: PostgreSQL 15+ with PostGIS
+- **ORM**: Prisma (current stable)
+- **Connections**: Pooled with proper error handling
+- **Migrations**: Version-controlled schema changes
+- **Seeding**: Idempotent seeds with realistic council data
+
+## 📊 Schema Overview (Domain Examples)
+
+```prisma
+model Organisation {
+  id    String @id @default(cuid())
+  name  String
+  users User[]
+  assets Asset[]
+}
+
+model User {
+  id              String @id @default(cuid())
+  organisationId  String
+  organisation    Organisation @relation(fields: [organisationId], references: [id])
+  role            String  // ADMIN | MANAGER | SUPERVISOR | CREW | EXEC | CITIZEN
+  name            String
+  email           String @unique
+  passwordHash    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Asset {
+  id              String @id @default(cuid())
+  organisationId  String
+  organisation    Organisation @relation(fields: [organisationId], references: [id])
+  name            String
+  type            String
+  // Store WKT/GeoJSON as text OR use PostGIS via raw SQL in migrations
+  locationWkt     String?
+  condition       Int?
+  riskScore       Int?
+  workOrders      WorkOrder[]
+  inspections     Inspection[]
+}
+
+model WorkOrder {
+  id              String @id @default(cuid())
+  organisationId  String
+  assetId         String
+  status          String   // PLANNED | IN_PROGRESS | DONE | CANCELLED
+  dueDate         DateTime?
+  assignedToId    String?
+}
+
+model Inspection {
+  id              String @id @default(cuid())
+  organisationId  String
+  assetId         String
+  inspectorId     String
+  date            DateTime
+  condition       Int
+  notes           String?
+}
+```
+
+## 🔧 Database Operations Standards
+
+@rules [
+{
+"id": "prisma_orm_required",
+"severity": "error",
+"description": "Use Prisma ORM for application data access. Raw SQL only for PostGIS features or migrations where necessary."
+},
+{
+"id": "schema_migration_required",
+"severity": "error",
+"description": "Always create and test migrations before schema changes."
+},
+{
+"id": "data_validation_required",
+"severity": "error",
+"description": "Validate data at application boundaries using Zod schemas."
+},
+{
+"id": "connection_management",
+"severity": "warning",
+"description": "Use proper connection pooling and handle errors gracefully."
+},
+{
+"id": "transaction_usage",
+"severity": "warning",
+"description": "Use transactions for operations that modify multiple records."
+}
+]
+
+## 🚀 Best Practices
+
+- Select only needed fields; add indexes for frequent queries
+- Use pagination for large datasets
+- Keep seeds idempotent and tenant-scoped (`organisationId`)
+- Store audit fields (`createdAt`, `updatedAt`, created/updated by)
+
+## 🧪 Database Testing
+
+- Use test containers or isolated schemas
+- Run migrations up/down in tests where applicable
+- Seed minimal realistic data for tests
+
+## 📚 Related Documentation
+
+- `../../docs/database/seed-implementation.md` — Seed approach and execution
+- `../../docs/database/ERD.puml` — Entity relationship diagram
+- `../../docs/development/developer-brief.md` — Local setup and DB workflow
+- `../../docs/architecture/SAD.md` — Data and security architecture

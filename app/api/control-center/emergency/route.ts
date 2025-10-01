@@ -1,10 +1,10 @@
 import { authOptions } from '@/lib/auth';
 import {
-    checkRateLimit,
-    EmergencyError,
-    EmergencyErrorCodes,
-    handleEmergencyError,
-    validateEmergencySeverity
+  checkRateLimit,
+  EmergencyError,
+  EmergencyErrorCodes,
+  handleEmergencyError,
+  validateEmergencySeverity,
 } from '@/lib/emergency-error-handler';
 import { withEmergencyMonitoring } from '@/lib/emergency-monitoring';
 import { prisma } from '@/lib/prisma';
@@ -15,23 +15,25 @@ import { NextRequest, NextResponse } from 'next/server';
  * GET /api/control-center/emergency
  * Get emergency dashboard data including alerts and resources
  */
-export const GET = withEmergencyMonitoring(async (request: NextRequest) => {
+export const GET = withEmergencyMonitoring(async (_request: NextRequest) => {
+  let session: any;
   try {
-    const session = await getServerSession(authOptions);
+    session = await getServerSession(authOptions);
     if (!session?.user?.organisationId) {
       throw new EmergencyError(
         'Authentication required to access emergency dashboard',
         EmergencyErrorCodes.UNAUTHORIZED,
         401,
         { endpoint: '/api/control-center/emergency' },
-        session?.user?.organisationId,
+        session?.user?.organisationId || '',
         session?.user?.id
       );
     }
 
     // Check rate limiting
     const rateLimitKey = `emergency-dashboard-${session.user.organisationId}`;
-    if (!checkRateLimit(rateLimitKey, 200, 60000)) { // 200 requests per minute
+    if (!checkRateLimit(rateLimitKey, 200, 60000)) {
+      // 200 requests per minute
       throw new EmergencyError(
         'Rate limit exceeded for emergency dashboard access',
         EmergencyErrorCodes.RATE_LIMIT_EXCEEDED,
@@ -48,7 +50,7 @@ export const GET = withEmergencyMonitoring(async (request: NextRequest) => {
     const emergencyAlerts = await prisma.emergencyAlert.findMany({
       where: {
         organisationId,
-        status: { in: ['ACTIVE', 'RESPONDING', 'INVESTIGATING'] }
+        status: { in: ['ACTIVE', 'RESPONDING', 'INVESTIGATING'] },
       },
       include: {
         asset: {
@@ -57,33 +59,45 @@ export const GET = withEmergencyMonitoring(async (request: NextRequest) => {
             name: true,
             assetNumber: true,
             assetType: true,
-            priority: true
-          }
-        }
+            priority: true,
+          },
+        },
       },
-      orderBy: [
-        { severity: 'desc' },
-        { detectedAt: 'desc' }
-      ],
-      take: 10
+      orderBy: [{ severity: 'desc' }, { detectedAt: 'desc' }],
+      take: 10,
     });
 
     // Get emergency resources
     const emergencyResources = await prisma.emergencyResource.findMany({
       where: { organisationId },
-      orderBy: { resourceType: 'asc' }
+      orderBy: { resourceType: 'asc' },
     });
 
     // Calculate summary statistics
     const totalAlerts = emergencyAlerts.length;
-    const criticalAlerts = emergencyAlerts.filter(alert => alert.severity === 'CRITICAL').length;
-    const highAlerts = emergencyAlerts.filter(alert => alert.severity === 'HIGH').length;
-    const activeAlerts = emergencyAlerts.filter(alert => alert.status === 'ACTIVE').length;
+    const criticalAlerts = emergencyAlerts.filter(
+      alert => alert.severity === 'CRITICAL'
+    ).length;
+    const highAlerts = emergencyAlerts.filter(
+      alert => alert.severity === 'HIGH'
+    ).length;
+    const activeAlerts = emergencyAlerts.filter(
+      alert => alert.status === 'ACTIVE'
+    ).length;
 
     const totalResources = emergencyResources.length;
-    const availableResources = emergencyResources.reduce((sum, resource) => sum + resource.availableCount, 0);
-    const utilisedResources = emergencyResources.reduce((sum, resource) => sum + resource.utilisedCount, 0);
-    const resourceUtilisation = totalResources > 0 ? (utilisedResources / (availableResources + utilisedResources)) * 100 : 0;
+    const availableResources = emergencyResources.reduce(
+      (sum, resource) => sum + resource.availableCount,
+      0
+    );
+    const utilisedResources = emergencyResources.reduce(
+      (sum, resource) => sum + resource.utilisedCount,
+      0
+    );
+    const resourceUtilisation =
+      totalResources > 0
+        ? (utilisedResources / (availableResources + utilisedResources)) * 100
+        : 0;
 
     return NextResponse.json({
       alerts: emergencyAlerts,
@@ -96,16 +110,15 @@ export const GET = withEmergencyMonitoring(async (request: NextRequest) => {
         totalResources,
         availableResources,
         utilisedResources,
-        resourceUtilisation: Math.round(resourceUtilisation * 100) / 100
-      }
+        resourceUtilisation: Math.round(resourceUtilisation * 100) / 100,
+      },
     });
-
   } catch (error) {
     return handleEmergencyError(error, {
       endpoint: '/api/control-center/emergency',
       method: 'GET',
-      organisationId: session?.user?.organisationId,
-      userId: session?.user?.id
+      organisationId: session?.user?.organisationId || '',
+      userId: session?.user?.id,
     });
   }
 });
@@ -124,7 +137,7 @@ export const POST = withEmergencyMonitoring(async (request: NextRequest) => {
         EmergencyErrorCodes.UNAUTHORIZED,
         401,
         { endpoint: '/api/control-center/emergency', method: 'POST' },
-        session?.user?.organisationId,
+        session?.user?.organisationId || '',
         session?.user?.id
       );
     }
@@ -135,7 +148,10 @@ export const POST = withEmergencyMonitoring(async (request: NextRequest) => {
         'Insufficient permissions to create emergency alerts',
         EmergencyErrorCodes.INSUFFICIENT_PERMISSIONS,
         403,
-        { requiredRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'], userRole: session.user.role },
+        {
+          requiredRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'],
+          userRole: session.user.role,
+        },
         session.user.organisationId,
         session.user.id
       );
@@ -143,7 +159,8 @@ export const POST = withEmergencyMonitoring(async (request: NextRequest) => {
 
     // Check rate limiting
     const rateLimitKey = `emergency-create-${session.user.organisationId}-${session.user.id}`;
-    if (!checkRateLimit(rateLimitKey, 10, 60000)) { // 10 creates per minute
+    if (!checkRateLimit(rateLimitKey, 10, 60000)) {
+      // 10 creates per minute
       throw new EmergencyError(
         'Rate limit exceeded for emergency alert creation',
         EmergencyErrorCodes.RATE_LIMIT_EXCEEDED,
@@ -193,7 +210,7 @@ export const POST = withEmergencyMonitoring(async (request: NextRequest) => {
         description,
         location: location || null,
         status: 'ACTIVE',
-        detectedAt: new Date()
+        detectedAt: new Date(),
       },
       include: {
         asset: {
@@ -202,23 +219,22 @@ export const POST = withEmergencyMonitoring(async (request: NextRequest) => {
             name: true,
             assetNumber: true,
             assetType: true,
-            priority: true
-          }
-        }
-      }
+            priority: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
       alert: emergencyAlert,
-      message: 'Emergency alert created successfully'
+      message: 'Emergency alert created successfully',
     });
-
   } catch (error) {
     return handleEmergencyError(error, {
       endpoint: '/api/control-center/emergency',
       method: 'POST',
-      organisationId: session?.user?.organisationId,
-      userId: session?.user?.id
+      organisationId: session?.user?.organisationId || '',
+      userId: session?.user?.id,
     });
   }
 });
@@ -236,7 +252,10 @@ export async function PUT(request: NextRequest) {
 
     // Check if user has manager or admin role
     if (!['ADMIN', 'MANAGER', 'SUPERVISOR'].includes(session.user.role)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -263,7 +282,7 @@ export async function PUT(request: NextRequest) {
     const emergencyAlert = await prisma.emergencyAlert.update({
       where: {
         id: alertId,
-        organisationId: session.user.organisationId
+        organisationId: session.user.organisationId,
       },
       data: updateData,
       include: {
@@ -273,17 +292,16 @@ export async function PUT(request: NextRequest) {
             name: true,
             assetNumber: true,
             assetType: true,
-            priority: true
-          }
-        }
-      }
+            priority: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
       alert: emergencyAlert,
-      message: 'Emergency alert updated successfully'
+      message: 'Emergency alert updated successfully',
     });
-
   } catch (error) {
     console.error('Error updating emergency alert:', error);
     return NextResponse.json(

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
 import { promises as fs } from 'fs';
+import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
+import puppeteer from 'puppeteer';
 
 /**
  * GET /api/aegrid-rules/pdf - Generate PDF from Aegrid Rules web page
@@ -23,8 +23,8 @@ export async function GET(_request: NextRequest) {
         '--no-first-run',
         '--no-zygote',
         '--single-process',
-        '--disable-gpu'
-      ]
+        '--disable-gpu',
+      ],
     });
 
     const page = await browser.newPage();
@@ -33,13 +33,13 @@ export async function GET(_request: NextRequest) {
     await page.setViewport({
       width: 1200,
       height: 800,
-      deviceScaleFactor: 2
+      deviceScaleFactor: 2,
     });
 
     // Navigate to the web page
     await page.goto(webPageUrl, {
       waitUntil: 'networkidle0',
-      timeout: 30000
+      timeout: 30000,
     });
 
     // Wait for content to load
@@ -53,7 +53,7 @@ export async function GET(_request: NextRequest) {
         top: '20mm',
         right: '15mm',
         bottom: '20mm',
-        left: '15mm'
+        left: '15mm',
       },
       displayHeaderFooter: true,
       headerTemplate: `
@@ -66,33 +66,39 @@ export async function GET(_request: NextRequest) {
           <span>© ${new Date().getFullYear()} Aegrid. All rights reserved. | Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
         </div>
       `,
-      preferCSSPageSize: true
+      preferCSSPageSize: true,
     });
 
     await browser.close();
 
     // Return PDF with appropriate headers
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'inline; filename="The-Aegrid-Rules-Resilient-Asset-Management.pdf"',
+        'Content-Disposition':
+          'inline; filename="The-Aegrid-Rules-Resilient-Asset-Management.pdf"',
         'Content-Length': pdfBuffer.length.toString(),
         'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
       },
     });
-
   } catch (error) {
     console.error('Error generating PDF:', error);
-    
+
     // Fallback: return the markdown file as plain text
     try {
-      const filePath = path.join(process.cwd(), 'public', 'documents', 'The Aegrid Rules_ Resilient Asset Management for Critical Control.md');
+      const filePath = path.join(
+        process.cwd(),
+        'public',
+        'documents',
+        'The Aegrid Rules_ Resilient Asset Management for Critical Control.md'
+      );
       const markdownContent = await fs.readFile(filePath, 'utf-8');
-      
+
       return new NextResponse(markdownContent, {
         headers: {
           'Content-Type': 'text/plain',
-          'Content-Disposition': 'attachment; filename="The-Aegrid-Rules-Resilient-Asset-Management.txt"',
+          'Content-Disposition':
+            'attachment; filename="The-Aegrid-Rules-Resilient-Asset-Management.txt"',
         },
       });
     } catch (fallbackError) {

@@ -1,26 +1,52 @@
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { isManagerOrHigher } from "@/lib/rbac";
-import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { isManagerOrHigher } from '@/lib/rbac';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 /**
  * Asset creation schema validation
  */
 const createAssetSchema = z.object({
-  assetNumber: z.string().min(1, "Asset number is required"),
-  name: z.string().min(1, "Asset name is required"),
+  assetNumber: z.string().min(1, 'Asset number is required'),
+  name: z.string().min(1, 'Asset name is required'),
   description: z.string().optional(),
   assetType: z.enum([
-    "BUILDING", "ROAD", "BRIDGE", "FOOTPATH", "PARK", "PLAYGROUND",
-    "SPORTS_FACILITY", "LIBRARY", "COMMUNITY_CENTRE", "CAR_PARK",
-    "STREET_FURNITURE", "TRAFFIC_LIGHT", "STREET_LIGHT", "DRAINAGE",
-    "WATER_SUPPLY", "SEWER", "ELECTRICAL_INFRASTRUCTURE", "TELECOMMUNICATIONS", "OTHER"
+    'BUILDING',
+    'ROAD',
+    'BRIDGE',
+    'FOOTPATH',
+    'PARK',
+    'PLAYGROUND',
+    'SPORTS_FACILITY',
+    'LIBRARY',
+    'COMMUNITY_CENTRE',
+    'CAR_PARK',
+    'STREET_FURNITURE',
+    'TRAFFIC_LIGHT',
+    'STREET_LIGHT',
+    'DRAINAGE',
+    'WATER_SUPPLY',
+    'SEWER',
+    'ELECTRICAL_INFRASTRUCTURE',
+    'TELECOMMUNICATIONS',
+    'OTHER',
   ]),
-  status: z.enum(["ACTIVE", "INACTIVE", "UNDER_CONSTRUCTION", "UNDER_MAINTENANCE", "DECOMMISSIONED", "PLANNED"]).optional(),
-  condition: z.enum(["EXCELLENT", "GOOD", "FAIR", "POOR", "CRITICAL", "UNKNOWN"]).optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
+  status: z
+    .enum([
+      'ACTIVE',
+      'INACTIVE',
+      'UNDER_CONSTRUCTION',
+      'UNDER_MAINTENANCE',
+      'DECOMMISSIONED',
+      'PLANNED',
+    ])
+    .optional(),
+  condition: z
+    .enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'CRITICAL', 'UNKNOWN'])
+    .optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   // Location fields
   latitude: z.number().optional(),
   longitude: z.number().optional(),
@@ -53,9 +79,11 @@ const createAssetSchema = z.object({
 });
 
 /**
- * Asset update schema validation
+ * Asset update schema validation (reserved for future PUT/PATCH endpoints)
  */
-const updateAssetSchema = createAssetSchema.partial().omit({ assetNumber: true });
+const _updateAssetSchema = createAssetSchema
+  .partial()
+  .omit({ assetNumber: true });
 
 /**
  * GET /api/assets - List assets with filtering and pagination
@@ -64,18 +92,18 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const assetType = searchParams.get("assetType");
-    const status = searchParams.get("status");
-    const condition = searchParams.get("condition");
-    const priority = searchParams.get("priority");
-    const search = searchParams.get("search");
-    const suburb = searchParams.get("suburb");
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const assetType = searchParams.get('assetType');
+    const status = searchParams.get('status');
+    const condition = searchParams.get('condition');
+    const priority = searchParams.get('priority');
+    const search = searchParams.get('search');
+    const suburb = searchParams.get('suburb');
 
     const skip = (page - 1) * limit;
 
@@ -91,10 +119,10 @@ export async function GET(request: NextRequest) {
     if (suburb) where.suburb = suburb;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { assetNumber: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { address: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { assetNumber: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { address: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -103,7 +131,7 @@ export async function GET(request: NextRequest) {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         include: {
           createdByUser: {
             select: { id: true, name: true, email: true },
@@ -129,21 +157,22 @@ export async function GET(request: NextRequest) {
       let latitude: number | undefined;
       let longitude: number | undefined;
 
-      if (asset.location) {
-        try {
-          // Parse PostGIS geometry - assuming it's stored as GeoJSON
-          const locationData = typeof asset.location === 'string'
-            ? JSON.parse(asset.location)
-            : asset.location;
-
-          if (locationData && locationData.coordinates && Array.isArray(locationData.coordinates)) {
-            // PostGIS stores coordinates as [longitude, latitude]
-            [longitude, latitude] = locationData.coordinates;
-          }
-        } catch (error) {
-          console.warn('Failed to parse location data for asset:', asset.id, error);
-        }
-      }
+      // Location field not available in current query
+      // if (asset.location) {
+      //   try {
+      //     // Parse PostGIS geometry - assuming it's stored as GeoJSON
+      //     const locationData = typeof asset.location === 'string'
+      //       ? JSON.parse(asset.location)
+      //       : asset.location;
+      //
+      //     if (locationData && locationData.coordinates && Array.isArray(locationData.coordinates)) {
+      //       // PostGIS stores coordinates as [longitude, latitude]
+      //       [longitude, latitude] = locationData.coordinates;
+      //     }
+      //   } catch (error) {
+      //     console.warn('Failed to parse location data for asset:', asset.id, error);
+      //   }
+      // }
 
       return {
         ...asset,
@@ -162,9 +191,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching assets:", error);
+    console.error('Error fetching assets:', error);
     return NextResponse.json(
-      { error: "Failed to fetch assets" },
+      { error: 'Failed to fetch assets' },
       { status: 500 }
     );
   }
@@ -177,12 +206,12 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check permissions - only MANAGER and above can create assets
     if (!isManagerOrHigher(session.user.role)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -195,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     if (existingAsset) {
       return NextResponse.json(
-        { error: "Asset number already exists" },
+        { error: 'Asset number already exists' },
         { status: 400 }
       );
     }
@@ -212,7 +241,7 @@ export async function POST(request: NextRequest) {
     if (validatedData.latitude && validatedData.longitude) {
       // Create PostGIS point geometry
       assetData.location = {
-        type: "Point",
+        type: 'Point',
         coordinates: [validatedData.longitude, validatedData.latitude],
       };
     }
@@ -250,7 +279,7 @@ export async function POST(request: NextRequest) {
     // Log the asset creation
     await prisma.auditLog.create({
       data: {
-        action: "ASSET_CREATED",
+        action: 'ASSET_CREATED',
         userId: session.user.id,
         organisationId: session.user.organisationId!,
         assetId: asset.id,
@@ -259,22 +288,24 @@ export async function POST(request: NextRequest) {
           name: asset.name,
           assetType: asset.assetType,
         },
-        ipAddress: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip"),
-        userAgent: request.headers.get("user-agent"),
+        ipAddress:
+          request.headers.get('x-forwarded-for') ||
+          request.headers.get('x-real-ip'),
+        userAgent: request.headers.get('user-agent'),
       },
     });
 
     return NextResponse.json(asset, { status: 201 });
   } catch (error) {
-    console.error("Error creating asset:", error);
+    console.error('Error creating asset:', error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: 'Validation error', details: error.errors },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { error: "Failed to create asset" },
+      { error: 'Failed to create asset' },
       { status: 500 }
     );
   }

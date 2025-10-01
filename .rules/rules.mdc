@@ -1,0 +1,78 @@
+---
+description: Cursor Rules Location (Aegrid)
+globs: *.mdc
+---
+
+# Aegrid - Cursor Rules Index
+
+## 📋 Available Rules
+
+This project uses a comprehensive set of Cursor rules to ensure code quality, security, and consistency across all development activities.
+
+### **🔐 Core Rules (Always Applied)**
+
+- **[mandatory.mdc](mandatory.mdc)** - Mandatory project rules and standards
+- **[development-standards.mdc](development-standards.mdc)** - Development best practices and patterns
+- **[authentication-security.mdc](authentication-security.mdc)** - Security and authentication standards
+- **[testing-standards.mdc](testing-standards.mdc)** - Testing requirements and best practices
+- **[database-operations.mdc](database-operations.mdc)** - Database and Prisma standards
+- **[popover-modal-standards.mdc](popover-modal-standards.mdc)** - Popover and modal UI standards
+
+### **📚 Documentation & Workflow Rules**
+
+- **[documentation.mdc](documentation.mdc)** - Documentation standards and requirements
+- **[github-workflow.mdc](github-workflow.mdc)** - Git workflow and collaboration standards
+- **[update-docs.mdc](update-docs.mdc)** - Documentation update requirements
+- **[troubleshooting.mdc](troubleshooting.mdc)** - Common issues and solutions
+
+## 🎯 Rule Application Guide
+
+| Development Activity | Primary Rules                        | Secondary Rules                      |
+| -------------------- | ------------------------------------ | ------------------------------------ |
+| **Code Changes**     | `mandatory`, `development-standards` | `testing-standards`                  |
+| **Authentication**   | `authentication-security`            | `mandatory`, `testing-standards`     |
+| **Database Work**    | `database-operations`                | `mandatory`, `testing-standards`     |
+| **UI Components**    | `popover-modal-standards`            | `mandatory`, `development-standards` |
+| **Testing**          | `testing-standards`                  | `mandatory`, `development-standards` |
+| **Documentation**    | `update-docs`, `documentation`       | `mandatory`                          |
+| **Git Operations**   | `github-workflow`                    | `mandatory`                          |
+| **Troubleshooting**  | `troubleshooting`                    | `mandatory`                          |
+
+## 🚀 Quick Reference
+
+### **Essential Commands**
+
+```bash
+# Run tests
+pnpm test
+pnpm test:coverage
+
+# Database operations
+pnpm prisma migrate dev
+pnpm prisma generate
+pnpm prisma studio
+
+# Development
+pnpm dev
+pnpm build
+pnpm lint
+```
+
+### **Key Standards**
+
+- **TypeScript**: Strict mode with proper interfaces
+- **Testing**: High coverage with Jest + React Testing Library
+- **Security**: bcrypt password hashing, NextAuth.js, RBAC
+- **Database**: Prisma ORM with PostgreSQL, proper migrations
+- **UI Components**: Radix UI only for popovers/modals, proper background styling
+- **Code Quality**: ESLint, Prettier, comprehensive documentation
+- **Git Workflow**: Development branch + main strategy with feature sub-branches
+
+---
+
+**Remember**: These rules ensure consistent, secure, and high-quality development across the Aegrid project. Follow them to maintain code quality and project standards.
+
+metadata:
+priority: high
+version: 1.0
+</rule>

@@ -1,0 +1,553 @@
+---
+description: Comprehensive troubleshooting guide covering critical issues, build problems, testing issues, database problems, and debugging techniques for Parliamentary Intelligence Platform
+alwaysApply: false
+---
+
+# Troubleshooting Guide
+
+## 🚨 Critical Issues
+
+### JavaScript Chunks 404 Error (Most Common)
+
+**Symptoms**:
+
+- Browser console shows 404 errors for `main-app.js`, `app-pages-internals.js`, `page.js`
+- Page loads but JavaScript doesn't work
+- Live indicator or other dynamic features broken
+
+**Root Cause**:
+
+- Build cache corruption
+- Development server build issues
+- Stale JavaScript chunks
+
+**Immediate Solution**:
+
+```bash
+# Quick fix (5 minutes)
+pnpm run reset:quick
+
+# If that doesn't work (15 minutes)
+pnpm run reset
+```
+
+**Prevention**:
+
+- Run `pnpm run dev:health` regularly
+- Don't interrupt development server unnecessarily
+- Use `pnpm run dev:turbo` for faster builds
+
+### Development Server Won't Start
+
+**Symptoms**:
+
+- `pnpm run dev` fails to start
+- Port 3001 already in use
+- Server starts but immediately crashes
+
+**Solutions** (try in order):
+
+```bash
+# 1. Kill existing processes
+pkill -f "next dev"
+pkill -f "next-server"
+
+# 2. Check port availability
+lsof -i :3001
+
+# 3. Quick reset
+pnpm run reset:quick
+
+# 4. Nuclear option
+pkill -f "node"
+pnpm run reset
+```
+
+**Prevention**:
+
+- Always stop server with Ctrl+C
+- Use `pnpm run dev:health` before starting
+- Check for conflicting processes
+
+## 🔧 Build and Compilation Issues
+
+### TypeScript Compilation Errors
+
+**Symptoms**:
+
+- Build fails with TypeScript errors
+- Type checking fails
+- Type mismatches in code
+
+**Solutions**:
+
+```bash
+# 1. Check for type errors
+pnpm run type-check
+
+# 2. Auto-fix linting issues
+pnpm run lint:fix
+
+# 3. If errors persist, check specific files
+pnpm run type-check --verbose
+
+# 4. Full reset if needed
+pnpm run reset
+```
+
+**Common Fixes**:
+
+- Fix type annotations
+- Add proper interfaces
+- Resolve import/export issues
+- Check for missing dependencies
+
+### ESLint Errors
+
+**Symptoms**:
+
+- Linting fails
+- Code style violations
+- Potential error warnings
+
+**Solutions**:
+
+```bash
+# 1. Check linting issues
+pnpm run lint
+
+# 2. Auto-fix issues
+pnpm run lint:fix
+
+# 3. Manual fixes for remaining issues
+# Edit files based on lint output
+```
+
+**Common Fixes**:
+
+- Fix import order
+- Resolve unused variables
+- Fix formatting issues
+- Add missing semicolons
+
+### Build Failures
+
+**Symptoms**:
+
+- `pnpm run build` fails
+- Production build errors
+- Asset compilation issues
+
+**Solutions**:
+
+```bash
+# 1. Clean build cache
+rm -rf .next
+
+# 2. Try building again
+pnpm run build
+
+# 3. If that fails, check dependencies
+pnpm install
+
+# 4. Full reset as last resort
+pnpm run reset
+```
+
+**Common Causes**:
+
+- Corrupted build cache
+- Missing dependencies
+- TypeScript compilation errors
+- Environment configuration issues
+
+## 🧪 Testing Issues
+
+### Tests Fail Consistently
+
+**Symptoms**:
+
+- Tests fail even without code changes
+- Test cache issues
+- Inconsistent test results
+
+**Solutions**:
+
+```bash
+# 1. Clear test cache
+rm -rf .jest-cache
+
+# 2. Run tests with verbose output
+pnpm run test --verbose
+
+# 3. Check specific test categories
+pnpm run test:unit
+pnpm run test:integration
+
+# 4. Check test environment
+pnpm run dev:health
+```
+
+**Common Fixes**:
+
+- Clear test cache
+- Check environment variables
+- Verify database connections
+- Update test dependencies
+
+### Test Coverage Issues
+
+**Symptoms**:
+
+- Coverage reports missing
+- Low coverage percentages
+- Missing test files
+
+**Solutions**:
+
+```bash
+# 1. Generate coverage report
+pnpm run test:coverage
+
+# 2. Check coverage configuration
+# Review jest.config.js
+
+# 3. Add missing tests
+# Create test files for uncovered code
+```
+
+## 🗄️ Database Issues
+
+### Prisma Client Not Generated
+
+**Symptoms**:
+
+- Database operations fail
+- Prisma client not found
+- Type errors with Prisma
+
+**Solutions**:
+
+```bash
+# 1. Generate Prisma client
+pnpm run db:generate
+
+# 2. Check schema file
+# Verify prisma/schema.prisma exists
+
+# 3. Regenerate after schema changes
+pnpm run db:generate
+
+# 4. Full reset if needed
+pnpm run reset
+```
+
+**Prevention**:
+
+- Always run `pnpm run db:generate` after schema changes
+- Check schema file syntax
+- Verify Prisma dependencies
+
+### Database Connection Issues
+
+**Symptoms**:
+
+- Database operations timeout
+- Connection refused errors
+- Prisma Studio won't open
+
+**Solutions**:
+
+```bash
+# 1. Check database status
+pnpm run db:studio
+
+# 2. Verify environment variables
+# Check .env.local file
+
+# 3. Test database connection
+# Try simple Prisma query
+
+# 4. Check database service
+# Verify PostgreSQL/MySQL is running
+```
+
+**Common Fixes**:
+
+- Check database service status
+- Verify connection strings
+- Check firewall settings
+- Restart database service
+
+## 🌐 API and Network Issues
+
+### API Endpoints Return 404
+
+**Symptoms**:
+
+- API calls fail with 404
+- Endpoints not found
+- Route handlers missing
+
+**Solutions**:
+
+```bash
+# 1. Check route files exist
+# Verify app/api/ directory structure
+
+# 2. Restart development server
+pkill -f "next dev"
+pnpm run dev
+
+# 3. Check file naming
+# Ensure route.ts files are properly named
+
+# 4. Verify imports and exports
+# Check for syntax errors in route files
+```
+
+**Common Causes**:
+
+- Missing route files
+- Incorrect file naming
+- Syntax errors in route handlers
+- Development server not restarted
+
+### External API Integration Issues
+
+**Symptoms**:
+
+- External API calls fail
+- Rate limiting errors
+- Authentication failures
+
+**Solutions**:
+
+```bash
+# 1. Check API keys and configuration
+# Verify .env.local settings
+
+# 2. Test API endpoints manually
+# Use curl or Postman
+
+# 3. Check rate limiting
+# Implement proper delays
+
+# 4. Verify authentication
+# Check API credentials
+```
+
+## 🎨 Styling and UI Issues
+
+### CSS Not Loading
+
+**Symptoms**:
+
+- Styles not applied
+- Layout broken
+- Tailwind classes not working
+
+**Solutions**:
+
+```bash
+# 1. Check CSS imports
+# Verify globals.css is imported
+
+# 2. Restart development server
+pkill -f "next dev"
+pnpm run dev
+
+# 3. Clear browser cache
+# Hard refresh (Ctrl+Shift+R)
+
+# 4. Check Tailwind configuration
+# Verify tailwind.config.js
+```
+
+### Component Rendering Issues
+
+**Symptoms**:
+
+- Components not rendering
+- Props not passed correctly
+- State management issues
+
+**Solutions**:
+
+```bash
+# 1. Check browser console for errors
+# Look for JavaScript errors
+
+# 2. Verify component imports
+# Check import paths
+
+# 3. Test component isolation
+# Render component in isolation
+
+# 4. Check for TypeScript errors
+pnpm run type-check
+```
+
+## 🔍 Debugging Techniques
+
+### Development Debugging
+
+```bash
+# 1. Enable debug mode
+pnpm run dev:debug
+
+# 2. Check browser developer tools
+# Console, Network, Elements tabs
+
+# 3. Use console.log strategically
+# Add logging to problematic code
+
+# 4. Check terminal output
+# Look for error messages
+```
+
+### Production Debugging
+
+```bash
+# 1. Check production logs
+# Review server logs
+
+# 2. Enable verbose logging
+# Set appropriate log levels
+
+# 3. Use error tracking
+# Implement error monitoring
+
+# 4. Check environment variables
+# Verify production configuration
+```
+
+## 🚀 Performance Issues
+
+### Slow Development Server
+
+**Symptoms**:
+
+- Long build times
+- Slow hot reload
+- High memory usage
+
+**Solutions**:
+
+```bash
+# 1. Use Turbo mode
+pnpm run dev:turbo
+
+# 2. Check for large dependencies
+pnpm run analyze
+
+# 3. Optimize imports
+# Use dynamic imports where appropriate
+
+# 4. Clear build cache
+rm -rf .next
+```
+
+### Memory Issues
+
+**Symptoms**:
+
+- High memory usage
+- Server crashes
+- Slow performance
+
+**Solutions**:
+
+```bash
+# 1. Check memory usage
+ps aux | grep node
+
+# 2. Restart development server
+pkill -f "next dev"
+pnpm run dev
+
+# 3. Monitor memory usage
+# Use htop or similar tools
+
+# 4. Check for memory leaks
+# Review component lifecycle
+```
+
+## 📋 Troubleshooting Checklist
+
+### Before Getting Help
+
+- [ ] Run `pnpm run dev:health`
+- [ ] Check terminal output for errors
+- [ ] Try `pnpm run reset:quick`
+- [ ] Verify environment configuration
+- [ ] Check browser console for errors
+- [ ] Test in different browsers
+- [ ] Clear browser cache
+- [ ] Check file permissions
+
+### When to Escalate
+
+- Health check shows ❌ errors
+- Quick reset doesn't resolve issue
+- Issue persists across different environments
+- Error messages are unclear or missing
+- Performance issues affect development workflow
+
+## 💡 Prevention Tips
+
+### Daily Practices
+
+- Run `pnpm run dev:health` before starting development
+- Keep development server running in background
+- Use `pnpm run check` before committing
+- Monitor terminal output for warnings
+- Regular dependency updates
+
+### Environment Management
+
+- Keep `.env.local` properly configured
+- Use version control for configuration templates
+- Document environment setup procedures
+- Regular backup of important configurations
+
+---
+
+**Remember**: Most issues can be resolved with `pnpm run reset:quick`! Start with health checks and work through solutions systematically. 🚀
+
+## 📚 Related Documentation
+
+### **Troubleshooting Implementation**
+
+- **[Troubleshooting Guide](../docs/support/troubleshooting.md)** - Comprehensive troubleshooting procedures
+- **[Performance Audit](../docs/support/performance-audit.md)** - Performance troubleshooting
+- **[Internal Server Error Resolution](../docs/support/internal-server-error-resolution.md)** - Error handling procedures
+
+### **Development Resources**
+
+- **[Developer Brief](../docs/development/developer-brief.md)** - Quick start for developers
+- **[Testing Guide](../docs/development/testing-guide.md)** - Testing troubleshooting
+- **[TypeScript Error Resolution](../docs/development/typescript-error-resolution.md)** - TypeScript troubleshooting
+
+### **Security & Authentication**
+
+- **[Security Guide](../docs/security/security-guide.md)** - Security troubleshooting
+- **[Authentication Guide](../docs/security/authentication-guide.md)** - Authentication troubleshooting
+- **[RBAC Implementation](../docs/security/rbac-implementation.md)** - RBAC troubleshooting
+
+### **Database & Data Management**
+
+- **[PostgreSQL Migration Guide](../docs/database/postgresql-migration-guide.md)** - Database troubleshooting
+- **[PostgreSQL Quick Reference](../docs/database/postgresql-quick-reference.md)** - Database operations troubleshooting
+
+### **Deployment & Infrastructure**
+
+- **[Azure Deployment Guide](../docs/deployment/azure-deployment-guide.md)** - Deployment troubleshooting
+- **[GitHub Actions Setup Guide](../docs/deployment/github-actions-setup-guide.md)** - CI/CD troubleshooting
+- **[Production Deployment Guide](../docs/deployment/production-deployment-guide.md)** - Production troubleshooting
+- **[Docker Optimization Guide](../docs/deployment/docker-optimization-guide.md)** - Container troubleshooting
+
+### **Project Management**
+
+- **[Project Status Reports](../docs/project/status-reports.md)** - Project troubleshooting status
+- **[Release Notes](../docs/releases/changelog.md)** - Release troubleshooting
